@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-02-12
+
+### Added
+
+#### Responsive Design
+- Mobile hamburger menu navigation (< 768px breakpoint)
+- Responsive typography across all pages (`text-2xl sm:text-3xl`, etc.)
+- Responsive spacing (`py-6 sm:py-8`, `gap-4 sm:gap-6`, etc.)
+- Responsive canvas sizing on graph page
+- Touch-friendly UI elements with appropriate hit areas
+- Responsive prose sizing (`prose prose-sm sm:prose`)
+- Mobile-optimized SearchBar with `fullWidth` prop
+
+#### Dark Mode Enhancements
+- Mermaid diagrams automatically switch theme on dark mode toggle
+- Uses MutationObserver to detect theme changes on `<html>` element
+- Re-renders diagrams with appropriate `dark` or `default` theme
+
+#### Test Content
+- `content/notes/math-test.mdx` — Tests KaTeX math rendering
+- `content/notes/diagrams-test.mdx` — Tests Mermaid diagrams
+
+### Changed
+
+#### Navigation
+- `src/components/layout/Nav.tsx` — Now responsive with mobile menu
+- Mobile: Hamburger icon toggles dropdown with nav links
+- Desktop: Full horizontal nav links visible
+
+#### Components
+- All pages updated with responsive padding and typography
+- `EntryList` — Smaller spacing and text on mobile
+- `BacklinksPanel` — Truncated text, hidden summary on small screens
+- `SearchBar` — Responsive width (`w-32 sm:w-40 lg:w-48`)
+
+#### Graph Page
+- Canvas now resizes based on container width
+- Smaller typography and spacing on mobile
+- Touch-friendly node hit areas
+
+---
+
 ## [0.2.0] - 2026-02-12
 
 ### Added

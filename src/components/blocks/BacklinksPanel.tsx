@@ -16,19 +16,19 @@ export function BacklinksPanel({ slugs }: BacklinksPanelProps) {
   if (entries.length === 0) return null;
 
   return (
-    <div className="mt-12 pt-8 border-t border-border">
-      <h2 className="text-lg font-semibold mb-4">Backlinks</h2>
-      <ul className="space-y-2">
+    <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-border">
+      <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Backlinks</h2>
+      <ul className="space-y-1.5 sm:space-y-2">
         {entries.map((entry) => (
           <li key={entry.slug}>
             <Link
               href={entry.route}
-              className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-2"
+              className="text-blue-600 dark:text-blue-400 hover:underline flex items-start sm:items-center gap-2 text-sm sm:text-base"
             >
-              <span className="text-muted">→</span>
-              <span>{entry.title}</span>
+              <span className="text-muted flex-shrink-0">→</span>
+              <span className="truncate">{entry.title}</span>
               {entry.summary && (
-                <span className="text-muted text-sm">— {entry.summary}</span>
+                <span className="text-muted text-xs sm:text-sm hidden sm:inline truncate">— {entry.summary}</span>
               )}
             </Link>
           </li>

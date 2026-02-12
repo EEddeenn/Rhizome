@@ -10,7 +10,9 @@ A static personal notes and knowledge management system built with Next.js, MDX,
 - **Tags** - Organize content with tags and browse by tag
 - **Search** - Full-text search powered by MiniSearch
 - **Graph View** - Visualize connections between notes
-- **Math & Diagrams** - KaTeX math and Mermaid diagram support
+- **Math & Diagrams** - KaTeX math and Mermaid diagram support (with dark mode)
+- **Dark Mode** - System-aware theme with manual toggle
+- **Responsive** - Mobile-first design with hamburger menu
 - **SEO** - Automatic sitemap.xml and RSS feed generation
 - **Static Export** - Fully static site, no server required
 - **Cloudflare Pages** - Optimized for deployment on Cloudflare

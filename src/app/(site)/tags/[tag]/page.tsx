@@ -36,12 +36,12 @@ export default async function TagPage({ params }: PageProps) {
   const sorted = sortEntries(entries);
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">
+    <main className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-4">
         <span className="text-muted">#</span>
         {tag}
       </h1>
-      <p className="text-muted mb-8">
+      <p className="text-muted text-sm sm:text-base mb-6 sm:mb-8">
         {sorted.length} {sorted.length === 1 ? "entry" : "entries"}
       </p>
       <EntryList entries={sorted} />

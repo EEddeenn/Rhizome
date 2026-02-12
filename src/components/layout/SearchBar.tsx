@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function SearchBar() {
+interface SearchBarProps {
+  fullWidth?: boolean;
+}
+
+export function SearchBar({ fullWidth = false }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const router = useRouter();
 
@@ -23,7 +27,9 @@ export function SearchBar() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search..."
-        className="w-40 lg:w-48 px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className={`px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+          fullWidth ? "w-full" : "w-32 sm:w-40 lg:w-48"
+        }`}
       />
       <svg
         className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"

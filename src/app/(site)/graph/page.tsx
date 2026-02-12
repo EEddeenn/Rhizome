@@ -29,22 +29,43 @@ const COLORS: Record<string, string> = {
 
 export default function GraphPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [graph, setGraph] = useState<Graph | null>(null);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
   const [loading, setLoading] = useState(true);
+  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const animationRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (containerRef.current) {
+        const width = Math.min(containerRef.current.clientWidth, 800);
+        const height = Math.round(width * 0.75);
+        setCanvasSize({ width, height });
+      }
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   useEffect(() => {
     fetch("/generated/graph.json")
       .then((res) => res.json())
       .then((data: Graph) => {
         setGraph(data);
+        const { width, height } = canvasSize;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const radius = Math.min(width, height) / 3;
+
         const initializedNodes = data.nodes.map((n, i) => ({
           ...n,
-          x: Math.cos((i / data.nodes.length) * 2 * Math.PI) * 200 + 400,
-          y: Math.sin((i / data.nodes.length) * 2 * Math.PI) * 200 + 300,
+          x: Math.cos((i / data.nodes.length) * 2 * Math.PI) * radius + centerX,
+          y: Math.sin((i / data.nodes.length) * 2 * Math.PI) * radius + centerY,
           vx: 0,
           vy: 0,
         }));
@@ -52,15 +73,19 @@ export default function GraphPage() {
         setEdges(data.edges);
         setLoading(false);
       });
-  }, []);
+  }, [canvasSize]);
 
   const simulate = useCallback(() => {
     if (nodes.length === 0) return;
 
+    const { width, height } = canvasSize;
     const alpha = 0.1;
     const repulsion = 5000;
     const attraction = 0.01;
     const centerForce = 0.001;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const padding = 30;
 
     const newNodes = nodes.map((node) => ({ ...node, vx: 0, vy: 0 }));
 
@@ -96,8 +121,6 @@ export default function GraphPage() {
       }
     }
 
-    const centerX = 400;
-    const centerY = 300;
     for (const node of newNodes) {
       node.vx += (centerX - node.x) * centerForce;
       node.vy += (centerY - node.y) * centerForce;
@@ -106,12 +129,12 @@ export default function GraphPage() {
     for (const node of newNodes) {
       node.x += node.vx * alpha;
       node.y += node.vy * alpha;
-      node.x = Math.max(50, Math.min(750, node.x));
-      node.y = Math.max(50, Math.min(550, node.y));
+      node.x = Math.max(padding, Math.min(width - padding, node.x));
+      node.y = Math.max(padding, Math.min(height - padding, node.y));
     }
 
     setNodes(newNodes);
-  }, [nodes, edges]);
+  }, [nodes, edges, canvasSize]);
 
   useEffect(() => {
     if (!loading && nodes.length > 0) {
@@ -143,10 +166,12 @@ export default function GraphPage() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const { width, height } = canvasSize;
+
     ctx.fillStyle = document.documentElement.classList.contains("dark")
       ? "#1f2937"
       : "#f9fafb";
-    ctx.fillRect(0, 0, 800, 600);
+    ctx.fillRect(0, 0, width, height);
 
     ctx.strokeStyle = document.documentElement.classList.contains("dark")
       ? "#374151"
@@ -187,7 +212,7 @@ export default function GraphPage() {
       ctx.textAlign = "center";
       ctx.fillText(hoveredNode.title, hoveredNode.x, hoveredNode.y - 18);
     }
-  }, [nodes, edges, hoveredNode]);
+  }, [nodes, edges, hoveredNode, canvasSize]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -220,9 +245,9 @@ export default function GraphPage() {
     : [];
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">Knowledge Graph</h1>
-      <p className="text-gray-500 dark:text-gray-400 mb-6">
+    <main className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-2">Knowledge Graph</h1>
+      <p className="text-gray-500 dark:text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">
         Interactive visualization of connections between notes and articles.
       </p>
 
@@ -230,11 +255,14 @@ export default function GraphPage() {
         <p className="text-gray-500 dark:text-gray-400">Loading graph...</p>
       ) : (
         <>
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden mb-4">
+          <div
+            ref={containerRef}
+            className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden mb-4"
+          >
             <canvas
               ref={canvasRef}
-              width={800}
-              height={600}
+              width={canvasSize.width}
+              height={canvasSize.height}
               className="w-full h-auto"
               onMouseMove={handleMouseMove}
               onClick={handleClick}
@@ -242,27 +270,27 @@ export default function GraphPage() {
             />
           </div>
 
-          <div className="flex flex-wrap gap-4 mb-6">
+          <div className="flex flex-wrap gap-3 sm:gap-4 mb-6">
             {typeColors.map((type) => (
               <div key={type} className="flex items-center gap-2">
                 <div
-                  className="w-4 h-4 rounded-full"
+                  className="w-3 h-3 sm:w-4 sm:h-4 rounded-full"
                   style={{ backgroundColor: COLORS[type] || "#6b7280" }}
                 />
-                <span className="text-sm capitalize">{type}</span>
+                <span className="text-xs sm:text-sm capitalize">{type}</span>
               </div>
             ))}
           </div>
 
           {hoveredNode && (
-            <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div className="p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
               <Link
                 href={`/${hoveredNode.id}`}
-                className="text-lg font-semibold hover:underline"
+                className="text-base sm:text-lg font-semibold hover:underline"
               >
                 {hoveredNode.title}
               </Link>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Type: {hoveredNode.type}
                 {hoveredNode.tags.length > 0 && (
                   <> · Tags: {hoveredNode.tags.join(", ")}</>
@@ -271,21 +299,21 @@ export default function GraphPage() {
             </div>
           )}
 
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">All Entries</h2>
-            <div className="grid gap-2">
+          <div className="mt-6 sm:mt-8">
+            <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">All Entries</h2>
+            <div className="grid gap-1 sm:gap-2">
               {nodes.map((node) => (
                 <Link
                   key={node.id}
                   href={`/${node.id}`}
-                  className="flex items-center gap-3 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-2 sm:gap-3 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   <div
-                    className="w-3 h-3 rounded-full"
+                    className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: COLORS[node.type] || "#6b7280" }}
                   />
-                  <span>{node.title}</span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400 ml-auto">
+                  <span className="text-sm sm:text-base truncate">{node.title}</span>
+                  <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-auto flex-shrink-0">
                     {node.type}
                   </span>
                 </Link>

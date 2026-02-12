@@ -73,19 +73,19 @@ export default async function ArticlePage({ params }: PageProps) {
   const resolveWikiLink = buildWikiLinkResolver();
 
   return (
-    <article className="max-w-3xl mx-auto px-4 py-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold">{entry.title}</h1>
+    <article className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
+      <header className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold">{entry.title}</h1>
         {entry.date && (
-          <p className="text-muted mt-2">{entry.date}</p>
+          <p className="text-muted mt-2 text-sm sm:text-base">{entry.date}</p>
         )}
         {entry.summary && (
-          <p className="text-muted mt-4 text-lg">{entry.summary}</p>
+          <p className="text-muted mt-3 sm:mt-4 text-base sm:text-lg">{entry.summary}</p>
         )}
         <TagPills tags={entry.tags} />
       </header>
 
-      <div className="prose max-w-none">
+      <div className="prose prose-sm sm:prose max-w-none">
         <MDXRemote 
           source={source} 
           components={{ Mermaid }}

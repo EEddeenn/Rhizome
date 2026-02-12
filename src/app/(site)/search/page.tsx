@@ -67,24 +67,24 @@ export default function SearchPage() {
   }, [query, typeFilter, tagFilter, miniSearch]);
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Search</h1>
+    <main className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Search</h1>
 
       {loading ? (
         <p className="text-gray-500 dark:text-gray-400">Loading search index...</p>
       ) : (
         <>
-          <div className="mb-6 space-y-4">
+          <div className="mb-6 space-y-3 sm:space-y-4">
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search notes and articles..."
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               autoFocus
             />
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4">
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
@@ -111,39 +111,37 @@ export default function SearchPage() {
           </div>
 
           {query.trim() && (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {results.length} result{results.length !== 1 ? "s" : ""}
               </p>
 
               {results.length > 0 ? (
-                <ul className="space-y-4">
+                <ul className="space-y-3 sm:space-y-4">
                   {results.map((result) => (
                     <li key={result.id}>
                       <Link
                         href={result.route}
-                        className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
+                        className="block p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <h2 className="font-semibold text-lg">{result.title}</h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                              {result.type}
-                              {result.date && ` · ${result.date}`}
-                            </p>
-                            {result.tags && result.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mt-2">
-                                {result.tags.map((tag) => (
-                                  <span
-                                    key={tag}
-                                    className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+                        <div>
+                          <h2 className="font-semibold text-base sm:text-lg">{result.title}</h2>
+                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {result.type}
+                            {result.date && ` · ${result.date}`}
+                          </p>
+                          {result.tags && result.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {result.tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="text-xs px-1.5 sm:px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </Link>
                     </li>

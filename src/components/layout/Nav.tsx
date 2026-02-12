@@ -1,8 +1,20 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 import { SearchBar } from "./SearchBar";
 
 export function Nav() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navLinks = [
+    { href: "/notes", label: "Notes" },
+    { href: "/articles", label: "Articles" },
+    { href: "/tags", label: "Tags" },
+    { href: "/graph", label: "Graph" },
+  ];
+
   return (
     <nav className="border-b border-border bg-background">
       <div className="max-w-5xl mx-auto px-4">
@@ -10,38 +22,73 @@ export function Nav() {
           <Link href="/" className="text-xl font-bold">
             Rhizome
           </Link>
-          <div className="flex items-center gap-4">
+
+          <div className="hidden md:flex items-center gap-4">
             <SearchBar />
-            <div className="flex items-center gap-4">
+            {navLinks.map((link) => (
               <Link
-                href="/notes"
+                key={link.href}
+                href={link.href}
                 className="text-muted hover:text-foreground transition-colors"
               >
-                Notes
+                {link.label}
               </Link>
-              <Link
-                href="/articles"
-                className="text-muted hover:text-foreground transition-colors"
-              >
-                Articles
-              </Link>
-              <Link
-                href="/tags"
-                className="text-muted hover:text-foreground transition-colors"
-              >
-                Tags
-              </Link>
-              <Link
-                href="/graph"
-                className="text-muted hover:text-foreground transition-colors"
-                title="Knowledge Graph"
-              >
-                Graph
-              </Link>
-              <ThemeToggle />
+            ))}
+            <ThemeToggle />
+          </div>
+
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden p-2 text-muted hover:text-foreground"
+            aria-label="Toggle menu"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {isOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </button>
+        </div>
+
+        {isOpen && (
+          <div className="md:hidden pb-4 border-t border-border mt-0 pt-4">
+            <div className="mb-4">
+              <SearchBar fullWidth />
+            </div>
+            <div className="flex flex-col gap-3">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-muted hover:text-foreground transition-colors py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <div className="py-2">
+                <ThemeToggle />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </nav>
   );

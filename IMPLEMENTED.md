@@ -77,18 +77,19 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Canvas-based force-directed graph visualization
 - [x] Hover for details, click to navigate
 - [x] Graph link in header navigation
+- [x] Responsive canvas sizing
 
 ### Phase 10 — Layout & Navigation
 - [x] `src/app/(site)/layout.tsx` — Site shell
-- [x] `src/components/layout/Nav.tsx`
+- [x] `src/components/layout/Nav.tsx` — Responsive with mobile hamburger menu
 - [x] `src/components/layout/Footer.tsx`
 - [x] `src/components/layout/Breadcrumbs.tsx` (created, not used yet)
-- [x] `src/components/layout/SearchBar.tsx`
+- [x] `src/components/layout/SearchBar.tsx` — Responsive width
 
 ### Phase 11 — MDX Components
 - [x] `src/components/mdx/MDXComponents.tsx`
 - [x] Wiki-link remark plugin (`remarkWikiLinks`)
-- [x] `src/components/mdx/Mermaid.tsx` — Mermaid diagram support
+- [x] `src/components/mdx/Mermaid.tsx` — Mermaid diagram support with dark mode
 - [x] KaTeX math support via remark-math + rehype-katex
 
 ### Phase 12 — Dark Mode
@@ -98,6 +99,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Flash prevention script
 - [x] localStorage persistence
 - [x] All components styled for dark mode
+- [x] Mermaid diagrams auto-switch theme on dark mode toggle
 
 ### Phase 13 — SEO
 - [x] sitemap.xml generation
@@ -118,10 +120,18 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Static export to `out/` directory
 - [x] SITE_URL and SITE_TITLE environment variables
 
+### Phase 16 — Responsive Design
+- [x] Mobile hamburger menu navigation
+- [x] Responsive typography (text-sm sm:text-base, etc.)
+- [x] Responsive spacing (py-6 sm:py-8, etc.)
+- [x] Responsive canvas on graph page
+- [x] Touch-friendly UI elements
+- [x] Responsive prose sizing
+
 ### Documentation
 - [x] README.md
 - [x] CHANGELOG.md
-- [x] Sample content files
+- [x] Sample content files (including math/diagram tests)
 
 ---
 
@@ -165,5 +175,6 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 | Mermaid/Math | ✅ Complete |
 | SEO (sitemap/RSS) | ✅ Complete |
 | Testing | ✅ Complete |
+| Responsive Design | ✅ Complete |
 
 **Status**: ✅ Feature-complete and deployable to Cloudflare Pages.

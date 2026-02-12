@@ -10,23 +10,23 @@ interface EntryListProps {
 
 export function EntryList({ entries, showDate = true, showSummary = true }: EntryListProps) {
   if (entries.length === 0) {
-    return <p className="text-muted">No entries found.</p>;
+    return <p className="text-muted text-sm sm:text-base">No entries found.</p>;
   }
 
   return (
-    <ul className="space-y-6">
+    <ul className="space-y-4 sm:space-y-6">
       {entries.map((entry) => (
-        <li key={entry.slug} className="border-b border-border pb-6 last:border-0">
+        <li key={entry.slug} className="border-b border-border pb-4 sm:pb-6 last:border-0">
           <Link href={entry.route} className="group">
-            <h3 className="text-lg font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h3 className="text-base sm:text-lg font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {entry.title}
             </h3>
           </Link>
           {showDate && entry.date && (
-            <p className="text-sm text-muted mt-1">{entry.date}</p>
+            <p className="text-xs sm:text-sm text-muted mt-1">{entry.date}</p>
           )}
           {showSummary && entry.summary && (
-            <p className="text-muted mt-2">{entry.summary}</p>
+            <p className="text-muted text-sm sm:text-base mt-1.5 sm:mt-2">{entry.summary}</p>
           )}
           <TagPills tags={entry.tags} />
         </li>
