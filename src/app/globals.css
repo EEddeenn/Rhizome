@@ -62,7 +62,35 @@ body {
 
 .prose ul,
 .prose ol {
-  @apply text-foreground;
+  @apply text-foreground my-4 pl-6;
+}
+
+.prose ul {
+  list-style-type: disc;
+}
+
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose li {
+  @apply my-1;
+}
+
+.prose ul ul {
+  list-style-type: circle;
+}
+
+.prose ul ul ul {
+  list-style-type: square;
+}
+
+.prose ol ol {
+  list-style-type: lower-alpha;
+}
+
+.prose ol ol ol {
+  list-style-type: lower-roman;
 }
 
 .prose hr {
