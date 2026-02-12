@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
+import rehypeSlug from "rehype-slug";
 import { getEntryBySlug, getNotes, getAllEntries } from "@/lib/generated/load-manifest";
 import { getBacklinksForSlug } from "@/lib/generated/load-backlinks";
 import { getMdxContent } from "@/lib/generated/load-content";
@@ -129,7 +130,7 @@ export default async function NotePage({ params }: PageProps) {
                 remarkMath,
                 [remarkWikiLinks, { resolve: resolveWikiLink }]
               ],
-              rehypePlugins: [rehypeKatex, rehypeHighlight],
+              rehypePlugins: [rehypeSlug, rehypeKatex, rehypeHighlight],
             },
           }}
         />

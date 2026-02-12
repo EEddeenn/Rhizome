@@ -48,6 +48,9 @@ All notable changes to this project will be documented in this file.
 - Updated `globals.css` with full light/dark mode syntax themes
 - One Light theme for light mode, One Dark for dark mode
 
+#### MDX Rendering
+- Added `rehype-slug` to generate IDs for headings (enables TOC anchor links)
+
 #### Generator
 - Now outputs `broken-links.json` for programmatic broken link detection
 
