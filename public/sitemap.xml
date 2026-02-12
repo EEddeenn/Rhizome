@@ -6,7 +6,17 @@
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://example.com/notes/diagrams-test</loc>
+    <loc>https://example.com/notes/callouts</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://example.com/notes/code-blocks</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://example.com/notes/diagrams</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>weekly</changefreq>
   </url>
@@ -16,7 +26,12 @@
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://example.com/notes/math-test</loc>
+    <loc>https://example.com/notes/markdown-guide</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://example.com/notes/mathematical-notation</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>weekly</changefreq>
   </url>

@@ -1,0 +1,212 @@
+---
+title: "Diagrams"
+date: "2026-02-12"
+type: "note"
+tags: ["guide", "diagrams", "mermaid"]
+summary: "Create flowcharts, sequence diagrams, and more using Mermaid syntax."
+---
+
+# Diagrams
+
+Rhizome supports Mermaid diagrams for creating flowcharts, sequence diagrams, class diagrams, and more. Diagrams render in both light and dark modes.
+
+## Usage
+
+Use the `Mermaid` component with a `code` prop:
+
+```mdx
+<Mermaid code={`
+graph LR
+    A --> B
+`} />
+```
+
+<Callout type="tip">
+Use template literals (backticks) for multi-line diagram code. This preserves newlines without escaping.
+</Callout>
+
+## Flowcharts
+
+### Left to Right
+
+<Mermaid code={`graph LR
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Action 1]
+    B -->|No| D[Action 2]
+    C --> E[End]
+    D --> E`} />
+
+### Top to Bottom
+
+<Mermaid code={`graph TD
+    Client[Client App] --> LoadBalancer[Load Balancer]
+    LoadBalancer --> Server1[Server 1]
+    LoadBalancer --> Server2[Server 2]
+    Server1 --> Database[(Database)]
+    Server2 --> Database
+    Database --> Cache[(Cache)]`} />
+
+### System Architecture
+
+<Mermaid code={`graph TB
+    subgraph Frontend
+        UI[React UI]
+        State[State Management]
+    end
+    subgraph Backend
+        API[REST API]
+        Auth[Auth Service]
+        Queue[Job Queue]
+    end
+    subgraph Data
+        DB[(PostgreSQL)]
+        Redis[(Redis)]
+        S3[(S3 Storage)]
+    end
+    UI --> API
+    API --> Auth
+    API --> Queue
+    Queue --> DB
+    API --> Redis
+    API --> S3`} />
+
+## Sequence Diagrams
+
+Perfect for visualizing API interactions and processes:
+
+<Mermaid code={`sequenceDiagram
+    participant U as User
+    participant C as Client
+    participant S as Server
+    participant D as Database
+    
+    U->>C: Click Login
+    C->>S: POST /auth/login
+    S->>D: Query user
+    D-->>S: User data
+    
+    alt Valid credentials
+        S-->>C: 200 OK + JWT
+        C-->>U: Redirect to dashboard
+    else Invalid credentials
+        S-->>C: 401 Unauthorized
+        C-->>U: Show error
+    end`} />
+
+### Authentication Flow
+
+<Mermaid code={`sequenceDiagram
+    participant App
+    participant Auth as Auth Service
+    participant OAuth as OAuth Provider
+    participant DB
+    
+    App->>Auth: Request login
+    Auth->>OAuth: Redirect to OAuth
+    OAuth-->>Auth: Authorization code
+    Auth->>OAuth: Exchange code for token
+    OAuth-->>Auth: Access token
+    Auth->>DB: Create/Update user
+    DB-->>Auth: User record
+    Auth-->>App: Session token`} />
+
+## Class Diagrams
+
+Useful for object-oriented design documentation:
+
+<Mermaid code={`classDiagram
+    class Note {
+        +String id
+        +String title
+        +String content
+        +Date createdAt
+        +wordCount() int
+        +addTag(tag)
+    }
+    
+    class Tag {
+        +String name
+        +int count
+    }
+    
+    class Graph {
+        +List nodes
+        +List edges
+        +addNode(note)
+        +addEdge(source, target)
+    }
+    
+    Note "1" -- "*" Tag : has
+    Graph "1" -- "*" Note : contains`} />
+
+## State Diagrams
+
+Model state machines and workflows:
+
+<Mermaid code={`stateDiagram-v2
+    [*] --> Draft
+    Draft --> InReview : Submit
+    InReview --> Approved : Approve
+    InReview --> Rejected : Reject
+    InReview --> Draft : Request Changes
+    Rejected --> Draft : Resubmit
+    Approved --> Published : Publish
+    Published --> Archived : Archive
+    Archived --> Draft : Restore`} />
+
+## Entity Relationship Diagrams
+
+Document database schemas:
+
+<Mermaid code={`erDiagram
+    USER ||--o{ NOTE : creates
+    USER {
+        string id PK
+        string email
+        string password_hash
+        datetime created_at
+    }
+    NOTE ||--o{ NOTE_TAG : has
+    NOTE {
+        string id PK
+        string user_id FK
+        string title
+        text content
+        datetime created_at
+        datetime updated_at
+    }
+    TAG ||--o{ NOTE_TAG : "used in"
+    TAG {
+        string id PK
+        string name
+    }
+    NOTE_TAG {
+        string note_id FK
+        string tag_id FK
+    }`} />
+
+## Pie Charts
+
+Show proportional data:
+
+<Mermaid code={`pie showData
+    title Note Distribution by Type
+    "Notes" : 45
+    "Articles" : 12
+    "Books" : 8
+    "Papers" : 5`} />
+
+## Diagram Syntax Reference
+
+| Diagram Type | Keyword |
+|--------------|---------|
+| Flowchart | `graph` or `flowchart` |
+| Sequence | `sequenceDiagram` |
+| Class | `classDiagram` |
+| State | `stateDiagram-v2` |
+| ER | `erDiagram` |
+| Pie | `pie` |
+
+<Callout type="note" title="Resources">
+Full Mermaid documentation is available at [mermaid.js.org](https://mermaid.js.org/). The site includes a live editor for testing diagrams.
+</Callout>

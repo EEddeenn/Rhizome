@@ -1,5 +1,6 @@
 import type { MDXComponents } from "mdx/types";
 import { Mermaid } from "./Mermaid";
+import { Callout } from "./Callout";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -11,7 +12,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline"
+            className="text-blue-600 hover:underline dark:text-blue-400"
             {...props}
           >
             {children}
@@ -19,7 +20,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         );
       }
       return (
-        <a href={href} className="text-blue-600 hover:underline" {...props}>
+        <a href={href} className="text-blue-600 hover:underline dark:text-blue-400" {...props}>
           {children}
         </a>
       );
@@ -41,21 +42,28 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ol: ({ children }) => <ol className="list-decimal pl-6 my-4">{children}</ol>,
     li: ({ children }) => <li className="my-1">{children}</li>,
     blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4 text-gray-600">
+      <blockquote className="border-l-4 border-gray-300 dark:border-gray-700 pl-4 italic my-4 text-gray-600 dark:text-gray-400">
         {children}
       </blockquote>
     ),
-    code: ({ children }) => (
-      <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono">
-        {children}
-      </code>
-    ),
+    code: ({ children, className }) => {
+      const isInline = !className;
+      if (isInline) {
+        return (
+          <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">
+            {children}
+          </code>
+        );
+      }
+      return <code className={className}>{children}</code>;
+    },
     pre: ({ children }) => (
-      <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-4">
+      <pre className="bg-gray-900 dark:bg-gray-950 text-gray-100 p-4 rounded-lg overflow-x-auto my-4">
         {children}
       </pre>
     ),
     Mermaid,
+    Callout,
     ...components,
   };
 }

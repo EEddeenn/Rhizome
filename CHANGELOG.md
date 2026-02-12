@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-02-13
+
+### Added
+
+#### MDX Components
+- `src/components/mdx/Callout.tsx` — Callout blocks (note, tip, warning, danger, info)
+- Callout component integrated into note and article pages
+
+#### Syntax Highlighting
+- `rehype-highlight` for code syntax highlighting
+- Light and dark mode support with One Light / One Dark themes
+- Support for 50+ languages
+
+#### Navigation
+- `src/components/blocks/TableOfContents.tsx` — Auto-generated TOC from headings
+- `src/components/layout/Breadcrumbs.tsx` — Integrated into note/article pages
+- `src/components/blocks/EntryMetadata.tsx` — Status, reading time, word count display
+
+#### Developer Experience
+- `scripts/watch.ts` — Content hot-reload during development
+- `npm run watch` command
+- `src/generated/broken-links.json` — Broken link report file
+
+#### SEO
+- Open Graph metadata for note and article pages
+- Twitter card metadata
+
+#### UI
+- `src/app/(site)/not-found.tsx` — Custom 404 page
+
+#### Content
+- Restructured demo content with comprehensive guides:
+  - `markdown-guide.mdx` — Markdown formatting reference
+  - `callouts.mdx` — Callout component guide
+  - `code-blocks.mdx` — Code highlighting guide
+  - `mathematical-notation.mdx` — LaTeX/KaTeX reference
+  - `diagrams.mdx` — Mermaid diagram guide
+- Expanded `building-a-second-brain.mdx` article with CODE framework
+- Enhanced `knowledge-graph-basics.mdx` with graph theory concepts
+
+### Changed
+
+#### Syntax Highlighting
+- Updated `globals.css` with full light/dark mode syntax themes
+- One Light theme for light mode, One Dark for dark mode
+
+#### Generator
+- Now outputs `broken-links.json` for programmatic broken link detection
+
+---
+
 ## [0.3.0] - 2026-02-12
 
 ### Added
@@ -19,10 +70,6 @@ All notable changes to this project will be documented in this file.
 - Mermaid diagrams automatically switch theme on dark mode toggle
 - Uses MutationObserver to detect theme changes on `<html>` element
 - Re-renders diagrams with appropriate `dark` or `default` theme
-
-#### Test Content
-- `content/notes/math-test.mdx` — Tests KaTeX math rendering
-- `content/notes/diagrams-test.mdx` — Tests Mermaid diagrams
 
 ### Changed
 

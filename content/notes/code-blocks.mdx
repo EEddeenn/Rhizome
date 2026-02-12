@@ -1,0 +1,178 @@
+---
+title: "Code Blocks"
+date: "2026-02-12"
+type: "note"
+tags: ["guide", "mdx", "code"]
+summary: "Syntax highlighting for code snippets in your notes."
+---
+
+# Code Blocks
+
+Code blocks support syntax highlighting for dozens of languages. Use them to document code, configuration, or commands.
+
+## Inline Code
+
+Use single backticks for `inline code` within sentences. This is useful for variable names, commands, or short snippets.
+
+## Basic Code Blocks
+
+Use triple backticks for code blocks:
+
+```
+function hello() {
+  console.log("Hello, world!");
+}
+```
+
+## Syntax Highlighting
+
+Add a language identifier after the opening backticks:
+
+```javascript
+function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+// Memoized version for better performance
+const fib = memoize((n) => {
+  if (n <= 1) return n;
+  return fib(n - 1) + fib(n - 2);
+});
+```
+
+### TypeScript
+
+```typescript
+interface Note {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[];
+  createdAt: Date;
+}
+
+async function fetchNote(id: string): Promise<Note> {
+  const response = await fetch(`/api/notes/${id}`);
+  if (!response.ok) throw new Error("Note not found");
+  return response.json();
+}
+```
+
+### Python
+
+```python
+from dataclasses import dataclass
+from typing import List, Optional
+from datetime import datetime
+
+@dataclass
+class Note:
+    id: str
+    title: str
+    content: str
+    tags: List[str]
+    created_at: datetime
+    
+    def word_count(self) -> int:
+        return len(self.content.split())
+
+def search_notes(notes: List[Note], query: str) -> List[Note]:
+    """Search notes by title and content."""
+    query = query.lower()
+    return [
+        note for note in notes
+        if query in note.title.lower() or query in note.content.lower()
+    ]
+```
+
+### Rust
+
+```rust
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Note {
+    pub id: String,
+    pub title: String,
+    pub content: String,
+    pub tags: Vec<String>,
+}
+
+impl Note {
+    pub fn new(title: String, content: String) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            title,
+            content,
+            tags: Vec::new(),
+        }
+    }
+    
+    pub fn add_tag(&mut self, tag: impl Into<String>) {
+        self.tags.push(tag.into());
+    }
+}
+```
+
+### Shell / Bash
+
+```bash
+# Run the content generator
+npm run gen
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Watch for content changes
+npm run watch
+```
+
+### JSON
+
+```json
+{
+  "title": "My Note",
+  "date": "2026-02-12",
+  "tags": ["example", "json"],
+  "summary": "A sample note configuration",
+  "private": false
+}
+```
+
+### CSS
+
+```css
+.prose pre {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.prose code {
+  font-family: "Fira Code", monospace;
+  font-size: 0.875rem;
+}
+```
+
+### SQL
+
+```sql
+SELECT 
+    n.id,
+    n.title,
+    n.created_at,
+    COUNT(t.id) as tag_count
+FROM notes n
+LEFT JOIN note_tags t ON n.id = t.note_id
+WHERE n.private = false
+GROUP BY n.id
+ORDER BY n.created_at DESC;
+```
+
+## Supported Languages
+
+Common languages include: `javascript`, `typescript`, `python`, `rust`, `go`, `java`, `c`, `cpp`, `csharp`, `ruby`, `php`, `swift`, `kotlin`, `bash`, `sql`, `json`, `yaml`, `markdown`, `css`, `html`, and many more.

@@ -38,6 +38,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Build tags index
 - [x] Build graph.json (nodes + edges)
 - [x] Broken link warnings (console output)
+- [x] `broken-links.json` output file
 
 ### Phase 5 — Store MDX Content
 - [x] Store MDX content in `src/generated/content.json`
@@ -55,6 +56,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Wiki-link conversion to proper links
 - [x] GFM support (remark-gfm)
 - [x] generateMetadata for SEO
+- [x] Open Graph / Twitter card metadata
 
 ### Phase 7 — Index Pages
 - [x] `src/app/(site)/notes/page.tsx` — Notes list
@@ -83,7 +85,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] `src/app/(site)/layout.tsx` — Site shell
 - [x] `src/components/layout/Nav.tsx` — Responsive with mobile hamburger menu
 - [x] `src/components/layout/Footer.tsx`
-- [x] `src/components/layout/Breadcrumbs.tsx` (created, not used yet)
+- [x] `src/components/layout/Breadcrumbs.tsx` — Integrated into note/article pages
 - [x] `src/components/layout/SearchBar.tsx` — Responsive width
 
 ### Phase 11 — MDX Components
@@ -91,6 +93,8 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Wiki-link remark plugin (`remarkWikiLinks`)
 - [x] `src/components/mdx/Mermaid.tsx` — Mermaid diagram support with dark mode
 - [x] KaTeX math support via remark-math + rehype-katex
+- [x] `src/components/mdx/Callout.tsx` — Callout/admonition blocks (note, tip, warning, danger, info)
+- [x] Code syntax highlighting via rehype-highlight
 
 ### Phase 12 — Dark Mode
 - [x] Tailwind darkMode: "class"
@@ -128,10 +132,24 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Touch-friendly UI elements
 - [x] Responsive prose sizing
 
+### Phase 17 — Additional Features
+- [x] `src/components/blocks/TableOfContents.tsx` — TOC from headings
+- [x] `src/components/blocks/EntryMetadata.tsx` — Status, reading time, word count display
+- [x] `src/app/(site)/not-found.tsx` — Custom 404 page
+- [x] `scripts/watch.ts` — Content hot-reload during development
+
 ### Documentation
-- [x] README.md
-- [x] CHANGELOG.md
-- [x] Sample content files (including math/diagram tests)
+- [x] README.md — Updated with all features
+- [x] CHANGELOG.md — Version 0.4.0
+- [x] Comprehensive demo content:
+  - `welcome.mdx` — Getting started guide
+  - `markdown-guide.mdx` — Markdown formatting reference
+  - `callouts.mdx` — Callout component examples
+  - `code-blocks.mdx` — Syntax highlighting guide
+  - `mathematical-notation.mdx` — LaTeX/KaTeX reference
+  - `diagrams.mdx` — Mermaid diagram guide
+  - `knowledge-graph-basics.mdx` — Graph theory concepts
+  - `building-a-second-brain.mdx` — PARA/CODE methodology
 
 ---
 
@@ -139,25 +157,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 
 ### Optional Features from Design
 
-#### Watch Mode
-- [ ] `scripts/watch.ts` for content hot-reload during development
-
-#### Additional MDX Features
-- [ ] Callout/admonition blocks (component exists but not integrated)
-- [ ] Code syntax highlighting (shiki or prism)
-
-#### Additional Metadata
-- [ ] `status` field display (to-read, reading, done)
-- [ ] `source` field display
-- [ ] Reading time display on pages
-
-### Minor Gaps
-
-- [ ] Breadcrumbs component not integrated into pages
-- [ ] `broken-links.json` output file (currently console only)
-- [ ] Table of Contents from headings (headings extracted but not displayed)
-- [ ] 404 page customization
-- [ ] Open Graph / Twitter card metadata
+None remaining - all features from IMPLEMENTED.md have been completed.
 
 ---
 
@@ -176,5 +176,14 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 | SEO (sitemap/RSS) | ✅ Complete |
 | Testing | ✅ Complete |
 | Responsive Design | ✅ Complete |
+| Callouts | ✅ Complete |
+| Syntax Highlighting | ✅ Complete |
+| Table of Contents | ✅ Complete |
+| Metadata Display | ✅ Complete |
+| Breadcrumbs | ✅ Complete |
+| Watch Mode | ✅ Complete |
+| OG/Twitter Cards | ✅ Complete |
+| Custom 404 | ✅ Complete |
+| Broken Links File | ✅ Complete |
 
 **Status**: ✅ Feature-complete and deployable to Cloudflare Pages.

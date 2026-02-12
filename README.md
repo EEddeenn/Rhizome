@@ -4,18 +4,30 @@ A static personal notes and knowledge management system built with Next.js, MDX,
 
 ## Features
 
-- **MDX Content** - Write notes in MDX with YAML frontmatter
+### Content
+- **MDX Support** - Write notes in MDX with YAML frontmatter
 - **Wiki-links** - Link between notes using `[[Note Title]]` syntax
-- **Backlinks** - See what other notes link to the current page
+- **Backlinks** - See what notes link to the current page
 - **Tags** - Organize content with tags and browse by tag
-- **Search** - Full-text search powered by MiniSearch
-- **Graph View** - Visualize connections between notes
-- **Math & Diagrams** - KaTeX math and Mermaid diagram support (with dark mode)
-- **Dark Mode** - System-aware theme with manual toggle
-- **Responsive** - Mobile-first design with hamburger menu
-- **SEO** - Automatic sitemap.xml and RSS feed generation
-- **Static Export** - Fully static site, no server required
-- **Cloudflare Pages** - Optimized for deployment on Cloudflare
+- **Status Tracking** - Mark items as to-read, reading, or done
+
+### Rich Content
+- **Callouts** - Note, tip, warning, danger, and info blocks
+- **Code Highlighting** - Syntax highlighting for 50+ languages
+- **Math** - KaTeX for LaTeX equations (inline and block)
+- **Diagrams** - Mermaid flowcharts, sequence diagrams, class diagrams, and more
+
+### Navigation
+- **Table of Contents** - Auto-generated from headings
+- **Breadcrumbs** - Navigate note hierarchy
+- **Full-text Search** - MiniSearch with fuzzy matching
+- **Graph View** - Visualize knowledge connections
+
+### Technical
+- **Dark Mode** - System-aware with manual toggle
+- **Responsive** - Mobile-first design
+- **Static Export** - No server required
+- **SEO Ready** - Sitemap, RSS, Open Graph, Twitter cards
 
 ## Quick Start
 
@@ -47,9 +59,9 @@ The static site will be output to the `out/` directory.
 │   │   ├── search/      # Search page
 │   │   └── graph/       # Graph visualization
 │   ├── components/
-│   │   ├── blocks/      # Content blocks (EntryList, BacklinksPanel, etc.)
-│   │   ├── layout/      # Layout components (Nav, Footer, SearchBar)
-│   │   └── mdx/         # MDX components (Mermaid)
+│   │   ├── blocks/      # Content blocks (EntryList, BacklinksPanel, TOC, etc.)
+│   │   ├── layout/      # Layout components (Nav, Footer, Breadcrumbs)
+│   │   └── mdx/         # MDX components (Mermaid, Callout)
 │   ├── lib/
 │   │   ├── content/     # Content utilities
 │   │   ├── generated/   # Loaders for generated data
@@ -62,7 +74,8 @@ The static site will be output to the `out/` directory.
 │   └── robots.txt       # Search engine directives
 ├── tests/               # Unit tests
 ├── scripts/
-│   └── gen-content.ts   # Build-time content generator
+│   ├── gen-content.ts   # Build-time content generator
+│   └── watch.ts         # Development watcher
 └── out/                 # Static export output
 ```
 
@@ -79,11 +92,7 @@ tags: ["tag1", "tag2"]
 summary: "A brief description for list pages."
 ---
 
-# My Note Title
-
-Content goes here. Use wiki-links to connect to other notes: [[Another Note]].
-
-You can also use aliases: [[Another Note|custom text]].
+Content goes here. Use wiki-links to connect: [[Another Note]].
 ```
 
 ### Frontmatter Fields
@@ -98,14 +107,52 @@ You can also use aliases: [[Another Note|custom text]].
 | `status` | No | Reading status: `to-read`, `reading`, `done` |
 | `private` | No | Set to `true` to exclude from build |
 
-### Link Syntax
+### Wiki-links
 
-- **Wiki-links**: `[[Note Title]]` or `[[Note Title|Alias]]`
-- **Markdown links**: `[text](/notes/slug)`
+```mdx
+Link to another note: [[Note Title]]
 
-### Math & Diagrams
+With custom text: [[Note Title|display text]]
+```
 
-Math (KaTeX) - use single backslashes for LaTeX commands:
+### Callouts
+
+```mdx
+<Callout type="note">
+General information.
+</Callout>
+
+<Callout type="tip" title="Pro Tip">
+Helpful suggestion.
+</Callout>
+
+<Callout type="warning">
+Important caveat.
+</Callout>
+
+<Callout type="danger" title="Warning">
+Critical warning.
+</Callout>
+
+<Callout type="info">
+Background information.
+</Callout>
+```
+
+### Code Blocks
+
+````mdx
+```javascript
+function hello(name) {
+  console.log(`Hello, ${name}!`);
+}
+```
+````
+
+Supported: `javascript`, `typescript`, `python`, `rust`, `go`, `bash`, `sql`, `json`, `yaml`, `css`, `html`, and many more.
+
+### Math
+
 ```mdx
 Inline math: $E = mc^2$
 
@@ -115,22 +162,27 @@ $$
 $$
 ```
 
-Diagrams (Mermaid):
+### Diagrams
+
 ```mdx
 <Mermaid code={`
 graph TD
-    A[Start] --> B[Process]
-    B --> C[End]
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Action]
+    B -->|No| D[End]
 `} />
 ```
+
+Supported: flowcharts, sequence diagrams, class diagrams, state diagrams, ER diagrams, pie charts.
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
 | `npm run gen` | Run content generator |
+| `npm run watch` | Watch content and regenerate on changes |
 | `npm run dev` | Start development server |
-| `npm run build` | Build for production (runs gen + export) |
+| `npm run build` | Build for production |
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Run TypeScript check |
 | `npm run test` | Run tests |
@@ -141,7 +193,7 @@ graph TD
 
 1. Connect your repository to Cloudflare Pages
 2. Set build settings:
-   - **Build command**: `npm run build` (IMPORTANT: Do not use `npx next build` - the content generator must run first)
+   - **Build command**: `npm run build`
    - **Build output directory**: `out`
    - **Node version**: 18 or higher
 3. Set environment variables (optional):

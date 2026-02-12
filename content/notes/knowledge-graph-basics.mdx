@@ -2,28 +2,133 @@
 title: "Knowledge Graph Basics"
 date: "2026-02-12"
 type: "note"
-tags: ["pkm", "graph", "networked-thinking"]
-summary: "Understanding how knowledge graphs help connect ideas."
+tags: ["pkm", "graph", "networked-thinking", "theory"]
+summary: "Understanding how knowledge graphs help connect and surface ideas."
 ---
 
 # Knowledge Graph Basics
 
-A knowledge graph represents information as a network of interconnected ideas.
+A knowledge graph represents information as a network of interconnected ideas. Unlike hierarchical folder structures, graphs let ideas live in multiple contexts simultaneously.
 
 ## Core Concepts
 
 ### Nodes
 
-Each note or article in your system is a **node** in the graph.
+Each note, article, or piece of content is a **node** in the graph. Nodes contain:
+
+- A unique identifier (the slug)
+- Content (text, images, code)
+- Metadata (title, date, tags)
+
+In Rhizome, every MDX file becomes a node.
 
 ### Edges
 
-Links between notes create **edges** that show relationships.
+Links between notes create **edges** that show relationships. Edges can represent:
 
-## Benefits
+- **Reference** - "See also this related concept"
+- **Elaboration** - "Here's more detail about this idea"
+- **Contrast** - "Here's an opposing viewpoint"
+- **Application** - "Here's how this applies in practice"
 
-- Discover unexpected connections
-- Build a personal knowledge base over time
-- See how ideas relate to each other
+Wiki-links create edges automatically. When you link from note A to note B, you create a directed edge A → B.
 
-This connects back to [[Welcome to Rhizome]] as an introduction to the system.
+### Backlinks
+
+Backlinks show **incoming edges** - which notes link to the current note. They answer: "What points here?"
+
+<Callout type="note">
+Backlinks often reveal connections you didn't plan. A note about "feedback" might link to notes about "learning," "communication," and "system design" - showing how the concept bridges domains.
+</Callout>
+
+## Why Graphs Matter
+
+### Emergent Structure
+
+Traditional hierarchies force you to decide where something "belongs." Graphs let structure **emerge** from connections.
+
+A note about "Decision Making" might connect to:
+- Cognitive biases
+- Team dynamics
+- Data analysis
+- Risk assessment
+
+Each connection is a potential path to discovery.
+
+### Context Preservation
+
+When you follow a link, you see not just the destination but **how you got there**. The link context (surrounding text) explains the relationship.
+
+### Serendipitous Discovery
+
+The graph view reveals:
+- **Clusters** - Groups of densely connected notes
+- **Bridges** - Notes that connect different clusters
+- **Orphans** - Isolated notes that might need connections
+- **Hubs** - Notes with many connections (often core concepts)
+
+## Graph Theory Basics
+
+### Degree
+
+The number of connections a node has:
+
+- **In-degree**: Incoming links (backlinks)
+- **Out-degree**: Outgoing links
+
+High-degree nodes are often important concepts in your knowledge base.
+
+### Paths
+
+A sequence of edges connecting two nodes. The "distance" between notes in your graph affects how easily you can traverse from one idea to another.
+
+### Clustering
+
+Nodes tend to cluster around topics. Strong clustering indicates a well-developed domain of knowledge.
+
+<Callout type="tip">
+If your graph is too clustered, you may be creating silos. Try creating "bridge notes" that connect different topic areas.
+</Callout>
+
+## Building Better Graphs
+
+### Link Generously
+
+When writing, ask:
+- What other notes relate to this?
+- What background would help understand this?
+- Where might someone want to go next?
+
+### Use Descriptive Link Text
+
+Instead of: "See [[Knowledge Graph Basics]] for more."
+
+Try: "Understanding [[Knowledge Graph Basics]] helps you see how connections emerge naturally."
+
+### Create "Hub" Notes
+
+Some notes serve as navigational hubs:
+- MOCs (Maps of Content) for major topics
+- Index notes for projects
+- Overview notes for domains
+
+### Review the Graph
+
+Regular graph review reveals:
+- Orphan notes that need connections
+- Dense clusters that might be separate domains
+- Gaps in your knowledge
+
+## Rhizome's Graph View
+
+The `/graph` page visualizes your knowledge network:
+
+- **Node size** reflects connection count
+- **Hover** shows note details
+- **Click** navigates to the note
+- **Dark mode** changes diagram colors
+
+## Related Concepts
+
+- [[Building a Second Brain]] - A methodology for personal knowledge management
+- [[Welcome to Rhizome]] - Getting started with this system

@@ -1,0 +1,87 @@
+---
+title: "Markdown Guide"
+date: "2026-02-12"
+type: "note"
+tags: ["guide", "markdown", "formatting"]
+summary: "A comprehensive guide to Markdown formatting in Rhizome."
+---
+
+# Markdown Guide
+
+Rhizome supports GitHub Flavored Markdown (GFM) for rich text formatting.
+
+## Text Formatting
+
+Basic inline formatting:
+
+- **Bold text** using double asterisks
+- *Italic text* using single asterisks
+- ~~Strikethrough~~ using double tildes
+- `Inline code` using backticks
+
+## Headings
+
+Use `#` symbols for headings. The frontmatter title becomes the page title, so start content with `##` for sections.
+
+## Lists
+
+### Unordered Lists
+
+- First item
+- Second item
+  - Nested item
+  - Another nested item
+- Third item
+
+### Ordered Lists
+
+1. First step
+2. Second step
+3. Third step
+
+### Task Lists
+
+- [x] Completed task
+- [ ] Incomplete task
+- [ ] Another task
+
+## Links and Images
+
+Standard markdown links work alongside wiki-links:
+
+- [External link](https://example.com) opens in a new tab
+- Internal links use the wiki-link syntax: [[Welcome to Rhizome]]
+
+Images are placed in `content/assets/` and referenced as:
+
+```
+![Alt text](/assets/filename.png)
+```
+
+## Tables
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Wiki-links | ✅ | Connect notes by title |
+| Backlinks | ✅ | See incoming connections |
+| Tags | ✅ | Organize by topic |
+| Search | ✅ | Full-text search |
+| Graph | ✅ | Visualize connections |
+
+## Blockquotes
+
+> The best way to predict the future is to invent it.
+> 
+> — Alan Kay
+
+Use blockquotes for highlighting quotes or important notes.
+
+## Horizontal Rules
+
+Use three dashes to create a section break:
+
+---
+
+## Code Blocks
+
+See [[Code Blocks]] for syntax highlighting examples.

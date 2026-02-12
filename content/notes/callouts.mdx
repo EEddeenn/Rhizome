@@ -1,0 +1,86 @@
+---
+title: "Callouts"
+date: "2026-02-12"
+type: "note"
+tags: ["guide", "mdx", "components"]
+summary: "How to use callout components to highlight important information."
+---
+
+# Callouts
+
+Callouts (also known as admonitions) draw attention to important information. Use them for tips, warnings, notes, and more.
+
+## Basic Usage
+
+Callouts are MDX components. Use them in your notes like this:
+
+```mdx
+<Callout type="note">
+  Your content here.
+</Callout>
+```
+
+## Available Types
+
+### Note
+
+For general information and side notes.
+
+<Callout type="note">
+Wiki-links are resolved case-insensitively, so the same note can be referenced regardless of capitalization.
+</Callout>
+
+### Tip
+
+For helpful suggestions and best practices.
+
+<Callout type="tip" title="Best Practice">
+Use descriptive note titles. They make wiki-links more readable and help with search.
+</Callout>
+
+### Warning
+
+For important caveats or things to watch out for.
+
+<Callout type="warning">
+Private notes (with `private: true` in frontmatter) are completely excluded from the build output.
+</Callout>
+
+### Danger
+
+For critical warnings that could cause problems.
+
+<Callout type="danger" title="Data Loss Risk">
+Never edit files directly in the `src/generated/` directory. They are overwritten on each build.
+</Callout>
+
+### Info
+
+For additional context or background information.
+
+<Callout type="info">
+Callouts support an optional `title` prop. Without it, only the icon is shown.
+</Callout>
+
+## Custom Titles
+
+Add a `title` prop to customize the callout header:
+
+```mdx
+<Callout type="tip" title="Pro Tip">
+  Custom titles make callouts more specific.
+</Callout>
+```
+
+## Nested Content
+
+Callouts can contain any Markdown content:
+
+<Callout type="note" title="Rich Content">
+Callouts support:
+- **Bold** and *italic* text
+- `inline code`
+- [Links](/notes/markdown-guide)
+
+Even blockquotes work inside callouts.
+</Callout>

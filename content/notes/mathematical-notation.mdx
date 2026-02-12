@@ -1,0 +1,123 @@
+---
+title: "Mathematical Notation"
+date: "2026-02-12"
+type: "note"
+tags: ["guide", "math", "latex"]
+summary: "Write mathematical equations using LaTeX syntax with KaTeX rendering."
+---
+
+# Mathematical Notation
+
+Rhizome supports mathematical notation using LaTeX syntax, rendered with KaTeX. Both inline and block math are supported.
+
+## Inline Math
+
+Wrap LaTeX in single dollar signs for inline equations:
+
+The famous mass-energy equivalence $E = mc^2$ shows that energy and mass are related.
+
+Other examples:
+
+- The quadratic formula: $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$
+- Euler's number: $e = \lim_{n \to \infty} \left(1 + \frac{1}{n}\right)^n$
+- The golden ratio: $\phi = \frac{1 + \sqrt{5}}{2} \approx 1.618$
+- The area of a circle: $A = \pi r^2$
+
+## Block Math
+
+Use double dollar signs for centered block equations:
+
+The Gaussian integral:
+
+$$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$
+
+Euler's identity, combining five fundamental constants:
+
+$$e^{i\pi} + 1 = 0$$
+
+## Common Formulas
+
+### Calculus
+
+Derivative definition:
+
+$$f'(x) = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}$$
+
+Integration by parts:
+
+$$\int u \, dv = uv - \int v \, du$$
+
+Taylor series expansion:
+
+$$f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x-a)^n$$
+
+### Linear Algebra
+
+Matrix multiplication:
+
+$$(AB)_{ij} = \sum_{k} A_{ik} B_{kj}$$
+
+The determinant of a 2×2 matrix:
+
+$$\det\begin{pmatrix} a & b \\ c & d \end{pmatrix} = ad - bc$$
+
+### Probability
+
+Bayes' theorem:
+
+$$P(A|B) = \frac{P(B|A)P(A)}{P(B)}$$
+
+Expected value:
+
+$$E[X] = \sum_{i=1}^{n} x_i P(x_i)$$
+
+### Physics
+
+Newton's second law:
+
+$$F = ma$$
+
+Schrödinger equation:
+
+$$i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi$$
+
+Maxwell's equations (differential form):
+
+$$\nabla \cdot \mathbf{E} = \frac{\rho}{\epsilon_0}$$
+
+$$\nabla \cdot \mathbf{B} = 0$$
+
+$$\nabla \times \mathbf{E} = -\frac{\partial \mathbf{B}}{\partial t}$$
+
+$$\nabla \times \mathbf{B} = \mu_0\mathbf{J} + \mu_0\epsilon_0\frac{\partial \mathbf{E}}{\partial t}$$
+
+## Greek Letters
+
+| Lowercase | Uppercase | Code |
+|-----------|-----------|------|
+| $\alpha$ | $A$ | `\alpha`, `A` |
+| $\beta$ | $B$ | `\beta`, `B` |
+| $\gamma$ | $\Gamma$ | `\gamma`, `\Gamma` |
+| $\delta$ | $\Delta$ | `\delta`, `\Delta` |
+| $\epsilon$ | $E$ | `\epsilon`, `E` |
+| $\theta$ | $\Theta$ | `\theta`, `\Theta` |
+| $\lambda$ | $\Lambda$ | `\lambda`, `\Lambda` |
+| $\pi$ | $\Pi$ | `\pi`, `\Pi` |
+| $\sigma$ | $\Sigma$ | `\sigma`, `\Sigma` |
+| $\phi$ | $\Phi$ | `\phi`, `\Phi` |
+| $\omega$ | $\Omega$ | `\omega`, `\Omega` |
+
+## Syntax Reference
+
+- Superscript: `x^2` → $x^2$
+- Subscript: `x_i` → $x_i$
+- Fraction: `\frac{a}{b}` → $\frac{a}{b}$
+- Square root: `\sqrt{x}` → $\sqrt{x}$
+- Sum: `\sum_{i=1}^{n}` → $\sum_{i=1}^{n}$
+- Product: `\prod_{i=1}^{n}` → $\prod_{i=1}^{n}$
+- Integral: `\int_{a}^{b}` → $\int_{a}^{b}$
+- Limit: `\lim_{x \to \infty}` → $\lim_{x \to \infty}$
+
+<Callout type="note" title="LaTeX Escaping">
+In MDX files, use single backslashes for LaTeX commands. The processor handles the escaping correctly during rendering.
+</Callout>

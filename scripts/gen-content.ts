@@ -329,6 +329,11 @@ async function main(): Promise<void> {
     }
   }
 
+  const brokenLinksOutput = brokenLinks.map(({ slug, unresolved }) => ({
+    slug,
+    unresolved: unresolved.map((l) => l.title),
+  }));
+
   console.log("\n5. Building indices...");
   const backlinks = buildBacklinks(entries);
   const tagsIndex = buildTagsIndex(entries);
@@ -344,6 +349,7 @@ async function main(): Promise<void> {
   await writeJSON("tags.json", tagsIndex);
   await writeJSON("graph.json", graph);
   await writeJSON("search-index.json", searchIndex);
+  await writeJSON("broken-links.json", brokenLinksOutput);
   await writeContentIndex(rawEntries);
   console.log("   JSON files written");
 
