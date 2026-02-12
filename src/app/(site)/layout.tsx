@@ -30,6 +30,12 @@ export default function SiteLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: initTheme }} />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+          integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className={`${sansFont.variable} ${monoFont.variable} font-sans min-h-screen flex flex-col bg-background text-foreground`}>
         <Nav />

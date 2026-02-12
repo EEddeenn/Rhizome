@@ -1,4 +1,5 @@
 import type { MDXComponents } from "mdx/types";
+import { Mermaid } from "./Mermaid";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -54,6 +55,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         {children}
       </pre>
     ),
+    Mermaid,
     ...components,
   };
 }

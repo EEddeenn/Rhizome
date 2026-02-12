@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
+import { SearchBar } from "./SearchBar";
 
 export function Nav() {
   return (
@@ -9,26 +10,36 @@ export function Nav() {
           <Link href="/" className="text-xl font-bold">
             Rhizome
           </Link>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/notes"
-              className="text-muted hover:text-foreground transition-colors"
-            >
-              Notes
-            </Link>
-            <Link
-              href="/articles"
-              className="text-muted hover:text-foreground transition-colors"
-            >
-              Articles
-            </Link>
-            <Link
-              href="/tags"
-              className="text-muted hover:text-foreground transition-colors"
-            >
-              Tags
-            </Link>
-            <ThemeToggle />
+          <div className="flex items-center gap-4">
+            <SearchBar />
+            <div className="flex items-center gap-4">
+              <Link
+                href="/notes"
+                className="text-muted hover:text-foreground transition-colors"
+              >
+                Notes
+              </Link>
+              <Link
+                href="/articles"
+                className="text-muted hover:text-foreground transition-colors"
+              >
+                Articles
+              </Link>
+              <Link
+                href="/tags"
+                className="text-muted hover:text-foreground transition-colors"
+              >
+                Tags
+              </Link>
+              <Link
+                href="/graph"
+                className="text-muted hover:text-foreground transition-colors"
+                title="Knowledge Graph"
+              >
+                Graph
+              </Link>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </div>

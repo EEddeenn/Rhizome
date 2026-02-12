@@ -2,6 +2,60 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-02-12
+
+### Added
+
+#### Client-side Search
+- `src/app/(site)/search/page.tsx` — Full-text search page with MiniSearch
+- `src/components/layout/SearchBar.tsx` — Search input in header
+- `src/lib/generated/load-search.ts` — Search index loader
+- `public/generated/search-index.json` — Client-accessible search data
+- Fuzzy matching and prefix search
+- Filter by type (note/article) and tags
+
+#### Graph Visualization
+- `src/app/(site)/graph/page.tsx` — Interactive knowledge graph
+- Canvas-based force-directed layout simulation
+- Node hover shows title, click navigates to page
+- Color-coded by content type
+- Graph link added to header navigation
+
+#### Math & Diagrams
+- Mermaid diagram support via `src/components/mdx/Mermaid.tsx`
+- KaTeX math support with `remark-math` and `rehype-katex`
+- KaTeX CSS loaded via CDN
+
+#### SEO
+- `sitemap.xml` generation with lastmod dates
+- `rss.xml` feed with latest 20 entries
+- `robots.txt` with sitemap reference
+- `public/_headers` for Cloudflare Pages security headers
+- Configurable via `SITE_URL` and `SITE_TITLE` environment variables
+
+#### Testing
+- `tests/slug.test.ts` — Slug utility tests (10 tests)
+- `tests/normalize.test.ts` — Normalization tests (13 tests)
+- `tests/link-resolver.test.ts` — Link extraction/resolution tests (19 tests)
+- `npm run test` command using Node.js built-in test runner
+
+### Changed
+
+#### Navigation
+- Added search bar to header
+- Added "Graph" link to main navigation
+- Improved header layout with search integration
+
+#### Generator
+- Now outputs `public/generated/search-index.json` and `public/generated/graph.json`
+- Generates sitemap.xml and rss.xml to public/
+- Added `SITE_URL` and `SITE_TITLE` config options
+
+#### Dependencies
+- Added: minisearch, mermaid, katex, remark-math, rehype-katex
+
+---
+
 ## [0.1.0] - 2026-02-12
 
 ### Added

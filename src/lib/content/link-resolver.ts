@@ -1,6 +1,5 @@
 import { unified } from "unified";
 import remarkParse from "remark-parse";
-import remarkMdx from "remark-mdx";
 import { visit } from "unist-util-visit";
 import GithubSlugger from "github-slugger";
 import type { WikiLink, Heading } from "./types";
@@ -100,7 +99,7 @@ export function extractHeadings(mdxSource: string): Heading[] {
   const headings: Heading[] = [];
   const slugger = new GithubSlugger();
 
-  const tree = unified().use(remarkParse).use(remarkMdx).parse(mdxSource);
+  const tree = unified().use(remarkParse).parse(mdxSource);
 
   visit(tree, "heading", (node: MdastNode) => {
     const depth = node.depth ?? 1;
@@ -129,7 +128,7 @@ function extractTextFromNodes(nodes: MdastNode[]): string {
 
 export function extractPlainText(mdxSource: string): string {
   const texts: string[] = [];
-  const tree = unified().use(remarkParse).use(remarkMdx).parse(mdxSource);
+  const tree = unified().use(remarkParse).parse(mdxSource);
 
   visit(tree, "text", (node: MdastNode) => {
     if (node.value) {

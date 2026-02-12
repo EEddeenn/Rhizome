@@ -8,13 +8,19 @@
     "build": "npm run gen && next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
+    "katex": "^0.16.28",
+    "mermaid": "^11.12.2",
+    "minisearch": "^7.2.0",
     "next": "^14.2.0",
     "next-mdx-remote": "^5.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@mdx-js/loader": "^3.0.0",
@@ -23,6 +29,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.0",
     "eslint": "^8",
     "eslint-config-next": "^14.2.0",
     "fast-glob": "^3.3.0",
@@ -35,7 +42,6 @@
     "remark-mdx": "^3.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.0.0",
-    "autoprefixer": "^10.4.0",
     "tailwindcss": "^3.4.0",
     "tsx": "^4.7.0",
     "typescript": "^5",

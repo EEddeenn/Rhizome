@@ -24,10 +24,13 @@ import type {
   BacklinksIndex,
   Graph,
   WikiLink,
+  SearchDoc,
 } from "../src/lib/content/types";
 
 const CONTENT_DIR = "content";
 const GENERATED_DIR = "src/generated";
+const SITE_URL = process.env.SITE_URL || "https://example.com";
+const SITE_TITLE = process.env.SITE_TITLE || "Rhizome";
 
 interface RawEntry {
   slug: string;
@@ -166,10 +169,92 @@ function buildGraph(entries: Entry[]): Graph {
   return { nodes, edges };
 }
 
+function buildSearchIndex(rawEntries: RawEntry[]): SearchDoc[] {
+  return rawEntries.map((entry) => ({
+    id: entry.slug,
+    title: entry.title,
+    route: entry.route,
+    type: entry.type,
+    tags: entry.tags,
+    date: entry.date,
+    text: entry.searchText,
+  }));
+}
+
+function generateSitemap(entries: Entry[], baseUrl: string): string {
+  const now = new Date().toISOString().split("T")[0];
+  const urls = entries
+    .map((entry) => {
+      const lastmod = entry.updated || entry.date || now;
+      return `  <url>
+    <loc>${baseUrl}${entry.route}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>`;
+    })
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>`;
+}
+
+function generateRSS(entries: Entry[], baseUrl: string, siteTitle: string): string {
+  const now = new Date().toUTCString();
+  const items = entries
+    .sort((a, b) => {
+      const dateA = a.date ? new Date(a.date).getTime() : 0;
+      const dateB = b.date ? new Date(b.date).getTime() : 0;
+      return dateB - dateA;
+    })
+    .slice(0, 20)
+    .map((entry) => {
+      const pubDate = entry.date ? new Date(entry.date).toUTCString() : now;
+      const description = entry.summary || "";
+      return `    <item>
+      <title>${escapeXML(entry.title)}</title>
+      <link>${baseUrl}${entry.route}</link>
+      <guid>${baseUrl}${entry.route}</guid>
+      <pubDate>${pubDate}</pubDate>
+      <description>${escapeXML(description)}</description>
+    </item>`;
+    })
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${escapeXML(siteTitle)}</title>
+    <link>${baseUrl}</link>
+    <description>Personal knowledge base and articles</description>
+    <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>${now}</lastBuildDate>
+${items}
+  </channel>
+</rss>`;
+}
+
+function escapeXML(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 async function writeJSON(filename: string, data: unknown): Promise<void> {
   const outputPath = path.join(GENERATED_DIR, filename);
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   await fs.writeFile(outputPath, JSON.stringify(data, null, 2));
+
+  const publicFiles = ["search-index.json", "graph.json"];
+  if (publicFiles.includes(filename)) {
+    const publicPath = path.join("public", "generated", filename);
+    await fs.mkdir(path.dirname(publicPath), { recursive: true });
+    await fs.writeFile(publicPath, JSON.stringify(data));
+  }
 }
 
 async function writeContentIndex(rawEntries: RawEntry[]): Promise<void> {
@@ -248,16 +333,27 @@ async function main(): Promise<void> {
   const backlinks = buildBacklinks(entries);
   const tagsIndex = buildTagsIndex(entries);
   const graph = buildGraph(entries);
+  const searchIndex = buildSearchIndex(rawEntries);
   console.log(`   Tags: ${Object.keys(tagsIndex).length}`);
   console.log(`   Graph: ${graph.nodes.length} nodes, ${graph.edges.length} edges`);
+  console.log(`   Search: ${searchIndex.length} documents`);
 
   console.log("\n6. Writing generated files...");
   await writeJSON("manifest.json", entries);
   await writeJSON("backlinks.json", backlinks);
   await writeJSON("tags.json", tagsIndex);
   await writeJSON("graph.json", graph);
+  await writeJSON("search-index.json", searchIndex);
   await writeContentIndex(rawEntries);
   console.log("   JSON files written");
+
+  console.log("\n7. Generating sitemap and RSS...");
+  const sitemap = generateSitemap(entries, SITE_URL);
+  const rss = generateRSS(entries, SITE_URL, SITE_TITLE);
+  await fs.mkdir("public", { recursive: true });
+  await fs.writeFile("public/sitemap.xml", sitemap);
+  await fs.writeFile("public/rss.xml", rss);
+  console.log("   sitemap.xml and rss.xml written");
 
   console.log("\n✓ Content generation complete!");
 }

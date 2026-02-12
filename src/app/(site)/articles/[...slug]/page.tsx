@@ -1,12 +1,15 @@
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import { getEntryBySlug, getArticles, getAllEntries } from "@/lib/generated/load-manifest";
 import { getBacklinksForSlug } from "@/lib/generated/load-backlinks";
 import { getMdxContent } from "@/lib/generated/load-content";
 import { TagPills } from "@/components/blocks/TagPills";
 import { BacklinksPanel } from "@/components/blocks/BacklinksPanel";
 import { remarkWikiLinks } from "@/lib/content/remark-wiki-links";
+import { Mermaid } from "@/components/mdx/Mermaid";
 
 interface PageProps {
   params: Promise<{ slug: string[] }>;
@@ -85,12 +88,15 @@ export default async function ArticlePage({ params }: PageProps) {
       <div className="prose max-w-none">
         <MDXRemote 
           source={source} 
+          components={{ Mermaid }}
           options={{
             mdxOptions: {
               remarkPlugins: [
                 remarkGfm,
+                remarkMath,
                 [remarkWikiLinks, { resolve: resolveWikiLink }]
               ],
+              rehypePlugins: [rehypeKatex],
             },
           }}
         />

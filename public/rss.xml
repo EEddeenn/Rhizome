@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Rhizome</title>
+    <link>https://example.com</link>
+    <description>Personal knowledge base and articles</description>
+    <atom:link href="https://example.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>Thu, 12 Feb 2026 11:47:39 GMT</lastBuildDate>
+    <item>
+      <title>Mermaid Diagrams Test</title>
+      <link>https://example.com/notes/diagrams-test</link>
+      <guid>https://example.com/notes/diagrams-test</guid>
+      <pubDate>Thu, 12 Feb 2026 00:00:00 GMT</pubDate>
+      <description>Test note demonstrating Mermaid diagram support.</description>
+    </item>
+    <item>
+      <title>Knowledge Graph Basics</title>
+      <link>https://example.com/notes/knowledge-graph-basics</link>
+      <guid>https://example.com/notes/knowledge-graph-basics</guid>
+      <pubDate>Thu, 12 Feb 2026 00:00:00 GMT</pubDate>
+      <description>Understanding how knowledge graphs help connect ideas.</description>
+    </item>
+    <item>
+      <title>Math Test</title>
+      <link>https://example.com/notes/math-test</link>
+      <guid>https://example.com/notes/math-test</guid>
+      <pubDate>Thu, 12 Feb 2026 00:00:00 GMT</pubDate>
+      <description>Test note demonstrating KaTeX math rendering.</description>
+    </item>
+    <item>
+      <title>Welcome to Rhizome</title>
+      <link>https://example.com/notes/welcome</link>
+      <guid>https://example.com/notes/welcome</guid>
+      <pubDate>Thu, 12 Feb 2026 00:00:00 GMT</pubDate>
+      <description>Getting started with your personal knowledge management system.</description>
+    </item>
+    <item>
+      <title>Building a Second Brain</title>
+      <link>https://example.com/articles/building-a-second-brain</link>
+      <guid>https://example.com/articles/building-a-second-brain</guid>
+      <pubDate>Tue, 10 Feb 2026 00:00:00 GMT</pubDate>
+      <description>An introduction to the PARA method and building a personal knowledge system.</description>
+    </item>
+  </channel>
+</rss>

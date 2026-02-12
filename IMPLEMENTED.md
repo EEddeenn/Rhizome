@@ -48,6 +48,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] `src/lib/generated/load-tags.ts`
 - [x] `src/lib/generated/load-backlinks.ts`
 - [x] `src/lib/generated/load-content.ts`
+- [x] `src/lib/generated/load-search.ts`
 - [x] `src/app/(site)/notes/[...slug]/page.tsx` with generateStaticParams
 - [x] `src/app/(site)/articles/[...slug]/page.tsx` with generateStaticParams
 - [x] MDX rendering via next-mdx-remote
@@ -62,17 +63,35 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] `src/app/(site)/tags/[tag]/page.tsx` — Tag-filtered entries
 - [x] `src/components/blocks/EntryList.tsx`
 
-### Phase 8 — Layout & Navigation
+### Phase 8 — Client-side Search
+- [x] `src/generated/search-index.json` generation
+- [x] `public/generated/search-index.json` for client access
+- [x] `src/app/(site)/search/page.tsx`
+- [x] MiniSearch integration with fuzzy matching
+- [x] Search UI with tag/type facets
+- [x] `src/components/layout/SearchBar.tsx` in header
+
+### Phase 9 — Graph View
+- [x] `public/generated/graph.json` for client access
+- [x] `src/app/(site)/graph/page.tsx`
+- [x] Canvas-based force-directed graph visualization
+- [x] Hover for details, click to navigate
+- [x] Graph link in header navigation
+
+### Phase 10 — Layout & Navigation
 - [x] `src/app/(site)/layout.tsx` — Site shell
 - [x] `src/components/layout/Nav.tsx`
 - [x] `src/components/layout/Footer.tsx`
 - [x] `src/components/layout/Breadcrumbs.tsx` (created, not used yet)
+- [x] `src/components/layout/SearchBar.tsx`
 
-### Phase 9 — MDX Components
-- [x] `src/components/mdx/MDXComponents.tsx` (created for future use)
+### Phase 11 — MDX Components
+- [x] `src/components/mdx/MDXComponents.tsx`
 - [x] Wiki-link remark plugin (`remarkWikiLinks`)
+- [x] `src/components/mdx/Mermaid.tsx` — Mermaid diagram support
+- [x] KaTeX math support via remark-math + rehype-katex
 
-### Phase 10 — Dark Mode (Extra)
+### Phase 12 — Dark Mode
 - [x] Tailwind darkMode: "class"
 - [x] CSS variables for theme colors
 - [x] ThemeToggle component
@@ -80,10 +99,24 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] localStorage persistence
 - [x] All components styled for dark mode
 
-### Phase 12 — Cloudflare Deployment
+### Phase 13 — SEO
+- [x] sitemap.xml generation
+- [x] RSS feed generation (rss.xml)
+- [x] robots.txt
+- [x] Cloudflare Pages _headers file
+
+### Phase 14 — Testing
+- [x] Node.js built-in test runner
+- [x] `tests/slug.test.ts` — Slug utility tests
+- [x] `tests/normalize.test.ts` — Normalization tests
+- [x] `tests/link-resolver.test.ts` — Link extraction/resolution tests
+- [x] 42 tests passing
+
+### Phase 15 — Cloudflare Deployment
 - [x] `output: "export"` in next.config.mjs
 - [x] `images: { unoptimized: true }`
 - [x] Static export to `out/` directory
+- [x] SITE_URL and SITE_TITLE environment variables
 
 ### Documentation
 - [x] README.md
@@ -96,39 +129,17 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 
 ### Optional Features from Design
 
-#### Client-side Search (Phase 8 in design)
-- [ ] `src/generated/search-index.json` generation
-- [ ] `src/app/(site)/search/page.tsx`
-- [ ] MiniSearch integration
-- [ ] Search UI with tag/type facets
-
-#### Graph View (Phase 9 in design)
-- [ ] `src/app/(site)/graph/page.tsx`
-- [ ] Force-directed graph visualization
-- [ ] Click node → navigate
-
-#### Additional MDX Features
-- [ ] Mermaid diagram support
-- [ ] Math/KaTeX support
-- [ ] Callout/admonition blocks (component exists but not integrated)
-- [ ] Code syntax highlighting (shiki or prism)
-
 #### Watch Mode
 - [ ] `scripts/watch.ts` for content hot-reload during development
 
-#### Testing
-- [ ] Generator unit tests
-- [ ] Build validation checks
-- [ ] Broken link report file output
+#### Additional MDX Features
+- [ ] Callout/admonition blocks (component exists but not integrated)
+- [ ] Code syntax highlighting (shiki or prism)
 
 #### Additional Metadata
 - [ ] `status` field display (to-read, reading, done)
 - [ ] `source` field display
 - [ ] Reading time display on pages
-
-#### SEO Enhancements
-- [ ] sitemap.xml generation
-- [ ] RSS feed
 
 ### Minor Gaps
 
@@ -149,8 +160,10 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 | Tags | ✅ Complete |
 | Static Export | ✅ Complete |
 | Dark Mode | ✅ Complete |
-| Search | ❌ Not implemented |
-| Graph View | ❌ Not implemented |
-| Testing | ❌ Not implemented |
+| Search | ✅ Complete |
+| Graph View | ✅ Complete |
+| Mermaid/Math | ✅ Complete |
+| SEO (sitemap/RSS) | ✅ Complete |
+| Testing | ✅ Complete |
 
-**MVP Status**: ✅ Complete and deployable to Cloudflare Pages.
+**Status**: ✅ Feature-complete and deployable to Cloudflare Pages.

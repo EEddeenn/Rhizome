@@ -8,6 +8,10 @@ A static personal notes and knowledge management system built with Next.js, MDX,
 - **Wiki-links** - Link between notes using `[[Note Title]]` syntax
 - **Backlinks** - See what other notes link to the current page
 - **Tags** - Organize content with tags and browse by tag
+- **Search** - Full-text search powered by MiniSearch
+- **Graph View** - Visualize connections between notes
+- **Math & Diagrams** - KaTeX math and Mermaid diagram support
+- **SEO** - Automatic sitemap.xml and RSS feed generation
 - **Static Export** - Fully static site, no server required
 - **Cloudflare Pages** - Optimized for deployment on Cloudflare
 
@@ -37,16 +41,24 @@ The static site will be output to the `out/` directory.
 │   ├── app/(site)/      # Next.js App Router pages
 │   │   ├── notes/       # Notes routes
 │   │   ├── articles/    # Articles routes
-│   │   └── tags/        # Tag routes
+│   │   ├── tags/        # Tag routes
+│   │   ├── search/      # Search page
+│   │   └── graph/       # Graph visualization
 │   ├── components/
 │   │   ├── blocks/      # Content blocks (EntryList, BacklinksPanel, etc.)
-│   │   ├── layout/      # Layout components (Nav, Footer)
-│   │   └── mdx/         # MDX components
+│   │   ├── layout/      # Layout components (Nav, Footer, SearchBar)
+│   │   └── mdx/         # MDX components (Mermaid)
 │   ├── lib/
 │   │   ├── content/     # Content utilities
 │   │   ├── generated/   # Loaders for generated data
 │   │   └── ui/          # UI utilities
 │   └── generated/       # Generated JSON indices
+├── public/
+│   ├── generated/       # Client-accessible JSON (search, graph)
+│   ├── sitemap.xml      # SEO sitemap
+│   ├── rss.xml          # RSS feed
+│   └── robots.txt       # Search engine directives
+├── tests/               # Unit tests
 ├── scripts/
 │   └── gen-content.ts   # Build-time content generator
 └── out/                 # Static export output
@@ -89,6 +101,27 @@ You can also use aliases: [[Another Note|custom text]].
 - **Wiki-links**: `[[Note Title]]` or `[[Note Title|Alias]]`
 - **Markdown links**: `[text](/notes/slug)`
 
+### Math & Diagrams
+
+Math (KaTeX) - use single backslashes for LaTeX commands:
+```mdx
+Inline math: $E = mc^2$
+
+Block math:
+$$
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+$$
+```
+
+Diagrams (Mermaid):
+```mdx
+<Mermaid code={`
+graph TD
+    A[Start] --> B[Process]
+    B --> C[End]
+`} />
+```
+
 ## Commands
 
 | Command | Description |
@@ -98,6 +131,7 @@ You can also use aliases: [[Another Note|custom text]].
 | `npm run build` | Build for production (runs gen + export) |
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Run TypeScript check |
+| `npm run test` | Run tests |
 
 ## Deployment
 
@@ -108,6 +142,9 @@ You can also use aliases: [[Another Note|custom text]].
    - **Build command**: `npm run build`
    - **Build output directory**: `out`
    - **Node version**: 18 or higher
+3. Set environment variables:
+   - `SITE_URL` - Your site URL (e.g., `https://notes.example.com`)
+   - `SITE_TITLE` - Your site title (default: "Rhizome")
 
 The `next.config.mjs` is pre-configured with `output: "export"` for static generation.
 
