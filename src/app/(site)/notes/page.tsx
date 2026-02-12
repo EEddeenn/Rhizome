@@ -1,6 +1,6 @@
 import { getNotes } from "@/lib/generated/load-manifest";
 import { sortEntries } from "@/lib/content/sort";
-import { EntryList } from "@/components/blocks/EntryList";
+import { CategoryPage } from "@/components/blocks/CategoryPage";
 
 export const metadata = {
   title: "Notes",
@@ -9,11 +9,5 @@ export const metadata = {
 
 export default function NotesPage() {
   const notes = sortEntries(getNotes());
-
-  return (
-    <main className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Notes</h1>
-      <EntryList entries={notes} />
-    </main>
-  );
+  return <CategoryPage title="Notes" entries={notes} />;
 }

@@ -31,6 +31,7 @@ export default function GraphPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const nodesRef = useRef<Node[]>([]);
+  const nodeMapRef = useRef<Map<string, Node>>(new Map());
   const edgesRef = useRef<Edge[]>([]);
   const animationRef = useRef<number | null>(null);
   const frameRef = useRef(0);
@@ -71,6 +72,8 @@ export default function GraphPage() {
           vx: 0,
           vy: 0,
         }));
+        
+        nodeMapRef.current = new Map(nodesRef.current.map(n => [n.id, n]));
         edgesRef.current = data.edges;
         setLoading(false);
       });
@@ -85,6 +88,7 @@ export default function GraphPage() {
 
     const { width, height } = canvasSize;
     const nodes = nodesRef.current;
+    const nodeMap = nodeMapRef.current;
     const edges = edgesRef.current;
 
     ctx.fillStyle = document.documentElement.classList.contains("dark")
@@ -97,8 +101,8 @@ export default function GraphPage() {
       : "#e5e7eb";
     ctx.lineWidth = 1;
     for (const edge of edges) {
-      const source = nodes.find((n) => n.id === edge.source);
-      const target = nodes.find((n) => n.id === edge.target);
+      const source = nodeMap.get(edge.source);
+      const target = nodeMap.get(edge.target);
       if (source && target) {
         ctx.beginPath();
         ctx.moveTo(source.x, source.y);
@@ -148,6 +152,7 @@ export default function GraphPage() {
 
     const simulate = () => {
       const nodes = nodesRef.current;
+      const nodeMap = nodeMapRef.current;
       const edges = edgesRef.current;
 
       for (let i = 0; i < nodes.length; i++) {
@@ -171,8 +176,8 @@ export default function GraphPage() {
       }
 
       for (const edge of edges) {
-        const source = nodes.find((n) => n.id === edge.source);
-        const target = nodes.find((n) => n.id === edge.target);
+        const source = nodeMap.get(edge.source);
+        const target = nodeMap.get(edge.target);
         if (source && target) {
           const dx = target.x - source.x;
           const dy = target.y - source.y;

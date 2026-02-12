@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-02-13
+
+### Added
+
+#### Shared Components
+- `src/components/blocks/EntryPage.tsx` — Unified note/article page component
+- `src/components/blocks/CategoryPage.tsx` — Unified notes/articles list page component
+- `src/components/blocks/EntryListSection.tsx` — Reusable entry list section for homepage
+
+#### Configuration
+- `src/lib/content/mdx-config.ts` — Centralized MDX plugin configuration
+
+### Changed
+
+#### Performance Optimizations
+- `getEntryBySlug()` now uses cached Map for O(1) lookups instead of O(n) `.find()`
+- `getWikiLinkResolver()` pre-computes title index once and caches it
+- `getNotes()` and `getArticles()` now cache filtered results
+- Graph page force simulation uses nodeMap for O(1) edge lookups
+- Mermaid component memoizes chart ID and optimizes initialization
+
+#### Code Deduplication
+- Consolidated duplicate note/article page logic into shared `EntryPage` component
+- Consolidated notes/articles list pages into shared `CategoryPage` component
+- Consolidated homepage sections into shared `EntryListSection` component
+- Extracted MDX plugin configuration to shared `getMdxPlugins()` utility
+
+#### Navigation
+- `TagPills` now uses Next.js `<Link>` for client-side navigation instead of `<a>`
+
+#### Assets
+- KaTeX CSS and fonts now hosted locally instead of jsdelivr CDN
+- Added `public/katex.min.css` and `public/fonts/` with all KaTeX font files
+
+---
+
 ## [0.4.0] - 2026-02-13
 
 ### Added

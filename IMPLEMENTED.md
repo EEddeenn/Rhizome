@@ -138,9 +138,22 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] `src/app/(site)/not-found.tsx` — Custom 404 page
 - [x] `scripts/watch.ts` — Content hot-reload during development
 
+### Phase 18 — Performance & Code Quality
+- [x] `src/components/blocks/EntryPage.tsx` — Unified note/article page component
+- [x] `src/components/blocks/CategoryPage.tsx` — Unified notes/articles list page component
+- [x] `src/components/blocks/EntryListSection.tsx` — Reusable homepage section
+- [x] `src/lib/content/mdx-config.ts` — Centralized MDX configuration
+- [x] Cached `getEntryBySlug()` with Map for O(1) lookups
+- [x] Cached `getWikiLinkResolver()` with pre-computed title index
+- [x] Cached `getNotes()` and `getArticles()` filtered results
+- [x] Graph page nodeMap for O(1) edge lookups
+- [x] Mermaid component optimization with memoized ID
+- [x] TagPills uses Next.js Link for client navigation
+- [x] Local KaTeX hosting (no external CDN dependency)
+
 ### Documentation
 - [x] README.md — Updated with all features
-- [x] CHANGELOG.md — Version 0.4.0
+- [x] CHANGELOG.md — Version 0.5.0
 - [x] Comprehensive demo content:
   - `welcome.mdx` — Getting started guide
   - `markdown-guide.mdx` — Markdown formatting reference
@@ -185,5 +198,8 @@ None remaining - all features from IMPLEMENTED.md have been completed.
 | OG/Twitter Cards | ✅ Complete |
 | Custom 404 | ✅ Complete |
 | Broken Links File | ✅ Complete |
+| Performance Optimizations | ✅ Complete |
+| Code Deduplication | ✅ Complete |
+| Local Asset Hosting | ✅ Complete |
 
 **Status**: ✅ Feature-complete and deployable to Cloudflare Pages.

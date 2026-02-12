@@ -1,15 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import mermaid from "mermaid";
 
 interface MermaidProps {
   code: string;
 }
 
+let initialized = false;
+
+function initMermaid(isDark: boolean) {
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: isDark ? "dark" : "default",
+    securityLevel: "loose",
+  });
+  initialized = true;
+}
+
 export function Mermaid({ code }: MermaidProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isDark, setIsDark] = useState(false);
+  const id = useMemo(() => `mermaid-${Math.random().toString(36).slice(2)}`, []);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -30,17 +42,17 @@ export function Mermaid({ code }: MermaidProps) {
   useEffect(() => {
     if (!ref.current) return;
 
+    initMermaid(isDark);
+
     const render = async () => {
       if (!ref.current) return;
 
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: isDark ? "dark" : "default",
-        securityLevel: "loose",
-      });
-
       try {
-        const id = `mermaid-${Math.random().toString(36).slice(2)}`;
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: isDark ? "dark" : "default",
+          securityLevel: "loose",
+        });
         const { svg } = await mermaid.render(id, code);
         ref.current.innerHTML = svg;
       } catch (err) {
@@ -49,7 +61,7 @@ export function Mermaid({ code }: MermaidProps) {
     };
 
     render();
-  }, [code, isDark]);
+  }, [code, isDark, id]);
 
   return <div ref={ref} className="my-4 flex justify-center" />;
 }

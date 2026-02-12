@@ -28,6 +28,7 @@ A static personal notes and knowledge management system built with Next.js, MDX,
 - **Responsive** - Mobile-first design
 - **Static Export** - No server required
 - **SEO Ready** - Sitemap, RSS, Open Graph, Twitter cards
+- **Self-Hosted Assets** - No external CDN dependencies (fonts, KaTeX)
 
 ## Quick Start
 
@@ -68,10 +69,12 @@ The static site will be output to the `out/` directory.
 │   │   └── ui/          # UI utilities
 │   └── generated/       # Generated JSON indices
 ├── public/
-│   ├── generated/       # Client-accessible JSON (search, graph)
-│   ├── sitemap.xml      # SEO sitemap
-│   ├── rss.xml          # RSS feed
-│   └── robots.txt       # Search engine directives
+│   ├── fonts/            # KaTeX fonts for math rendering
+│   ├── generated/        # Client-accessible JSON (search, graph)
+│   ├── katex.min.css     # KaTeX styles
+│   ├── sitemap.xml       # SEO sitemap
+│   ├── rss.xml           # RSS feed
+│   └── robots.txt        # Search engine directives
 ├── tests/               # Unit tests
 ├── scripts/
 │   ├── gen-content.ts   # Build-time content generator
