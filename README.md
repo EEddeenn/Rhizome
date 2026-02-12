@@ -141,10 +141,10 @@ graph TD
 
 1. Connect your repository to Cloudflare Pages
 2. Set build settings:
-   - **Build command**: `npm run build`
+   - **Build command**: `npm run build` (IMPORTANT: Do not use `npx next build` - the content generator must run first)
    - **Build output directory**: `out`
    - **Node version**: 18 or higher
-3. Set environment variables:
+3. Set environment variables (optional):
    - `SITE_URL` - Your site URL (e.g., `https://notes.example.com`)
    - `SITE_TITLE` - Your site title (default: "Rhizome")
 

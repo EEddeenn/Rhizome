@@ -85,7 +85,7 @@ export default async function ArticlePage({ params }: PageProps) {
         <TagPills tags={entry.tags} />
       </header>
 
-      <div className="prose prose-sm sm:prose max-w-none">
+      <div className="prose max-w-none">
         <MDXRemote 
           source={source} 
           components={{ Mermaid }}

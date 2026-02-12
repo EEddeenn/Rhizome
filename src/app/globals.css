@@ -24,11 +24,20 @@ body {
   @apply text-foreground;
 }
 
-.prose h1,
-.prose h2,
-.prose h3,
+.prose h1 {
+  @apply text-2xl sm:text-3xl font-bold mt-6 sm:mt-8 mb-4 text-foreground;
+}
+
+.prose h2 {
+  @apply text-xl sm:text-2xl font-semibold mt-5 sm:mt-6 mb-3 text-foreground;
+}
+
+.prose h3 {
+  @apply text-lg sm:text-xl font-semibold mt-4 mb-2 text-foreground;
+}
+
 .prose h4 {
-  @apply text-foreground;
+  @apply text-base sm:text-lg font-semibold mt-3 mb-2 text-foreground;
 }
 
 .prose a {

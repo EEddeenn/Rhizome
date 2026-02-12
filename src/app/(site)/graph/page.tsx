@@ -30,13 +30,15 @@ const COLORS: Record<string, string> = {
 export default function GraphPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const nodesRef = useRef<Node[]>([]);
+  const edgesRef = useRef<Edge[]>([]);
+  const animationRef = useRef<number | null>(null);
+  const frameRef = useRef(0);
+
   const [graph, setGraph] = useState<Graph | null>(null);
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
   const [loading, setLoading] = useState(true);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
-  const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     const updateSize = () => {
@@ -62,111 +64,28 @@ export default function GraphPage() {
         const centerY = height / 2;
         const radius = Math.min(width, height) / 3;
 
-        const initializedNodes = data.nodes.map((n, i) => ({
+        nodesRef.current = data.nodes.map((n, i) => ({
           ...n,
           x: Math.cos((i / data.nodes.length) * 2 * Math.PI) * radius + centerX,
           y: Math.sin((i / data.nodes.length) * 2 * Math.PI) * radius + centerY,
           vx: 0,
           vy: 0,
         }));
-        setNodes(initializedNodes);
-        setEdges(data.edges);
+        edgesRef.current = data.edges;
         setLoading(false);
       });
   }, [canvasSize]);
 
-  const simulate = useCallback(() => {
-    if (nodes.length === 0) return;
-
-    const { width, height } = canvasSize;
-    const alpha = 0.1;
-    const repulsion = 5000;
-    const attraction = 0.01;
-    const centerForce = 0.001;
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const padding = 30;
-
-    const newNodes = nodes.map((node) => ({ ...node, vx: 0, vy: 0 }));
-
-    for (let i = 0; i < newNodes.length; i++) {
-      for (let j = i + 1; j < newNodes.length; j++) {
-        const dx = newNodes[j].x - newNodes[i].x;
-        const dy = newNodes[j].y - newNodes[i].y;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        const force = repulsion / (dist * dist);
-        const fx = (dx / dist) * force;
-        const fy = (dy / dist) * force;
-        newNodes[i].vx -= fx;
-        newNodes[i].vy -= fy;
-        newNodes[j].vx += fx;
-        newNodes[j].vy += fy;
-      }
-    }
-
-    for (const edge of edges) {
-      const source = newNodes.find((n) => n.id === edge.source);
-      const target = newNodes.find((n) => n.id === edge.target);
-      if (source && target) {
-        const dx = target.x - source.x;
-        const dy = target.y - source.y;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        const force = dist * attraction;
-        const fx = (dx / dist) * force;
-        const fy = (dy / dist) * force;
-        source.vx += fx;
-        source.vy += fy;
-        target.vx -= fx;
-        target.vy -= fy;
-      }
-    }
-
-    for (const node of newNodes) {
-      node.vx += (centerX - node.x) * centerForce;
-      node.vy += (centerY - node.y) * centerForce;
-    }
-
-    for (const node of newNodes) {
-      node.x += node.vx * alpha;
-      node.y += node.vy * alpha;
-      node.x = Math.max(padding, Math.min(width - padding, node.x));
-      node.y = Math.max(padding, Math.min(height - padding, node.y));
-    }
-
-    setNodes(newNodes);
-  }, [nodes, edges, canvasSize]);
-
-  useEffect(() => {
-    if (!loading && nodes.length > 0) {
-      let frame = 0;
-      const maxFrames = 300;
-
-      const animate = () => {
-        simulate();
-        frame++;
-        if (frame < maxFrames) {
-          animationRef.current = requestAnimationFrame(animate);
-        }
-      };
-
-      animate();
-    }
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [loading, simulate]);
-
-  useEffect(() => {
+  const draw = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas || nodes.length === 0) return;
+    if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const { width, height } = canvasSize;
+    const nodes = nodesRef.current;
+    const edges = edgesRef.current;
 
     ctx.fillStyle = document.documentElement.classList.contains("dark")
       ? "#1f2937"
@@ -212,7 +131,97 @@ export default function GraphPage() {
       ctx.textAlign = "center";
       ctx.fillText(hoveredNode.title, hoveredNode.x, hoveredNode.y - 18);
     }
-  }, [nodes, edges, hoveredNode, canvasSize]);
+  }, [hoveredNode, canvasSize]);
+
+  useEffect(() => {
+    if (loading || nodesRef.current.length === 0) return;
+
+    const { width, height } = canvasSize;
+    const alpha = 0.1;
+    const repulsion = 5000;
+    const attraction = 0.01;
+    const centerForce = 0.001;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const padding = 30;
+    const maxFrames = 300;
+
+    const simulate = () => {
+      const nodes = nodesRef.current;
+      const edges = edgesRef.current;
+
+      for (let i = 0; i < nodes.length; i++) {
+        nodes[i].vx = 0;
+        nodes[i].vy = 0;
+      }
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[j].x - nodes[i].x;
+          const dy = nodes[j].y - nodes[i].y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const force = repulsion / (dist * dist);
+          const fx = (dx / dist) * force;
+          const fy = (dy / dist) * force;
+          nodes[i].vx -= fx;
+          nodes[i].vy -= fy;
+          nodes[j].vx += fx;
+          nodes[j].vy += fy;
+        }
+      }
+
+      for (const edge of edges) {
+        const source = nodes.find((n) => n.id === edge.source);
+        const target = nodes.find((n) => n.id === edge.target);
+        if (source && target) {
+          const dx = target.x - source.x;
+          const dy = target.y - source.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const force = dist * attraction;
+          const fx = (dx / dist) * force;
+          const fy = (dy / dist) * force;
+          source.vx += fx;
+          source.vy += fy;
+          target.vx -= fx;
+          target.vy -= fy;
+        }
+      }
+
+      for (const node of nodes) {
+        node.vx += (centerX - node.x) * centerForce;
+        node.vy += (centerY - node.y) * centerForce;
+      }
+
+      for (const node of nodes) {
+        node.x += node.vx * alpha;
+        node.y += node.vy * alpha;
+        node.x = Math.max(padding, Math.min(width - padding, node.x));
+        node.y = Math.max(padding, Math.min(height - padding, node.y));
+      }
+    };
+
+    const animate = () => {
+      simulate();
+      draw();
+      frameRef.current++;
+
+      if (frameRef.current < maxFrames) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    animate();
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [loading, canvasSize, draw]);
+
+  useEffect(() => {
+    draw();
+  }, [draw]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -224,7 +233,7 @@ export default function GraphPage() {
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
-    const hovered = nodes.find((node) => {
+    const hovered = nodesRef.current.find((node) => {
       const dx = node.x - x;
       const dy = node.y - y;
       return Math.sqrt(dx * dx + dy * dy) < 15;
@@ -302,7 +311,7 @@ export default function GraphPage() {
           <div className="mt-6 sm:mt-8">
             <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">All Entries</h2>
             <div className="grid gap-1 sm:gap-2">
-              {nodes.map((node) => (
+              {graph?.nodes.map((node) => (
                 <Link
                   key={node.id}
                   href={`/${node.id}`}

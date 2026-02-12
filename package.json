@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "gen": "tsx scripts/gen-content.ts",
-    "dev": "npm run gen && next dev",
-    "build": "npm run gen && next build",
+    "predev": "npm run gen",
+    "dev": "next dev",
+    "prebuild": "npm run gen",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
