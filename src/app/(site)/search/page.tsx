@@ -66,7 +66,7 @@ export default function SearchPage() {
       <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Search</h1>
 
       {loading ? (
-        <p className="text-gray-500 dark:text-gray-400">Loading search index...</p>
+        <p className="text-muted">Loading search index...</p>
       ) : (
         <>
           <div className="mb-6 space-y-3 sm:space-y-4">
@@ -107,7 +107,7 @@ export default function SearchPage() {
 
           {query.trim() && (
             <div className="space-y-3 sm:space-y-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-muted">
                 {results.length} result{results.length !== 1 ? "s" : ""}
               </p>
 
@@ -121,7 +121,7 @@ export default function SearchPage() {
                       >
                         <div>
                           <h2 className="font-semibold text-base sm:text-lg">{result.title}</h2>
-                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          <p className="text-xs sm:text-sm text-muted mt-1">
                             {result.type}
                             {result.date && ` · ${result.date}`}
                           </p>
@@ -143,7 +143,7 @@ export default function SearchPage() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500 dark:text-gray-400">No results found.</p>
+                <p className="text-muted">No results found.</p>
               )}
             </div>
           )}
