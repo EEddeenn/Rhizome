@@ -37,6 +37,7 @@ function SearchContent() {
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const selectedRef = useRef<HTMLLIElement>(null);
 
   const debouncedQuery = useDebouncedValue(query, 150);
 
@@ -80,6 +81,15 @@ function SearchContent() {
   useEffect(() => {
     setSelectedIndex(-1);
   }, [results.length]);
+
+  useEffect(() => {
+    if (selectedRef.current) {
+      selectedRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [selectedIndex]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
@@ -152,7 +162,10 @@ function SearchContent() {
               {results.length > 0 ? (
                 <ul className="space-y-3 sm:space-y-4">
                   {results.map((result, index) => (
-                    <li key={result.id}>
+                    <li
+                      key={result.id}
+                      ref={index === selectedIndex ? selectedRef : null}
+                    >
                       <Link
                         href={result.route}
                         className={`block p-3 sm:p-4 border rounded-lg transition-colors ${
