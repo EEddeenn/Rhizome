@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MiniSearch from "minisearch";
 import { SearchDoc } from "@/lib/content/types";
@@ -15,7 +16,8 @@ const miniSearchOptions = {
   },
 };
 
-export default function SearchPage() {
+function SearchContent() {
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("");
   const [tagFilter, setTagFilter] = useState<string>("");
@@ -24,10 +26,9 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get("q");
+    const q = searchParams.get("q");
     if (q) setQuery(q);
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     fetch("/generated/search/search-index.json")
@@ -150,5 +151,13 @@ export default function SearchPage() {
         </>
       )}
     </main>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<main className="max-w-3xl mx-auto px-4 py-6 sm:py-8"><p className="text-muted">Loading...</p></main>}>
+      <SearchContent />
+    </Suspense>
   );
 }
