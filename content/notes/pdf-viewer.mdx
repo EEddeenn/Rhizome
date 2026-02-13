@@ -12,35 +12,34 @@ The PDFViewer component lets you embed PDF documents directly in your notes and 
 
 ## Basic Usage
 
-Use the `PDFViewer` component with a `src` prop pointing to your PDF:
+Use the `PDFViewer` component with a `src` prop:
 
 ```mdx
-<PDFViewer src="/assets/pdfs/document.pdf" />
+<PDFViewer src="document.pdf" />
 ```
 
-Here's a working example with an external PDF:
+For local PDFs stored in `content/assets/pdfs/`, just use the filename:
+
+<PDFViewer 
+  src="sample_indexed_v2.pdf" 
+  title="Local Sample PDF"
+  id="local"
+/>
+
+For external URLs:
 
 <PDFViewer src="https://arxiv.org/pdf/1910.09336" title="Sample PDF Document" id="external" />
 
 ## Local PDF Files
 
-Store PDFs in `content/assets/` and reference them with `/assets/`:
-
-<PDFViewer 
-  src="/assets/sample_indexed_v2.pdf" 
-  title="Local Sample PDF"
-  id="local"
-/>
+Store PDFs in `content/assets/pdfs/` and reference them by filename:
 
 ```mdx
-<PDFViewer 
-  src="/assets/sample_indexed_v2.pdf" 
-  title="Local Sample PDF"
-/>
+<PDFViewer src="sample_indexed_v2.pdf" title="Local Sample PDF" />
 ```
 
 <Callout type="note">
-PDFs in `content/assets/` are copied to `public/assets/` during the build process. Run `npm run gen` to copy assets without rebuilding.
+PDFs in `content/assets/pdfs/` are copied to `public/assets/pdfs/` during the build process. Run `npm run gen` to copy assets without rebuilding.
 </Callout>
 
 | Prop | Type | Default | Description |
@@ -60,7 +59,7 @@ The viewer automatically adapts to screen size:
 Override with the `height` prop if needed:
 
 ```mdx
-<PDFViewer src="/assets/slide-deck.pdf" height="500px" />
+<PDFViewer src="slide-deck.pdf" height="500px" />
 ```
 
 ## Props
@@ -102,7 +101,7 @@ This page has two PDFs with `id` props:
 
 ```mdx
 <PDFViewer src="https://arxiv.org/pdf/1910.09336" id="external" />
-<PDFViewer src="/assets/sample_indexed_v2.pdf" id="local" />
+<PDFViewer src="sample_indexed_v2.pdf" id="local" />
 ```
 
 Link to specific pages in each:

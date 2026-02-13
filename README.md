@@ -182,7 +182,7 @@ Supported: flowcharts, sequence diagrams, class diagrams, state diagrams, ER dia
 ### PDF Viewer
 
 ```mdx
-<PDFViewer src="/assets/document.pdf" />
+<PDFViewer src="document.pdf" />
 
 <PDFViewer 
   src="https://arxiv.org/pdf/2301.12345.pdf" 
@@ -191,7 +191,7 @@ Supported: flowcharts, sequence diagrams, class diagrams, state diagrams, ER dia
 />
 ```
 
-Features: page navigation, zoom (50%-300%), fullscreen mode, text selection, and deep linking via URL params (`?pdfPage=5` or `?pdfPage_paper=3` for multiple PDFs).
+Local PDFs go in `content/assets/pdfs/` and are referenced by filename. Features: page navigation, zoom (50%-300%), fullscreen mode, text selection, and deep linking via URL params (`?pdfPage=5` or `?pdfPage_paper=3` for multiple PDFs).
 
 ## Commands
 

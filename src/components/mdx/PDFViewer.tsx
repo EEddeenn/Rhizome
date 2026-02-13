@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 
@@ -26,27 +26,46 @@ interface PDFViewerProps {
   showThumbnails?: boolean;
 }
 
+function getPDFPath(src: string): string {
+  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
+    return src;
+  }
+  return `/assets/pdfs/${src}`;
+}
+
 function PDFViewerWithParams({ src, id, height }: PDFViewerProps) {
   const searchParams = useSearchParams();
   const [initialPage, setInitialPage] = useState<number>(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrolledRef = useRef<string | null>(null);
 
   useEffect(() => {
     const paramKey = id ? `pdfPage_${id}` : "pdfPage";
     const pageParam = searchParams.get(paramKey);
+    
     if (pageParam) {
       const page = parseInt(pageParam, 10);
       if (!isNaN(page) && page > 0) {
         setInitialPage(page);
+        const scrollKey = `${paramKey}=${pageParam}`;
+        if (scrolledRef.current !== scrollKey) {
+          scrolledRef.current = scrollKey;
+          requestAnimationFrame(() => {
+            containerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        }
       }
     }
   }, [searchParams, id]);
 
   return (
-    <PDFViewerInner 
-      src={src} 
-      height={height} 
-      initialPage={initialPage} 
-    />
+    <div ref={containerRef}>
+      <PDFViewerInner 
+        src={getPDFPath(src)} 
+        height={height} 
+        initialPage={initialPage} 
+      />
+    </div>
   );
 }
 
