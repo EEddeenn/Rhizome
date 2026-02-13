@@ -5,6 +5,7 @@
   "scripts": {
     "gen": "tsx scripts/gen-content.ts",
     "watch": "tsx scripts/watch.ts",
+    "new": "tsx scripts/new-content.ts",
     "predev": "npm run gen",
     "dev": "next dev",
     "prebuild": "npm run gen",
