@@ -121,3 +121,31 @@ $$\nabla \times \mathbf{B} = \mu_0\mathbf{J} + \mu_0\epsilon_0\frac{\partial \ma
 <Callout type="note" title="LaTeX Escaping">
 In MDX files, use single backslashes for LaTeX commands. The processor handles the escaping correctly during rendering.
 </Callout>
+
+## Practical Examples
+
+### Compound Interest
+
+$$A = P\left(1 + \frac{r}{n}\right)^{nt}$$
+
+Where $A$ is the final amount, $P$ is principal, $r$ is annual rate, $n$ is compounds per year, and $t$ is years.
+
+### Machine Learning - Gradient Descent
+
+$$\theta_{j} := \theta_{j} - \alpha \frac{\partial}{\partial \theta_{j}} J(\theta)$$
+
+Cost function:
+
+$$J(\theta) = \frac{1}{2m} \sum_{i=1}^{m} (h_\theta(x^{(i)}) - y^{(i)})^2$$
+
+### Shannon Entropy
+
+$$H(X) = -\sum_{i=1}^{n} p(x_i) \log_2 p(x_i)$$
+
+### Fourier Transform
+
+$$\hat{f}(\xi) = \int_{-\infty}^{\infty} f(x) e^{-2\pi i x \xi} \, dx$$
+
+<Callout type="tip">
+Use `$$` for display equations that deserve their own line. Use `$` for inline math that flows with text.
+</Callout>

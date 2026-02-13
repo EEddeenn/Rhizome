@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-02-13
+
+### Added
+
+#### PDF Support
+- `src/components/mdx/PDFViewer.tsx` — PDF embedding component with react-pdf
+- `src/components/mdx/PDFViewerInner.tsx` — Core viewer implementation with full controls
+- Page navigation with prev/next buttons and direct page input
+- Zoom controls (50% to 300%)
+- Fullscreen mode for focused reading
+- Text selection and annotation layer support
+- Deep linking via URL parameters (`?pdfPage=N` or `?pdfPage_id=N` for multiple PDFs)
+- Responsive height: 60vh on mobile, 80vh on desktop
+- Support for both local PDFs (`/assets/file.pdf`) and external URLs
+- `public/pdf.worker.min.js` — PDF.js worker for client-side rendering
+
+#### Content
+- `content/notes/pdf-viewer.mdx` — Comprehensive PDF viewer documentation
+- `content/assets/sample_indexed_v2.pdf` — Sample PDF for testing
+
+---
+
 ## [0.5.0] - 2026-02-13
 
 ### Added

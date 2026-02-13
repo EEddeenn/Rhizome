@@ -196,6 +196,53 @@ Show proportional data:
     "Books" : 8
     "Papers" : 5`} />
 
+## Git Graphs
+
+Visualize branching and merge history:
+
+<Mermaid code={`gitGraph
+    commit id: "Initial"
+    commit id: "Add base features"
+    branch develop
+    checkout develop
+    commit id: "Add search"
+    commit id: "Add tags"
+    checkout main
+    merge develop id: "v1.0" tag: "v1.0.0"
+    branch feature
+    checkout feature
+    commit id: "Add graph view"
+    checkout develop
+    merge feature
+    commit id: "Polish UI"
+    checkout main
+    merge develop id: "v2.0" tag: "v2.0.0"`} />
+
+## Mindmaps
+
+Organize hierarchical concepts:
+
+<Mermaid code={`mindmap
+    root((Knowledge Management))
+        Capture
+            Quick notes
+            Web clips
+            Photos
+            Voice memos
+        Organize
+            Tags
+            Folders
+            Links
+            Graph
+        Distill
+            Summaries
+            Atomic notes
+            MOCs
+        Express
+            Articles
+            Presentations
+            Projects`} />
+
 ## Diagram Syntax Reference
 
 | Diagram Type | Keyword |

@@ -84,3 +84,35 @@ Callouts support:
 
 Even blockquotes work inside callouts.
 </Callout>
+
+## Use Case Examples
+
+### Documentation Notes
+
+<Callout type="note" title="API Endpoint">
+`GET /api/notes/:id` - Retrieve a single note by its ID. Returns 404 if not found.
+</Callout>
+
+### Best Practices
+
+<Callout type="tip" title="Atomic Notes">
+Keep notes focused on a single concept. This makes them easier to link, search, and reuse across different contexts.
+</Callout>
+
+### Deprecation Warnings
+
+<Callout type="warning">
+The `private` frontmatter field is deprecated. Use `draft: true` instead for work-in-progress notes.
+</Callout>
+
+### Security Alerts
+
+<Callout type="danger" title="Environment Variables">
+Never commit `.env` files to version control. Use `.env.example` for documentation and keep secrets in your deployment platform's environment settings.
+</Callout>
+
+### Background Context
+
+<Callout type="info" title="Historical Note">
+The term "wiki" comes from the Hawaiian word for "quick." Ward Cunningham created the first wiki in 1995 as the Portland Pattern Repository.
+</Callout>

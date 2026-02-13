@@ -16,6 +16,7 @@ A static personal notes and knowledge management system built with Next.js, MDX,
 - **Code Highlighting** - Syntax highlighting for 50+ languages
 - **Math** - KaTeX for LaTeX equations (inline and block)
 - **Diagrams** - Mermaid flowcharts, sequence diagrams, class diagrams, and more
+- **PDF Viewer** - Embed PDFs with page navigation, zoom, and deep linking
 
 ### Navigation
 - **Table of Contents** - Auto-generated from headings
@@ -177,6 +178,20 @@ graph TD
 ```
 
 Supported: flowcharts, sequence diagrams, class diagrams, state diagrams, ER diagrams, pie charts.
+
+### PDF Viewer
+
+```mdx
+<PDFViewer src="/assets/document.pdf" />
+
+<PDFViewer 
+  src="https://arxiv.org/pdf/2301.12345.pdf" 
+  id="paper"
+  height="600px"
+/>
+```
+
+Features: page navigation, zoom (50%-300%), fullscreen mode, text selection, and deep linking via URL params (`?pdfPage=5` or `?pdfPage_paper=3` for multiple PDFs).
 
 ## Commands
 

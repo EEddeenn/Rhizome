@@ -176,3 +176,86 @@ ORDER BY n.created_at DESC;
 ## Supported Languages
 
 Common languages include: `javascript`, `typescript`, `python`, `rust`, `go`, `java`, `c`, `cpp`, `csharp`, `ruby`, `php`, `swift`, `kotlin`, `bash`, `sql`, `json`, `yaml`, `markdown`, `css`, `html`, and many more.
+
+## Practical Patterns
+
+### Configuration Files
+
+Document settings and configs:
+
+```yaml
+site:
+  title: "My Knowledge Base"
+  url: "https://notes.example.com"
+
+content:
+  notesDir: "content/notes"
+  articlesDir: "content/articles"
+
+build:
+  output: "out"
+  minify: true
+```
+
+### API Examples
+
+Document endpoints alongside code:
+
+```javascript
+const API_BASE = "/api/v1";
+
+async function getNotes(options = {}) {
+  const params = new URLSearchParams({
+    tag: options.tag || "",
+    limit: options.limit || 20,
+  });
+  
+  const response = await fetch(`${API_BASE}/notes?${params}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch notes: ${response.status}`);
+  }
+  return response.json();
+}
+```
+
+### Data Structures
+
+Explain algorithms with code:
+
+```typescript
+interface TrieNode {
+  children: Map<string, TrieNode>;
+  isEndOfWord: boolean;
+}
+
+class Trie {
+  private root: TrieNode = {
+    children: new Map(),
+    isEndOfWord: false,
+  };
+
+  insert(word: string): void {
+    let node = this.root;
+    for (const char of word) {
+      if (!node.children.has(char)) {
+        node.children.set(char, { children: new Map(), isEndOfWord: false });
+      }
+      node = node.children.get(char)!;
+    }
+    node.isEndOfWord = true;
+  }
+
+  search(word: string): boolean {
+    let node = this.root;
+    for (const char of word) {
+      if (!node.children.has(char)) return false;
+      node = node.children.get(char)!;
+    }
+    return node.isEndOfWord;
+  }
+}
+```
+
+<Callout type="tip" title="Related Guides">
+For embedding code in diagrams, see [[Diagrams]] for sequence and class diagrams. For mathematical algorithms, see [[Mathematical Notation]].
+</Callout>

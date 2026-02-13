@@ -95,6 +95,12 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] KaTeX math support via remark-math + rehype-katex
 - [x] `src/components/mdx/Callout.tsx` — Callout/admonition blocks (note, tip, warning, danger, info)
 - [x] Code syntax highlighting via rehype-highlight
+- [x] `src/components/mdx/PDFViewer.tsx` — PDF embedding with react-pdf
+- [x] `src/components/mdx/PDFViewerInner.tsx` — Core viewer implementation
+- [x] Page navigation, zoom controls, fullscreen mode
+- [x] Deep linking via URL parameters (`?pdfPage=N`, `?pdfPage_id=N`)
+- [x] Responsive height (60vh mobile, 80vh desktop)
+- [x] Text selection and annotation layer support
 
 ### Phase 12 — Dark Mode
 - [x] Tailwind darkMode: "class"
@@ -201,5 +207,6 @@ None remaining - all features from IMPLEMENTED.md have been completed.
 | Performance Optimizations | ✅ Complete |
 | Code Deduplication | ✅ Complete |
 | Local Asset Hosting | ✅ Complete |
+| PDF Viewer | ✅ Complete |
 
 **Status**: ✅ Feature-complete and deployable to Cloudflare Pages.
