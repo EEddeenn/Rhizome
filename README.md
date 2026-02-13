@@ -222,8 +222,6 @@ Local PDFs go in `content/assets/pdfs/` and are referenced by filename. Features
 
 ## Deployment
 
-[![Deploy to Cloudflare Pages](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/EEddeenn/Rhizome)
-
 ### Cloudflare Pages
 
 1. Connect your repository to Cloudflare Pages
