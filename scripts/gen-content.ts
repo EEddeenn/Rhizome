@@ -361,6 +361,18 @@ async function main(): Promise<void> {
   await fs.writeFile("public/rss.xml", rss);
   console.log("   sitemap.xml and rss.xml written");
 
+  console.log("\n8. Copying assets...");
+  const assetFiles = await fg.glob(`${CONTENT_DIR}/assets/**/*`);
+  let copiedCount = 0;
+  for (const assetFile of assetFiles) {
+    const relativePath = assetFile.replace(`${CONTENT_DIR}/assets/`, "");
+    const destPath = path.join("public", "assets", relativePath);
+    await fs.mkdir(path.dirname(destPath), { recursive: true });
+    await fs.copyFile(assetFile, destPath);
+    copiedCount++;
+  }
+  console.log(`   Copied ${copiedCount} asset files`);
+
   console.log("\n✓ Content generation complete!");
 }
 

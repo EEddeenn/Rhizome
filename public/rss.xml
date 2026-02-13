@@ -5,7 +5,14 @@
     <link>https://example.com</link>
     <description>Personal knowledge base and articles</description>
     <atom:link href="https://example.com/rss.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Thu, 12 Feb 2026 23:23:29 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 13 Feb 2026 01:17:11 GMT</lastBuildDate>
+    <item>
+      <title>PDF Viewer</title>
+      <link>https://example.com/notes/pdf-viewer</link>
+      <guid>https://example.com/notes/pdf-viewer</guid>
+      <pubDate>Fri, 13 Feb 2026 00:00:00 GMT</pubDate>
+      <description>Embed PDF documents in your notes with page navigation, zoom controls, and deep linking.</description>
+    </item>
     <item>
       <title>Callouts</title>
       <link>https://example.com/notes/callouts</link>

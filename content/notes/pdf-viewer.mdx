@@ -1,0 +1,139 @@
+---
+title: "PDF Viewer"
+date: "2026-02-13"
+type: "note"
+tags: ["guide", "mdx", "components", "pdf"]
+summary: "Embed PDF documents in your notes with page navigation, zoom controls, and deep linking."
+---
+
+# PDF Viewer
+
+The PDFViewer component lets you embed PDF documents directly in your notes and articles. It supports local files and external URLs, with built-in page navigation, zoom controls, and fullscreen mode.
+
+## Basic Usage
+
+Use the `PDFViewer` component with a `src` prop pointing to your PDF:
+
+```mdx
+<PDFViewer src="/assets/pdfs/document.pdf" />
+```
+
+Here's a working example with an external PDF:
+
+<PDFViewer src="https://arxiv.org/pdf/1910.09336" title="Sample PDF Document" id="external" />
+
+## Local PDF Files
+
+Store PDFs in `content/assets/` and reference them with `/assets/`:
+
+<PDFViewer 
+  src="/assets/sample_indexed_v2.pdf" 
+  title="Local Sample PDF"
+  id="local"
+/>
+
+```mdx
+<PDFViewer 
+  src="/assets/sample_indexed_v2.pdf" 
+  title="Local Sample PDF"
+/>
+```
+
+<Callout type="note">
+PDFs in `content/assets/` are copied to `public/assets/` during the build process. Run `npm run gen` to copy assets without rebuilding.
+</Callout>
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `src` | string | required | URL or path to the PDF file |
+| `id` | string | - | Unique identifier for deep linking with multiple PDFs |
+| `title` | string | - | Accessible label for the PDF |
+| `height` | string | responsive | Height of the viewer (default: 60vh mobile, 80vh desktop) |
+
+## Responsive Height
+
+The viewer automatically adapts to screen size:
+
+- **Mobile**: 60vh (leaves room for note context)
+- **Desktop**: 80vh (maximizes readability)
+
+Override with the `height` prop if needed:
+
+```mdx
+<PDFViewer src="/assets/slide-deck.pdf" height="500px" />
+```
+
+## Props
+
+## External URLs
+
+Load PDFs from external sources:
+
+```mdx
+<PDFViewer 
+  src="https://arxiv.org/pdf/2301.12345.pdf" 
+  title="arXiv Paper"
+/>
+```
+
+<Callout type="warning">
+External PDFs require the source server to allow cross-origin requests (CORS). Many academic repositories (arXiv, institutional sites) allow this, but some servers block it. If loading fails, the viewer displays an error.
+</Callout>
+
+## Deep Linking
+
+Link directly to a specific page using URL parameters. This is useful for sharing or cross-referencing specific sections.
+
+### Single Viewer
+
+For a note with one PDF, use `?pdfPage=N`:
+
+```
+/notes/my-note?pdfPage=5
+```
+
+<Callout type="tip">
+Create links to specific pages: `[see methodology on page 5](/notes/pdf-viewer?pdfPage=5)`. Click it to jump directly to that page.
+</Callout>
+
+### Multiple Viewers
+
+This page has two PDFs with `id` props:
+
+```mdx
+<PDFViewer src="https://arxiv.org/pdf/1910.09336" id="external" />
+<PDFViewer src="/assets/sample_indexed_v2.pdf" id="local" />
+```
+
+Link to specific pages in each:
+
+- `?pdfPage_external=3` - Jump to page 3 in the arXiv paper
+- `?pdfPage_local=2` - Jump to page 2 in the local PDF
+- `?pdfPage_external=5&pdfPage_local=4` - Set both at once
+
+<Callout type="tip">
+Try it: [Open page 3 of the arXiv paper](?pdfPage_external=3) or [page 2 of the local PDF](?pdfPage_local=2).
+</Callout>
+
+## Viewer Controls
+
+The toolbar provides standard PDF controls:
+
+| Control | Description |
+|---------|-------------|
+| **Page navigation** | Previous/next buttons and direct page input |
+| **Zoom** | Zoom in/out (50% to 300%), hidden on mobile to save space |
+| **Fullscreen** | Expand to fill the screen |
+
+<Callout type="info">
+The viewer supports text selection for copying. Select text just like you would in any document.
+</Callout>
+
+## Mobile Experience
+
+On mobile devices:
+
+- Height caps at 60vh to preserve note context
+- Zoom percentage is hidden to save toolbar space
+- Touch-friendly button sizing
+- Fullscreen mode available for focused reading

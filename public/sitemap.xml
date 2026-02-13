@@ -36,6 +36,11 @@
     <changefreq>weekly</changefreq>
   </url>
   <url>
+    <loc>https://example.com/notes/pdf-viewer</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
     <loc>https://example.com/notes/welcome</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>weekly</changefreq>

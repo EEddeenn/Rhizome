@@ -1,6 +1,7 @@
 import type { MDXComponents } from "mdx/types";
 import { Mermaid } from "./Mermaid";
 import { Callout } from "./Callout";
+import { PDFViewer } from "./PDFViewer";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -64,6 +65,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ),
     Mermaid,
     Callout,
+    PDFViewer,
     ...components,
   };
 }
