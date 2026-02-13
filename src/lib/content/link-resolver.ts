@@ -97,23 +97,32 @@ type MdastNode = {
   url?: string;
 };
 
-export function extractHeadings(mdxSource: string): Heading[] {
-  const headings: Heading[] = [];
-  const slugger = new GithubSlugger();
+export interface ExtractedContent {
+  headings: Heading[];
+  plainText: string;
+}
 
+const CODE_NODE_TYPES = new Set(["code", "inlineCode"]);
+
+export function extractContent(mdxSource: string): ExtractedContent {
+  const headings: Heading[] = [];
+  const textParts: string[] = [];
+  const slugger = new GithubSlugger();
   const tree = unified().use(remarkParse).parse(mdxSource);
 
-  visit(tree, "heading", (node: MdastNode) => {
-    const depth = node.depth ?? 1;
-    let text = "";
-    if (node.children) {
-      text = extractTextFromNodes(node.children);
+  visit(tree, (node: MdastNode) => {
+    if (node.type === "heading") {
+      const depth = node.depth ?? 1;
+      const text = node.children ? extractTextFromNodes(node.children) : "";
+      const id = slugger.slug(text);
+      headings.push({ depth, text, id });
+    } else if (node.type === "text" && node.value) {
+      textParts.push(node.value);
     }
-    const id = slugger.slug(text);
-    headings.push({ depth, text, id });
   });
 
-  return headings;
+  const plainText = textParts.join(" ").replace(/\s+/g, " ").trim();
+  return { headings, plainText };
 }
 
 function extractTextFromNodes(nodes: MdastNode[]): string {
@@ -128,15 +137,10 @@ function extractTextFromNodes(nodes: MdastNode[]): string {
   return text;
 }
 
+export function extractHeadings(mdxSource: string): Heading[] {
+  return extractContent(mdxSource).headings;
+}
+
 export function extractPlainText(mdxSource: string): string {
-  const texts: string[] = [];
-  const tree = unified().use(remarkParse).parse(mdxSource);
-
-  visit(tree, "text", (node: MdastNode) => {
-    if (node.value) {
-      texts.push(node.value);
-    }
-  });
-
-  return texts.join(" ").replace(/\s+/g, " ").trim();
+  return extractContent(mdxSource).plainText;
 }

@@ -43,7 +43,7 @@ export function createStepContext(
         : path.join(GENERATED_DIR, stepId);
       const destPath = path.join(destDir, filename);
       await fs.mkdir(destDir, { recursive: true });
-      await fs.writeFile(destPath, JSON.stringify(data, null, 2));
+      await fs.writeFile(destPath, JSON.stringify(data));
       return destPath;
     },
     
@@ -68,7 +68,7 @@ export function createStepContext(
     
     writeCache: async (stepId, cache) => {
       await fs.mkdir(CACHE_DIR, { recursive: true });
-      await fs.writeFile(path.join(CACHE_DIR, `${stepId}.json`), JSON.stringify(cache, null, 2));
+      await fs.writeFile(path.join(CACHE_DIR, `${stepId}.json`), JSON.stringify(cache));
     },
     
     getStepOutput: (stepId) => stepOutputs.get(stepId),

@@ -15,8 +15,7 @@ import {
   resolveRoutesToSlugs,
   resolveWikiLinksToSlugs,
   buildTitleIndex,
-  extractHeadings,
-  extractPlainText,
+  extractContent,
 } from "../src/lib/content/link-resolver";
 import type { Entry, WikiLink } from "../src/lib/content/types";
 import { runPipeline } from "./pipeline/runner";
@@ -58,10 +57,9 @@ async function buildRawEntry(filePath: string, src: string): Promise<RawEntry | 
   const type = (data.type as Entry["type"]) || getEntryTypeFromSlug(slug);
   const title = (data.title as string) || deriveTitleFromSlug(slug);
   const tags = normalizeTags(data.tags);
-  const headings = extractHeadings(content);
+  const { headings, plainText: searchText } = extractContent(content);
   const wikiLinks = extractWikiLinks(src);
   const mdRoutes = extractMarkdownInternalRoutes(src);
-  const searchText = extractPlainText(content);
   const { wordCount, minutes } = estimateReadingTime(searchText);
 
   let rawContent = content;
@@ -127,16 +125,22 @@ function resolveLinks(rawEntries: RawEntry[], titleIndex: Map<string, string>): 
 
 async function copyAssets(): Promise<number> {
   const assetFiles = await fg.glob(`${CONTENT_DIR}/assets/**/*`);
-  let copiedCount = 0;
+  const copyPromises: Promise<void>[] = [];
+
   for (const assetFile of assetFiles) {
     const relativePath = assetFile.replace(`${CONTENT_DIR}/assets/`, "");
     if (relativePath === "favicon.ico") continue;
     const destPath = path.join(PUBLIC_DIR, "assets", relativePath);
-    await fs.mkdir(path.dirname(destPath), { recursive: true });
-    await fs.copyFile(assetFile, destPath);
-    copiedCount++;
+
+    copyPromises.push(
+      fs.mkdir(path.dirname(destPath), { recursive: true }).then(() =>
+        fs.copyFile(assetFile, destPath)
+      )
+    );
   }
-  return copiedCount;
+
+  await Promise.all(copyPromises);
+  return copyPromises.length;
 }
 
 async function main(): Promise<void> {

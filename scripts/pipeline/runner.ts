@@ -38,6 +38,48 @@ export function topologicalSort(steps: Step[]): Step[] {
   return sorted;
 }
 
+interface StepLevel {
+  level: number;
+  steps: Step[];
+}
+
+export function groupStepsByLevel(steps: Step[]): StepLevel[] {
+  const stepMap = new Map(steps.map(s => [s.id, s]));
+  const levels = new Map<string, number>();
+  
+  function getLevel(stepId: string): number {
+    if (levels.has(stepId)) return levels.get(stepId)!;
+    
+    const step = stepMap.get(stepId);
+    if (!step) throw new Error(`Unknown step: ${stepId}`);
+    
+    if (step.dependsOn.length === 0) {
+      levels.set(stepId, 0);
+      return 0;
+    }
+    
+    const maxDepLevel = Math.max(...step.dependsOn.map(getLevel));
+    const stepLevel = maxDepLevel + 1;
+    levels.set(stepId, stepLevel);
+    return stepLevel;
+  }
+  
+  for (const step of steps) {
+    getLevel(step.id);
+  }
+  
+  const levelGroups = new Map<number, Step[]>();
+  for (const step of steps) {
+    const level = levels.get(step.id)!;
+    if (!levelGroups.has(level)) levelGroups.set(level, []);
+    levelGroups.get(level)!.push(step);
+  }
+  
+  return [...levelGroups.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([level, steps]) => ({ level, steps }));
+}
+
 function computeInputHash(
   step: Step, 
   manifest: Manifest[], 
@@ -64,6 +106,74 @@ function computeInputHash(
   return hashObject(inputs);
 }
 
+interface StepRunResult {
+  step: Step;
+  result: { success: boolean; artifacts: import("./types").Artifact[]; error?: string; summary?: Record<string, unknown> };
+  cached: boolean;
+  duration: number;
+}
+
+async function runStep(
+  step: Step,
+  ctx: StepContext,
+  manifest: Manifest[],
+  rawEntries: RawEntry[],
+  stepOutputs: Map<string, StepOutput>,
+  force: boolean
+): Promise<StepRunResult> {
+  const stepStartTime = Date.now();
+  
+  if (!force) {
+    const inputHash = computeInputHash(step, manifest, rawEntries, stepOutputs);
+    const cachedData = await ctx.readCache(step.id);
+
+    if (cachedData && cachedData.inputHash === inputHash) {
+      const duration = Date.now() - stepStartTime;
+      return {
+        step,
+        result: {
+          success: true,
+          artifacts: cachedData.artifacts.map(p => ({
+            path: p,
+            isPublic: p.startsWith(PUBLIC_DIR),
+          })),
+        },
+        cached: true,
+        duration,
+      };
+    }
+  }
+
+  try {
+    const result = await step.run(ctx);
+    
+    if (result.success) {
+      const inputHash = computeInputHash(step, manifest, rawEntries, stepOutputs);
+      await ctx.writeCache(step.id, {
+        inputHash,
+        outputHash: hashObject(result.artifacts),
+        timestamp: Date.now(),
+        artifacts: result.artifacts.map(a => a.path),
+      });
+    }
+    
+    const duration = Date.now() - stepStartTime;
+    return { step, result, cached: false, duration };
+  } catch (error) {
+    const duration = Date.now() - stepStartTime;
+    return {
+      step,
+      result: {
+        success: false,
+        artifacts: [],
+        error: error instanceof Error ? error.message : String(error),
+      },
+      cached: false,
+      duration,
+    };
+  }
+}
+
 export async function runPipeline(
   steps: Step[],
   manifest: Manifest[],
@@ -77,83 +187,50 @@ export async function runPipeline(
   const stepOutputs = new Map<string, StepOutput>();
   const stepReports: StepReport[] = [];
 
-  const sortedSteps = topologicalSort(steps);
-  logger.info(`Pipeline order: ${sortedSteps.map(s => s.id).join(" → ")}`);
+  const levels = groupStepsByLevel(steps);
+  logger.info(`Pipeline levels: ${levels.map(l => `L${l.level}(${l.steps.map(s => s.id).join(",")})`).join(" → ")}`);
 
   const ctx = createStepContext(manifest, rawEntries, siteUrl, siteTitle, stepOutputs, logger);
 
-  for (const step of sortedSteps) {
-    const stepStartTime = Date.now();
-    logger.info(`\n→ Running step: ${step.id}`);
+  for (const { level, steps: levelSteps } of levels) {
+    const levelStartTime = Date.now();
+    const stepNames = levelSteps.map(s => s.id).join(", ");
+    logger.info(`\n→ Level ${level}: ${stepNames}`);
 
-    let cached = false;
-    let result;
+    const runResults = await Promise.all(
+      levelSteps.map(step => runStep(step, ctx, manifest, rawEntries, stepOutputs, force))
+    );
 
-    if (!force) {
-      const inputHash = computeInputHash(step, manifest, rawEntries, stepOutputs);
-      const cachedData = await ctx.readCache(step.id);
+    for (const { step, result, cached, duration } of runResults) {
+      const output: StepOutput = {
+        id: step.id,
+        artifacts: result?.artifacts || [],
+        duration,
+        cached,
+      };
+      stepOutputs.set(step.id, output);
 
-      if (cachedData && cachedData.inputHash === inputHash) {
-        logger.info(`  Cache hit for ${step.id}`);
-        cached = true;
-        
-        result = {
-          success: true,
-          artifacts: cachedData.artifacts.map(p => ({
-            path: p,
-            isPublic: p.startsWith(PUBLIC_DIR),
-          })),
-        };
+      stepReports.push({
+        id: step.id,
+        name: step.name,
+        duration,
+        cached,
+        success: result?.success ?? false,
+        error: result?.error,
+        artifacts: result?.artifacts || [],
+        summary: result?.summary,
+      });
+
+      if (result?.success) {
+        logger.info(`  ✓ ${step.id} (${duration}ms, ${result.artifacts.length} artifacts)${cached ? " [cached]" : ""}`);
+      } else {
+        logger.error(`  ✗ ${step.id} failed: ${result?.error}`);
       }
     }
 
-    if (!cached) {
-      try {
-        result = await step.run(ctx);
-        
-        if (result.success) {
-          const inputHash = computeInputHash(step, manifest, rawEntries, stepOutputs);
-          await ctx.writeCache(step.id, {
-            inputHash,
-            outputHash: hashObject(result.artifacts),
-            timestamp: Date.now(),
-            artifacts: result.artifacts.map(a => a.path),
-          });
-        }
-      } catch (error) {
-        result = {
-          success: false,
-          artifacts: [],
-          error: error instanceof Error ? error.message : String(error),
-        };
-      }
-    }
-
-    const duration = Date.now() - stepStartTime;
-    
-    const output: StepOutput = {
-      id: step.id,
-      artifacts: result?.artifacts || [],
-      duration,
-      cached,
-    };
-    stepOutputs.set(step.id, output);
-
-    stepReports.push({
-      id: step.id,
-      name: step.name,
-      duration,
-      cached,
-      success: result?.success ?? false,
-      error: result?.error,
-      artifacts: result?.artifacts || [],
-      summary: result?.summary,
-    });
-
-    if (result?.success) {
-      logger.info(`  ✓ ${step.id} (${duration}ms, ${result.artifacts.length} artifacts)`);
-    } else {
-      logger.error(`  ✗ ${step.id} failed: ${result?.error}`);
+    const levelDuration = Date.now() - levelStartTime;
+    if (levelSteps.length > 1) {
+      logger.info(`  Level ${level} complete: ${levelDuration}ms (parallel)`);
     }
   }
 

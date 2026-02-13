@@ -9,13 +9,18 @@ export const tagsStep: Step = {
   run: async (ctx: StepContext): Promise<StepResult> => {
     const artifacts: Artifact[] = [];
     
-    const tagsIndex: TagsIndex = {};
+    const tagsSets: Record<string, Set<string>> = {};
     
     for (const entry of ctx.manifest) {
       for (const tag of entry.tags) {
-        if (!tagsIndex[tag]) tagsIndex[tag] = [];
-        if (!tagsIndex[tag].includes(entry.slug)) tagsIndex[tag].push(entry.slug);
+        if (!tagsSets[tag]) tagsSets[tag] = new Set();
+        tagsSets[tag].add(entry.slug);
       }
+    }
+    
+    const tagsIndex: TagsIndex = {};
+    for (const [tag, slugSet] of Object.entries(tagsSets)) {
+      tagsIndex[tag] = [...slugSet];
     }
     
     const outputPath = await ctx.writeJson("tags", "tags.json", tagsIndex, false);

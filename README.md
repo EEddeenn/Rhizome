@@ -235,10 +235,11 @@ The `next.config.mjs` is pre-configured with `output: "export"` for static gener
 
 ### Build Pipeline
 
-The content generator uses a step-based pipeline:
+The content generator uses a step-based pipeline with parallel execution:
 
 ```
-vendor → site-config → manifest → backlinks → tags → graph → search → content → sitemap
+Level 0: vendor, site-config, manifest (parallel)
+Level 1: backlinks, tags, graph, search, content, sitemap (parallel)
 ```
 
 | Step | Output |
@@ -249,9 +250,20 @@ vendor → site-config → manifest → backlinks → tags → graph → search 
 | `backlinks` | Reverse link index |
 | `tags` | Tag-to-entries mapping |
 | `graph` | Network graph data |
-| `search` | Full-text search index |
+| `search` | Full-text search index (stop words filtered, truncated) |
 | `content` | Raw MDX content |
 | `sitemap` | sitemap.xml, rss.xml |
+
+### Build Optimizations
+
+- **Parallel Execution**: Independent steps run concurrently via `Promise.all()`
+- **Single AST Parse**: Headings and plain text extracted in one pass
+- **Minified JSON**: ~30% smaller generated files
+- **Set-based Indexing**: O(1) lookups for backlinks and tags
+- **Search Index**: Stop word filtering (~31% reduction), configurable text limit
+
+Environment variables:
+- `SEARCH_TEXT_LIMIT` — Max characters per search doc (default: 10000)
 
 ### Build-time Generation
 

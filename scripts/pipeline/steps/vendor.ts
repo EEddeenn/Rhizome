@@ -22,16 +22,19 @@ export const vendorStep: Step = {
 
     const fontsSrcDir = path.join("node_modules", "katex", "dist", "fonts");
     const fontFiles = await fs.readdir(fontsSrcDir);
-    let fontsCopied = 0;
+    const fontCopyPromises: Promise<void>[] = [];
+    
     for (const fontFile of fontFiles) {
       if (fontFile.endsWith(".woff") || fontFile.endsWith(".woff2")) {
         const srcPath = path.join(fontsSrcDir, fontFile);
         const destPath = path.join(fontsDir, fontFile);
-        await fs.copyFile(srcPath, destPath);
+        fontCopyPromises.push(fs.copyFile(srcPath, destPath));
         artifacts.push({ path: destPath, isPublic: true });
-        fontsCopied++;
       }
     }
+    
+    await Promise.all(fontCopyPromises);
+    const fontsCopied = fontCopyPromises.length;
 
     const pdfWorkerSrc = path.join(
       "node_modules",

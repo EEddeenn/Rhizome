@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2026-02-13
+
+### Added
+
+#### Search Optimizations
+- `src/lib/content/stop-words.ts` — Comprehensive 175-word English stop word list
+- `removeStopWords()` function for filtering common words from search text
+- `SEARCH_TEXT_LIMIT` environment variable (default: 10000 chars) for configurable text truncation
+- Search index now reports `reductionPercent` in pipeline summary
+
+#### Parallel Pipeline Execution
+- `groupStepsByLevel()` — Groups pipeline steps by dependency depth for parallel execution
+- `runStep()` — Isolated step execution function for concurrent runs
+- Pipeline now executes independent steps concurrently using `Promise.all()`
+
+### Changed
+
+#### Build Performance
+- **MDX Plugin Deduplication**: Removed duplicate `remarkMath`/`rehypeKatex` from `next.config.mjs` (was running twice per page)
+- **Single AST Parse**: Combined `extractHeadings()` and `extractPlainText()` into single `extractContent()` function
+- **Parallel File Copies**: `copyAssets()` and vendor font copies now use `Promise.all()`
+- **Set-Based Lookups**: `backlinks.ts` and `tags.ts` use `Set` for O(1) membership checks instead of `Array.includes()`
+- **Minified JSON**: All generated JSON files now minified (~30% size reduction, faster writes)
+
+#### Search Index
+- Stop words filtered from search text (~31% word count reduction)
+- Search text truncated to configurable limit
+- Detailed stats: `originalWordCount`, `filteredWordCount`, `reductionPercent`, `truncatedCount`
+
+#### Pipeline Output
+```
+Before: vendor → site-config → manifest → backlinks → ... (sequential)
+After:  L0(vendor, site-config, manifest) → L1(backlinks, tags, ...) (parallel by level)
+```
+
+### Performance Impact
+- Pipeline time: ~17ms → ~11ms (35% faster on small content)
+- Search index: 2444 → 1688 words (31% reduction)
+- JSON files: ~30% smaller due to minification
+
+---
+
 ## [0.8.0] - 2026-02-13
 
 ### Added

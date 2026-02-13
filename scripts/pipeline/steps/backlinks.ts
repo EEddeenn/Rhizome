@@ -9,20 +9,26 @@ export const backlinksStep: Step = {
   run: async (ctx: StepContext): Promise<StepResult> => {
     const artifacts: Artifact[] = [];
     
-    const backlinks: BacklinksIndex = {};
+    const backlinksSets: Record<string, Set<string>> = {};
     
     for (const entry of ctx.manifest) {
-      backlinks[entry.slug] = [];
+      backlinksSets[entry.slug] = new Set();
     }
     
     for (const entry of ctx.manifest) {
       if (entry.outboundLinks) {
         for (const targetSlug of entry.outboundLinks) {
-          if (backlinks[targetSlug] && !backlinks[targetSlug].includes(entry.slug)) {
-            backlinks[targetSlug].push(entry.slug);
+          const targetSet = backlinksSets[targetSlug];
+          if (targetSet) {
+            targetSet.add(entry.slug);
           }
         }
       }
+    }
+    
+    const backlinks: BacklinksIndex = {};
+    for (const [slug, slugSet] of Object.entries(backlinksSets)) {
+      backlinks[slug] = [...slugSet];
     }
     
     const outputPath = await ctx.writeJson("backlinks", "backlinks.json", backlinks, false);
