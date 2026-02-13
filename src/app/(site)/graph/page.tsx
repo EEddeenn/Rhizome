@@ -56,7 +56,7 @@ export default function GraphPage() {
   }, []);
 
   useEffect(() => {
-    fetch("/generated/graph.json")
+    fetch("/generated/graph/graph.json")
       .then((res) => res.json())
       .then((data: Graph) => {
         setGraph(data);

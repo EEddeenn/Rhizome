@@ -2,7 +2,7 @@
 title: "Mathematical Notation"
 date: "2026-02-12"
 type: "note"
-tags: ["guide", "math", "latex"]
+tags: ["guide", "math", "latex", "diagrams"]
 summary: "Write mathematical equations using LaTeX syntax with KaTeX rendering."
 ---
 
@@ -145,6 +145,32 @@ $$H(X) = -\sum_{i=1}^{n} p(x_i) \log_2 p(x_i)$$
 ### Fourier Transform
 
 $$\hat{f}(\xi) = \int_{-\infty}^{\infty} f(x) e^{-2\pi i x \xi} \, dx$$
+
+## Commutative Diagrams
+
+In category theory, a commutative diagram shows that composing morphisms along different paths yields the same result:
+
+<Mermaid code={`
+flowchart LR
+    A --f--> B
+    A --g--> C
+    B --h--> D
+    C --k--> D
+`} />
+
+This diagram states that $h \circ f = k \circ g$ (going right-then-down equals going down-then-right).
+
+A classic example — the First Isomorphism Theorem:
+
+<Mermaid code={`
+flowchart TB
+    G["G"] --φ--> H["H"]
+    G --π--> Q["G/ker(φ)"]
+    Q --φ̄--> I["im(φ)"]
+    I -.-> H
+`} />
+
+Where $\bar{\phi} \circ \pi = \phi$, showing that $G/\ker(\phi) \cong \text{im}(\phi)$.
 
 <Callout type="tip">
 Use `$$` for display equations that deserve their own line. Use `$` for inline math that flows with text.

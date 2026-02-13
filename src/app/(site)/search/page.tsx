@@ -30,7 +30,7 @@ export default function SearchPage() {
   }, []);
 
   useEffect(() => {
-    fetch("/generated/search-index.json")
+    fetch("/generated/search/search-index.json")
       .then((res) => res.json())
       .then((docs: SearchDoc[]) => {
         const ms = new MiniSearch(miniSearchOptions);
