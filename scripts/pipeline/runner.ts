@@ -4,40 +4,6 @@ import type { Step, StepContext, StepOutput, StepReport, PipelineReport, Manifes
 import { createLogger, createStepContext, hashObject } from "./context";
 import { PUBLIC_DIR } from "./constants";
 
-export function topologicalSort(steps: Step[]): Step[] {
-  const sorted: Step[] = [];
-  const visited = new Set<string>();
-  const visiting = new Set<string>();
-  const stepMap = new Map(steps.map(s => [s.id, s]));
-
-  function visit(step: Step): void {
-    if (visited.has(step.id)) return;
-    if (visiting.has(step.id)) {
-      throw new Error(`Circular dependency detected: ${step.id}`);
-    }
-
-    visiting.add(step.id);
-
-    for (const depId of step.dependsOn) {
-      const dep = stepMap.get(depId);
-      if (!dep) {
-        throw new Error(`Unknown dependency: ${depId} (required by ${step.id})`);
-      }
-      visit(dep);
-    }
-
-    visiting.delete(step.id);
-    visited.add(step.id);
-    sorted.push(step);
-  }
-
-  for (const step of steps) {
-    visit(step);
-  }
-
-  return sorted;
-}
-
 interface StepLevel {
   level: number;
   steps: Step[];
