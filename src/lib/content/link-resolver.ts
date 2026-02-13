@@ -4,14 +4,15 @@ import { visit } from "unist-util-visit";
 import GithubSlugger from "github-slugger";
 import type { WikiLink, Heading } from "./types";
 
-const WIKI_LINK_REGEX = /\[\[([^\]]+)\]\]/g;
+const WIKI_LINK_PATTERN = /\[\[([^\]]+)\]\]/g;
+const MD_LINK_PATTERN = /\[[^\]]*\]\(([^)]+)\)/g;
 
 export function extractWikiLinks(raw: string): WikiLink[] {
   const links: WikiLink[] = [];
   let match: RegExpExecArray | null;
-  const regex = new RegExp(WIKI_LINK_REGEX.source, "g");
+  WIKI_LINK_PATTERN.lastIndex = 0;
 
-  while ((match = regex.exec(raw)) !== null) {
+  while ((match = WIKI_LINK_PATTERN.exec(raw)) !== null) {
     const content = match[1];
     const pipeIndex = content.indexOf("|");
     if (pipeIndex !== -1) {
@@ -33,10 +34,10 @@ export function extractWikiLinks(raw: string): WikiLink[] {
 
 export function extractMarkdownInternalRoutes(mdxSource: string): string[] {
   const routes: string[] = [];
-  const mdLinkRegex = /\[[^\]]*\]\(([^)]+)\)/g;
   let match: RegExpExecArray | null;
+  MD_LINK_PATTERN.lastIndex = 0;
 
-  while ((match = mdLinkRegex.exec(mdxSource)) !== null) {
+  while ((match = MD_LINK_PATTERN.exec(mdxSource)) !== null) {
     const href = match[1];
     if (href.startsWith("/notes/") || href.startsWith("/articles/")) {
       routes.push(href);

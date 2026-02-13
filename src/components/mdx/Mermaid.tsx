@@ -7,17 +7,6 @@ interface MermaidProps {
   code: string;
 }
 
-let initialized = false;
-
-function initMermaid(isDark: boolean) {
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: isDark ? "dark" : "default",
-    securityLevel: "loose",
-  });
-  initialized = true;
-}
-
 export function Mermaid({ code }: MermaidProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isDark, setIsDark] = useState(false);
@@ -41,8 +30,6 @@ export function Mermaid({ code }: MermaidProps) {
 
   useEffect(() => {
     if (!ref.current) return;
-
-    initMermaid(isDark);
 
     const render = async () => {
       if (!ref.current) return;

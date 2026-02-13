@@ -33,7 +33,8 @@ export function PDFViewerInner({
   useEffect(() => {
     const updateWidth = () => {
       if (pageContainerRef.current) {
-        setContainerWidth(pageContainerRef.current.clientWidth);
+        const newWidth = pageContainerRef.current.clientWidth;
+        setContainerWidth((prev) => (prev !== newWidth ? newWidth : prev));
       }
     };
 

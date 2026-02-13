@@ -7,13 +7,21 @@ import { remarkWikiLinks } from "./remark-wiki-links";
 import { getWikiLinkResolver } from "@/lib/generated/load-manifest";
 import type { PluggableList } from "unified";
 
+let cachedPlugins: {
+  remarkPlugins: PluggableList;
+  rehypePlugins: PluggableList;
+} | null = null;
+
 export function getMdxPlugins() {
-  return {
-    remarkPlugins: [
-      remarkGfm,
-      remarkMath,
-      [remarkWikiLinks, { resolve: getWikiLinkResolver() }],
-    ] as PluggableList,
-    rehypePlugins: [rehypeSlug, rehypeKatex, rehypeHighlight] as PluggableList,
-  };
+  if (!cachedPlugins) {
+    cachedPlugins = {
+      remarkPlugins: [
+        remarkGfm,
+        remarkMath,
+        [remarkWikiLinks, { resolve: getWikiLinkResolver() }],
+      ] as PluggableList,
+      rehypePlugins: [rehypeSlug, rehypeKatex, rehypeHighlight] as PluggableList,
+    };
+  }
+  return cachedPlugins;
 }

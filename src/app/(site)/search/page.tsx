@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import MiniSearch from "minisearch";
 import { SearchDoc } from "@/lib/content/types";
@@ -19,9 +19,8 @@ export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("");
   const [tagFilter, setTagFilter] = useState<string>("");
-  const [allTags, setAllTags] = useState<string[]>([]);
   const [miniSearch, setMiniSearch] = useState<MiniSearch<SearchDoc> | null>(null);
-  const [results, setResults] = useState<SearchDoc[]>([]);
+  const [allTags, setAllTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,14 +45,10 @@ export default function SearchPage() {
       });
   }, []);
 
-  useEffect(() => {
-    if (!miniSearch || !query.trim()) {
-      setResults([]);
-      return;
-    }
+  const results = useMemo(() => {
+    if (!miniSearch || !query.trim()) return [];
 
-    const rawResults = miniSearch.search(query);
-    let filtered = rawResults as unknown as SearchDoc[];
+    let filtered = miniSearch.search(query) as unknown as SearchDoc[];
 
     if (typeFilter) {
       filtered = filtered.filter((r) => r.type === typeFilter);
@@ -63,7 +58,7 @@ export default function SearchPage() {
       filtered = filtered.filter((r) => r.tags?.includes(tagFilter));
     }
 
-    setResults(filtered);
+    return filtered;
   }, [query, typeFilter, tagFilter, miniSearch]);
 
   return (

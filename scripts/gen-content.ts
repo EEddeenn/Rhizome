@@ -82,11 +82,7 @@ async function buildRawEntry(filePath: string, src: string): Promise<RawEntry | 
 
   let rawContent = content;
   rawContent = rawContent.replace(
-    /!\[([^\]]*)\]\(\.\.\/assets\/([^)]+)\)/g,
-    '![$1](/assets/$2)'
-  );
-  rawContent = rawContent.replace(
-    /!\[([^\]]*)\]\(\.\/assets\/([^)]+)\)/g,
+    /!\[([^\]]*)\]\(\.\.?\/assets\/([^)]+)\)/g,
     '![$1](/assets/$2)'
   );
 

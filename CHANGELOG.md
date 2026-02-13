@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2026-02-13
+
+### Changed
+
+#### Performance Optimizations
+- `src/components/mdx/Mermaid.tsx` — Removed duplicate mermaid.initialize() call, single initialization per render
+- `src/lib/content/link-resolver.ts` — Reuse module-level regex patterns with lastIndex reset instead of creating new RegExp each call
+- `src/app/(site)/search/page.tsx` — Replaced useEffect for search results with useMemo, eliminates extra render cycle
+- `src/lib/content/mdx-config.ts` — Added caching for MDX plugins to prevent recreating plugin arrays on every call
+- `scripts/gen-content.ts` — Combined two asset path regexes into single pass (`\.\.?\/assets\/`)
+- `src/components/mdx/PDFViewerInner.tsx` — Check if container width changed before setState to prevent unnecessary re-renders
+
+---
+
 ## [0.6.0] - 2026-02-13
 
 ### Added
