@@ -1,5 +1,6 @@
 import manifest from "@/generated/manifest.json";
 import type { Entry, Manifest } from "@/lib/content/types";
+import { normalizeTitle } from "@/lib/content/normalize";
 
 let entryMap: Map<string, Entry> | null = null;
 let wikiLinkResolver: ((title: string) => string) | null = null;
@@ -48,12 +49,12 @@ export function getWikiLinkResolver(): (title: string) => string {
     const titleToSlug = new Map<string, string>();
     
     for (const entry of entries) {
-      const normalized = entry.title.toLowerCase().trim();
+      const normalized = normalizeTitle(entry.title);
       titleToSlug.set(normalized, entry.route);
     }
 
     wikiLinkResolver = (title: string): string => {
-      const normalized = title.toLowerCase().trim();
+      const normalized = normalizeTitle(title);
       const route = titleToSlug.get(normalized);
       if (route) return route;
       return `/notes/${title.toLowerCase().replace(/\s+/g, "-")}`;

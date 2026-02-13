@@ -184,7 +184,3 @@ export async function runPipeline(
 
   return report;
 }
-
-export function defineStep(step: Step): Step {
-  return step;
-}

@@ -3,6 +3,7 @@ import remarkParse from "remark-parse";
 import { visit } from "unist-util-visit";
 import GithubSlugger from "github-slugger";
 import type { WikiLink, Heading } from "./types";
+import { normalizeTitle } from "./normalize";
 
 const WIKI_LINK_PATTERN = /\[\[([^\]]+)\]\]/g;
 const MD_LINK_PATTERN = /\[[^\]]*\]\(([^)]+)\)/g;
@@ -63,7 +64,7 @@ export function resolveWikiLinksToSlugs(
   const unresolved: WikiLink[] = [];
 
   for (const link of wikiLinks) {
-    const normalized = link.title.toLowerCase().trim();
+    const normalized = normalizeTitle(link.title);
     const slug = titleIndex.get(normalized);
     if (slug) {
       slugs.push(slug);
@@ -80,7 +81,7 @@ export function buildTitleIndex(
 ): Map<string, string> {
   const index = new Map<string, string>();
   for (const entry of entries) {
-    const normalized = entry.title.toLowerCase().trim();
+    const normalized = normalizeTitle(entry.title);
     if (!index.has(normalized)) {
       index.set(normalized, entry.slug);
     }

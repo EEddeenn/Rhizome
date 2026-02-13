@@ -15,14 +15,6 @@ export function routeFromSlug(slug: string): string {
   return `/${slug}`;
 }
 
-export function slugToPathSegments(slug: string): string[] {
-  return slug.split("/");
-}
-
-export function pathSegmentsToSlug(segments: string[]): string {
-  return segments.join("/");
-}
-
 export function getEntryTypeFromSlug(slug: string): "note" | "article" {
   if (slug.startsWith("notes/")) return "note";
   if (slug.startsWith("articles/")) return "article";

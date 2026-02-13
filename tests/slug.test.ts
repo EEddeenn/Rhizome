@@ -3,8 +3,6 @@ import { describe, it } from "node:test";
 import {
   slugFromPath,
   routeFromSlug,
-  slugToPathSegments,
-  pathSegmentsToSlug,
   getEntryTypeFromSlug,
 } from "../src/lib/content/slug";
 
@@ -41,29 +39,6 @@ describe("slug utilities", () => {
     it("prepends slash to slug", () => {
       assert.strictEqual(routeFromSlug("notes/foo"), "/notes/foo");
       assert.strictEqual(routeFromSlug("articles/bar"), "/articles/bar");
-    });
-  });
-
-  describe("slugToPathSegments", () => {
-    it("splits slug into segments", () => {
-      assert.deepStrictEqual(slugToPathSegments("notes/foo/bar"), [
-        "notes",
-        "foo",
-        "bar",
-      ]);
-    });
-
-    it("handles single segment", () => {
-      assert.deepStrictEqual(slugToPathSegments("notes"), ["notes"]);
-    });
-  });
-
-  describe("pathSegmentsToSlug", () => {
-    it("joins segments with slash", () => {
-      assert.strictEqual(
-        pathSegmentsToSlug(["notes", "foo", "bar"]),
-        "notes/foo/bar"
-      );
     });
   });
 
