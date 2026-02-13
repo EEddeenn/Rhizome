@@ -21,6 +21,7 @@ export function PDFViewerInner({
 }: PDFViewerInnerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pageContainerRef = useRef<HTMLDivElement>(null);
+  const numPagesRef = useRef<number>(0);
 
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(initialPage);
@@ -43,8 +44,9 @@ export function PDFViewerInner({
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
+  const onDocumentLoadSuccess = (pdf: any) => {
+    numPagesRef.current = pdf.numPages;
+    setNumPages(pdf.numPages);
     setLoading(false);
     setError(null);
   };
@@ -54,14 +56,16 @@ export function PDFViewerInner({
     setLoading(false);
   };
 
-  const goToPage = useCallback(
-    (page: number) => {
-      if (page >= 1 && page <= numPages) {
-        setPageNumber(page);
-      }
-    },
-    [numPages]
-  );
+  const goToPage = useCallback((page: number) => {
+    if (page >= 1 && page <= numPagesRef.current) {
+      setPageNumber(page);
+      pageContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
+
+  const handleItemClick = useCallback(({ pageNumber: page }: { pageNumber: number }) => {
+    goToPage(page);
+  }, [goToPage]);
 
   const goToPrevPage = useCallback(() => {
     goToPage(pageNumber - 1);
@@ -207,6 +211,7 @@ export function PDFViewerInner({
             file={src}
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadError={onDocumentLoadError}
+            onItemClick={handleItemClick}
             loading={
               <div className="flex items-center justify-center h-full">
                 <p className="text-gray-500 dark:text-gray-400">Loading PDF...</p>
