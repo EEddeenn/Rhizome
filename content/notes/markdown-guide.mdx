@@ -18,10 +18,17 @@ Basic inline formatting:
 - *Italic text* using single asterisks
 - ~~Strikethrough~~ using double tildes
 - `Inline code` using backticks
+- ==Highlight== using double equals (if supported by theme)
 
 ## Headings
 
 Use `#` symbols for headings. The frontmatter title becomes the page title, so start content with `##` for sections.
+
+```
+## Section
+### Subsection
+#### Sub-subsection
+```
 
 ## Lists
 
@@ -45,12 +52,28 @@ Use `#` symbols for headings. The frontmatter title becomes the page title, so s
 - [ ] Incomplete task
 - [ ] Another task
 
+## Wiki-Links
+
+Wiki-links are the primary way to connect notes in Rhizome:
+
+| Syntax | Result |
+|--------|--------|
+| `[[Note Title]]` | Links to note by title |
+| `[[Note Title\|display text]]` | Shows "display text" but links to note |
+| `[[Knowledge Graph Basics]]` | [[Knowledge Graph Basics]] |
+| `[[Knowledge Graph Basics\|learn about graphs]]` | [[Knowledge Graph Basics|learn about graphs]] |
+
+<Callout type="tip">
+Wiki-links are case-insensitive. `[[welcome to rhizome]]` and `[[Welcome to Rhizome]]` link to the same note.
+</Callout>
+
 ## Links and Images
 
 Standard markdown links work alongside wiki-links:
 
 - [External link](https://example.com) opens in a new tab
-- Internal links use the wiki-link syntax: [[Welcome to Rhizome]]
+- `[text](/notes/slug)` links to internal pages by route
+- Wiki-links connect notes by title: [[Welcome to Rhizome]]
 
 Images are placed in `content/assets/` and referenced as:
 
@@ -68,6 +91,14 @@ Images are placed in `content/assets/` and referenced as:
 | Search | ✅ | Full-text search |
 | Graph | ✅ | Visualize connections |
 
+Alignment can be controlled with colons:
+
+```
+| Left | Center | Right |
+|:-----|:------:|------:|
+| L    |   C    |     R |
+```
+
 ## Blockquotes
 
 > The best way to predict the future is to invent it.
@@ -75,6 +106,12 @@ Images are placed in `content/assets/` and referenced as:
 > — Alan Kay
 
 Use blockquotes for highlighting quotes or important notes.
+
+Nested blockquotes work too:
+
+> First level
+> 
+> > Second level
 
 ## Horizontal Rules
 
@@ -85,3 +122,36 @@ Use three dashes to create a section break:
 ## Code Blocks
 
 See [[Code Blocks]] for syntax highlighting examples.
+
+## Escaping
+
+To display literal characters that have special meaning:
+
+- `\*not italic\*` → \*not italic\*
+- `\[not a link\]` → \[not a link\]
+- `` `inline code with *asterisks*` `` → `inline code with *asterisks*`
+
+## Frontmatter
+
+Every note begins with YAML frontmatter:
+
+```yaml
+---
+title: "Note Title"
+date: "2026-02-12"
+type: "note"
+tags: ["tag1", "tag2"]
+summary: "A brief description shown in listings and search."
+---
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `title` | Yes | Note title (used for wiki-links) |
+| `date` | No | Publication date (YYYY-MM-DD) |
+| `type` | No | `note` or `article` (default: `note`) |
+| `tags` | No | Array of tags for organization |
+| `summary` | No | Brief description for listings |
+| `updated` | No | Last update date |
+| `status` | No | `draft`, `published`, etc. |
+| `private` | No | If true, excludes from build |

@@ -20,6 +20,11 @@ Create new MDX files in `content/notes/` or `content/articles/`, add frontmatter
 
 Connect notes using double-bracket syntax. Links are resolved by title, creating a web of knowledge.
 
+```
+[[Note Title]] - links to a note by title
+[[Note Title|alias]] - displays "alias" but links to the note
+```
+
 ### Backlinks
 
 Every note shows which other notes link to it, helping you discover unexpected connections.
@@ -32,6 +37,10 @@ Organize content with tags in frontmatter. Browse all notes sharing a topic.
 
 Visualize your knowledge network. See the [[Knowledge Graph Basics]] for understanding how connections form.
 
+### Full-Text Search
+
+Search across all your notes with fuzzy matching. Filter by type (note/article) and tags.
+
 ## Feature Guides
 
 Explore the available features:
@@ -39,7 +48,7 @@ Explore the available features:
 - [[Markdown Guide]] - Text formatting, lists, and tables
 - [[Callouts]] - Highlight important information
 - [[Code Blocks]] - Syntax highlighting for code snippets
-- [[Mathematical Notation]] - Write equations with LaTeX
+- [[Mathematical Notation]] - Write equations with LaTeX, including commutative diagrams
 - [[Diagrams]] - Create flowcharts and diagrams with Mermaid
 - [[PDF Viewer]] - Embed PDFs with page navigation and deep linking
 
@@ -56,3 +65,26 @@ Read longer-form content:
 3. Write your content using Markdown and MDX components
 4. Link to related notes using wiki-links
 5. Run `npm run build` to generate the static site
+
+## Build Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run gen` | Generate content (manifest, search index, etc.) |
+| `npm run dev` | Start development server with hot reload |
+| `npm run build` | Build for production (runs gen automatically) |
+| `npm run watch` | Watch content files and regenerate on changes |
+
+## Environment Variables
+
+Configure behavior in `.env`:
+
+```
+SITE_URL=https://your-domain.com
+SITE_TITLE=Your Knowledge Base
+SEARCH_TEXT_LIMIT=10000
+```
+
+<Callout type="info" title="Search Text Limit">
+The `SEARCH_TEXT_LIMIT` controls how much text from each note is indexed for search (default: 10000 characters). Increase for deeper searches, decrease for smaller index files.
+</Callout>

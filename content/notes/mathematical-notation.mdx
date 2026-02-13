@@ -150,27 +150,42 @@ $$\hat{f}(\xi) = \int_{-\infty}^{\infty} f(x) e^{-2\pi i x \xi} \, dx$$
 
 In category theory, a commutative diagram shows that composing morphisms along different paths yields the same result:
 
-<Mermaid code={`
-flowchart LR
-    A --f--> B
-    A --g--> C
-    B --h--> D
-    C --k--> D
-`} />
+$$
+\begin{CD}
+A @>f>> B \\
+@VgVV @VVhV \\
+C @>>k> D
+\end{CD}
+$$
 
 This diagram states that $h \circ f = k \circ g$ (going right-then-down equals going down-then-right).
 
 A classic example — the First Isomorphism Theorem:
 
-<Mermaid code={`
-flowchart TB
-    G["G"] --φ--> H["H"]
-    G --π--> Q["G/ker(φ)"]
-    Q --φ̄--> I["im(φ)"]
-    I -.-> H
-`} />
+$$
+\begin{CD}
+G @>\phi>> H \\
+@V{\pi}VV @AA{i}A \\
+G/\ker(\phi) @>>{\bar{\phi}}> \text{im}(\phi)
+\end{CD}
+$$
 
-Where $\bar{\phi} \circ \pi = \phi$, showing that $G/\ker(\phi) \cong \text{im}(\phi)$.
+Where $i \circ \bar{\phi} \circ \pi = \phi$, showing that $G/\ker(\phi) \cong \text{im}(\phi)$.
+
+### CD Syntax Reference
+
+| Arrow | Syntax | Direction |
+|-------|--------|-----------|
+| → | `@>label>>` | Right |
+| ← | `@<label<<` | Left |
+| ↓ | `@VlabelVV` | Down |
+| ↑ | `@AlabelAA` | Up |
+| = | `@=` | Horizontal equal |
+| ⤏ | `@. | ` | Dotted |
+
+<Callout type="warning" title="Display Mode Required">
+The `CD` environment requires display mode. Put `$$` on separate lines before and after the `\begin{CD}...\end{CD}` block. Inline `$$...\begin{CD}$$` will not work.
+</Callout>
 
 <Callout type="tip">
 Use `$$` for display equations that deserve their own line. Use `$` for inline math that flows with text.

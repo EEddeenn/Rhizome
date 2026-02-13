@@ -2,6 +2,10 @@
 
 A static personal notes and knowledge management system built with Next.js, MDX, and Tailwind CSS. Deploys to Cloudflare Pages.
 
+**[Demo →](https://rhizome.demo.shangren.lu/)**
+
+[![Use this template](https://img.shields.io/badge/Use%20this%20template-2ea44f?style=for-the-badge)](https://github.com/new?template_name=Rhizome&template_owner=EEddeenn)
+
 ## Features
 
 ### Content
@@ -217,6 +221,8 @@ Local PDFs go in `content/assets/pdfs/` and are referenced by filename. Features
 | `npm run test` | Run tests |
 
 ## Deployment
+
+[![Deploy to Cloudflare Pages](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/EEddeenn/Rhizome)
 
 ### Cloudflare Pages
 
