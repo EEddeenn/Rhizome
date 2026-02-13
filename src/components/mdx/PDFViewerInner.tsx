@@ -6,6 +6,10 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
+interface PDFDocumentInfo {
+  numPages: number;
+}
+
 pdfjs.GlobalWorkerOptions.workerSrc = "/generated/vendor/pdf.worker.min.js";
 
 interface PDFViewerInnerProps {
@@ -44,7 +48,7 @@ export function PDFViewerInner({
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  const onDocumentLoadSuccess = (pdf: any) => {
+  const onDocumentLoadSuccess = (pdf: PDFDocumentInfo) => {
     numPagesRef.current = pdf.numPages;
     setNumPages(pdf.numPages);
     setLoading(false);

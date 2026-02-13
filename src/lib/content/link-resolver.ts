@@ -102,8 +102,6 @@ export interface ExtractedContent {
   plainText: string;
 }
 
-const CODE_NODE_TYPES = new Set(["code", "inlineCode"]);
-
 export function extractContent(mdxSource: string): ExtractedContent {
   const headings: Heading[] = [];
   const textParts: string[] = [];

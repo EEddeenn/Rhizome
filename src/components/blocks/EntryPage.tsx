@@ -23,6 +23,7 @@ export function EntryPage({ entry, categoryLabel, categoryHref }: EntryPageProps
   const backlinks = getBacklinksForSlug(entry.slug);
   const source = getMdxContent(entry.slug);
   const { remarkPlugins, rehypePlugins } = getMdxPlugins();
+  const mdxComponents = useMDXComponents({});
 
   const breadcrumbItems = [
     { label: categoryLabel, href: categoryHref },
@@ -59,7 +60,7 @@ export function EntryPage({ entry, categoryLabel, categoryHref }: EntryPageProps
       <div className="prose max-w-none">
         <MDXRemote 
           source={source} 
-          components={{ ...useMDXComponents({}), Mermaid, Callout, PDFViewer }}
+          components={{ ...mdxComponents, Mermaid, Callout, PDFViewer }}
           options={{
             mdxOptions: {
               remarkPlugins,
