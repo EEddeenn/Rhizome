@@ -745,6 +745,7 @@ The content generator uses a step-based pipeline architecture that allows new fe
 scripts/
 ├─ pipeline/
 │  ├─ types.ts          # Step, StepContext, StepResult interfaces
+│  ├─ constants.ts      # Shared constants (CONTENT_DIR, PUBLIC_DIR, etc.)
 │  ├─ context.ts        # Helper functions (hashing, file I/O, logging)
 │  ├─ runner.ts         # Pipeline orchestrator with dependency resolution
 │  └─ steps/            # Individual step implementations

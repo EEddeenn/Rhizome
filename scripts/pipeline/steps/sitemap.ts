@@ -1,8 +1,7 @@
 import type { Step, StepContext, StepResult, Artifact } from "../types";
+import { PUBLIC_DIR } from "../constants";
 import fs from "fs/promises";
 import path from "path";
-
-const PUBLIC_DIR = "public";
 
 function escapeXML(str: string): string {
   return str
@@ -51,13 +50,12 @@ ${urls}
       .slice(0, 20)
       .map((entry) => {
         const pubDate = entry.date ? new Date(entry.date).toUTCString() : rssNow;
-        const description = entry.summary || "";
         return `    <item>
       <title>${escapeXML(entry.title)}</title>
       <link>${ctx.siteUrl}${entry.route}</link>
       <guid>${ctx.siteUrl}${entry.route}</guid>
       <pubDate>${pubDate}</pubDate>
-      <description>${escapeXML(description)}</description>
+      <description>${escapeXML(entry.summary || "")}</description>
     </item>`;
       })
       .join("\n");
@@ -86,10 +84,7 @@ ${items}
     return {
       success: true,
       artifacts,
-      summary: {
-        urls: ctx.manifest.length,
-        rssItems: Math.min(ctx.manifest.length, 20),
-      },
+      summary: { urls: ctx.manifest.length, rssItems: Math.min(ctx.manifest.length, 20) },
     };
   },
 };

@@ -21,6 +21,7 @@ import {
 import type { Entry, WikiLink } from "../src/lib/content/types";
 import { runPipeline } from "./pipeline/runner";
 import type { RawEntry } from "./pipeline/types";
+import { CONTENT_DIR, PUBLIC_DIR } from "./pipeline/constants";
 import {
   manifestStep,
   backlinksStep,
@@ -31,8 +32,6 @@ import {
   sitemapStep,
 } from "./pipeline/steps";
 
-const CONTENT_DIR = "content";
-const PUBLIC_DIR = "public";
 const SITE_URL = process.env.SITE_URL || "https://example.com";
 const SITE_TITLE = process.env.SITE_TITLE || "Rhizome";
 

@@ -1,11 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 import type { Step, StepContext, StepOutput, StepReport, PipelineReport, Manifest, RawEntry } from "./types";
-import { createLogger, createStepContext, hashObject, hashContent } from "./context";
-
-const CACHE_DIR = ".pipeline-cache";
-const PUBLIC_DIR = "public";
-const GENERATED_DIR = "src/generated";
+import { createLogger, createStepContext, hashObject } from "./context";
+import { PUBLIC_DIR } from "./constants";
 
 export function topologicalSort(steps: Step[]): Step[] {
   const sorted: Step[] = [];

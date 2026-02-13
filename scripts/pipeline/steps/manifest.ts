@@ -1,8 +1,7 @@
 import type { Step, StepContext, StepResult, Artifact } from "../types";
+import { GENERATED_DIR } from "../constants";
+import { writeLegacyJson } from "../context";
 import path from "path";
-import fs from "fs/promises";
-
-const GENERATED_DIR = "src/generated";
 
 export const manifestStep: Step = {
   id: "manifest",
@@ -15,9 +14,8 @@ export const manifestStep: Step = {
     const outputPath = await ctx.writeJson("manifest", "manifest.json", ctx.manifest, false);
     artifacts.push({ path: outputPath, isPublic: false });
     
-    await fs.mkdir(GENERATED_DIR, { recursive: true });
-    await fs.writeFile(path.join(GENERATED_DIR, "manifest.json"), JSON.stringify(ctx.manifest, null, 2));
-    artifacts.push({ path: path.join(GENERATED_DIR, "manifest.json"), isPublic: false });
+    const legacyPath = await writeLegacyJson("manifest.json", ctx.manifest);
+    artifacts.push({ path: legacyPath, isPublic: false });
     
     return {
       success: true,

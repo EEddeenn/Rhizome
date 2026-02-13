@@ -1,9 +1,6 @@
 import type { Step, StepContext, StepResult, Artifact } from "../types";
 import type { BacklinksIndex } from "../../../src/lib/content/types";
-import fs from "fs/promises";
-import path from "path";
-
-const GENERATED_DIR = "src/generated";
+import { writeLegacyJson } from "../context";
 
 export const backlinksStep: Step = {
   id: "backlinks",
@@ -32,17 +29,14 @@ export const backlinksStep: Step = {
     const outputPath = await ctx.writeJson("backlinks", "backlinks.json", backlinks, false);
     artifacts.push({ path: outputPath, isPublic: false });
     
-    await fs.mkdir(GENERATED_DIR, { recursive: true });
-    await fs.writeFile(path.join(GENERATED_DIR, "backlinks.json"), JSON.stringify(backlinks, null, 2));
-    artifacts.push({ path: path.join(GENERATED_DIR, "backlinks.json"), isPublic: false });
-    
-    const totalBacklinks = Object.values(backlinks).reduce((sum, arr) => sum + arr.length, 0);
+    const legacyPath = await writeLegacyJson("backlinks.json", backlinks);
+    artifacts.push({ path: legacyPath, isPublic: false });
     
     return {
       success: true,
       artifacts,
       summary: {
-        totalBacklinks,
+        totalBacklinks: Object.values(backlinks).reduce((sum, arr) => sum + arr.length, 0),
         entriesWithBacklinks: Object.values(backlinks).filter(arr => arr.length > 0).length,
       },
     };

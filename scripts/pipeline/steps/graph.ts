@@ -33,10 +33,7 @@ export const graphStep: Step = {
     return {
       success: true,
       artifacts,
-      summary: {
-        nodes: nodes.length,
-        edges: edges.length,
-      },
+      summary: { nodes: nodes.length, edges: edges.length },
     };
   },
 };
