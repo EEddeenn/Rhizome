@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 
 interface SearchBarProps {
   fullWidth?: boolean;
+  onSearch?: () => void;
 }
 
-export function SearchBar({ fullWidth = false }: SearchBarProps) {
+export function SearchBar({ fullWidth = false, onSearch }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const router = useRouter();
 
@@ -18,6 +19,7 @@ export function SearchBar({ fullWidth = false }: SearchBarProps) {
     } else {
       router.push("/search");
     }
+    onSearch?.();
   };
 
   return (

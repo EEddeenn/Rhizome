@@ -70,7 +70,7 @@ export function Nav() {
         {isOpen && (
           <div className="md:hidden pb-4 border-t border-border mt-0 pt-4">
             <div className="mb-4">
-              <SearchBar fullWidth />
+              <SearchBar fullWidth onSearch={() => setIsOpen(false)} />
             </div>
             <div className="flex flex-col gap-3">
               {navLinks.map((link) => (
