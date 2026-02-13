@@ -49,7 +49,7 @@ body {
 }
 
 .prose pre {
-  @apply p-4 rounded-lg overflow-x-auto;
+  @apply bg-gray-50 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto;
 }
 
 .prose pre code {
@@ -57,7 +57,7 @@ body {
 }
 
 .prose blockquote {
-  @apply border-gray-300 dark:border-gray-700 text-muted;
+  @apply border-l-4 border-gray-300 dark:border-gray-700 pl-4 my-4 italic text-muted;
 }
 
 .prose ul,
@@ -94,7 +94,27 @@ body {
 }
 
 .prose hr {
-  @apply border-border;
+  @apply border-0 border-t border-gray-200 dark:border-gray-800 my-8;
+}
+
+.prose table {
+  @apply min-w-full border-collapse my-4;
+}
+
+.prose thead {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.prose tr {
+  @apply border-b border-gray-200 dark:border-gray-700;
+}
+
+.prose th {
+  @apply border border-gray-300 dark:border-gray-700 px-4 py-2 text-left font-semibold text-foreground;
+}
+
+.prose td {
+  @apply border border-gray-300 dark:border-gray-700 px-4 py-2 text-foreground;
 }
 
 .hljs {

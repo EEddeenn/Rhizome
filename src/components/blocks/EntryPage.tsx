@@ -11,6 +11,7 @@ import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Mermaid } from "@/components/mdx/Mermaid";
 import { Callout } from "@/components/mdx/Callout";
 import { PDFViewer } from "@/components/mdx/PDFViewer";
+import { useMDXComponents } from "@/components/mdx/MDXComponents";
 
 interface EntryPageProps {
   entry: Entry;
@@ -58,7 +59,7 @@ export function EntryPage({ entry, categoryLabel, categoryHref }: EntryPageProps
       <div className="prose max-w-none">
         <MDXRemote 
           source={source} 
-          components={{ Mermaid, Callout, PDFViewer }}
+          components={{ ...useMDXComponents({}), Mermaid, Callout, PDFViewer }}
           options={{
             mdxOptions: {
               remarkPlugins,

@@ -9,19 +9,19 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
     <nav className="text-sm mb-6">
       <ol className="flex items-center gap-2">
         <li>
-          <Link href="/" className="text-gray-500 hover:text-gray-700">
+          <Link href="/" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             Home
           </Link>
         </li>
         {items.map((item, index) => (
           <li key={index} className="flex items-center gap-2">
-            <span className="text-gray-400">/</span>
+            <span className="text-gray-400 dark:text-gray-600">/</span>
             {item.href ? (
-              <Link href={item.href} className="text-gray-500 hover:text-gray-700">
+              <Link href={item.href} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                 {item.label}
               </Link>
             ) : (
-              <span className="text-gray-700">{item.label}</span>
+              <span className="text-gray-700 dark:text-gray-200">{item.label}</span>
             )}
           </li>
         ))}
