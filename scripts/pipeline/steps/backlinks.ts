@@ -1,0 +1,50 @@
+import type { Step, StepContext, StepResult, Artifact } from "../types";
+import type { BacklinksIndex } from "../../../src/lib/content/types";
+import fs from "fs/promises";
+import path from "path";
+
+const GENERATED_DIR = "src/generated";
+
+export const backlinksStep: Step = {
+  id: "backlinks",
+  name: "Backlinks Index",
+  description: "Builds reverse link index for each entry",
+  dependsOn: ["manifest"],
+  run: async (ctx: StepContext): Promise<StepResult> => {
+    const artifacts: Artifact[] = [];
+    
+    const backlinks: BacklinksIndex = {};
+    
+    for (const entry of ctx.manifest) {
+      backlinks[entry.slug] = [];
+    }
+    
+    for (const entry of ctx.manifest) {
+      if (entry.outboundLinks) {
+        for (const targetSlug of entry.outboundLinks) {
+          if (backlinks[targetSlug] && !backlinks[targetSlug].includes(entry.slug)) {
+            backlinks[targetSlug].push(entry.slug);
+          }
+        }
+      }
+    }
+    
+    const outputPath = await ctx.writeJson("backlinks", "backlinks.json", backlinks, false);
+    artifacts.push({ path: outputPath, isPublic: false });
+    
+    await fs.mkdir(GENERATED_DIR, { recursive: true });
+    await fs.writeFile(path.join(GENERATED_DIR, "backlinks.json"), JSON.stringify(backlinks, null, 2));
+    artifacts.push({ path: path.join(GENERATED_DIR, "backlinks.json"), isPublic: false });
+    
+    const totalBacklinks = Object.values(backlinks).reduce((sum, arr) => sum + arr.length, 0);
+    
+    return {
+      success: true,
+      artifacts,
+      summary: {
+        totalBacklinks,
+        entriesWithBacklinks: Object.values(backlinks).filter(arr => arr.length > 0).length,
+      },
+    };
+  },
+};

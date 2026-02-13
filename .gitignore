@@ -42,3 +42,5 @@ next-env.d.ts
 
 # generated content (regenerated on build)
 /src/generated/
+/public/generated/
+/.pipeline-cache/

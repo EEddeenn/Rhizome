@@ -120,9 +120,22 @@
 │        └─ modules/**.mdx
 │
 ├─ scripts/
+│  ├─ pipeline/
+│  │  ├─ types.ts
+│  │  ├─ context.ts
+│  │  ├─ runner.ts
+│  │  └─ steps/
+│  │     ├─ index.ts
+│  │     ├─ manifest.ts
+│  │     ├─ backlinks.ts
+│  │     ├─ tags.ts
+│  │     ├─ graph.ts
+│  │     ├─ search.ts
+│  │     ├─ content.ts
+│  │     └─ sitemap.ts
 │  ├─ gen-content.ts
-│  ├─ watch.ts (optional)
-│  └─ utils.ts
+│  ├─ new-content.ts
+│  └─ watch.ts (optional)
 │
 ├─ next.config.mjs
 ├─ tailwind.config.ts
@@ -713,3 +726,295 @@ Function signature:
 - Tags pages work.
 - Backlinks show correct inbound references.
 - Works as purely static export deployable on Cloudflare Pages.
+
+---
+
+## 14) Pluggable Build Pipeline Architecture
+
+### 14.1 Overview
+
+The content generator uses a step-based pipeline architecture that allows new features to be added without modifying the core. Each step:
+- Has a unique `id` and declares its dependencies
+- Receives a context with manifest data and helper functions
+- Produces artifacts (files) and returns a result summary
+- Supports incremental builds via content hashing
+
+### 14.2 Directory Structure
+
+```
+scripts/
+├─ pipeline/
+│  ├─ types.ts          # Step, StepContext, StepResult interfaces
+│  ├─ context.ts        # Helper functions (hashing, file I/O, logging)
+│  ├─ runner.ts         # Pipeline orchestrator with dependency resolution
+│  └─ steps/            # Individual step implementations
+│     ├─ index.ts       # Re-exports all steps
+│     ├─ manifest.ts    # Entry metadata
+│     ├─ backlinks.ts   # Reverse link index
+│     ├─ tags.ts        # Tag-to-entries mapping
+│     ├─ graph.ts       # Network graph data
+│     ├─ search.ts      # Full-text search index
+│     ├─ content.ts     # Raw MDX content
+│     └─ sitemap.ts     # SEO metadata (sitemap.xml, rss.xml)
+├─ gen-content.ts       # Main generator using the pipeline
+├─ new-content.ts       # Create new content from templates
+└─ watch.ts             # Watch mode wrapper
+
+src/generated/          # Private generated files (bundled into app)
+├─ manifest.json        # Legacy location
+├─ backlinks.json       # Legacy location
+├─ tags.json            # Legacy location
+├─ content.json         # Legacy location
+├─ manifest/            # Step-based location
+│  └─ manifest.json
+├─ backlinks/
+│  └─ backlinks.json
+├─ tags/
+│  └─ tags.json
+├─ content/
+│  └─ content.json
+└─ graph/
+   └─ graph.json
+
+public/generated/       # Public generated files (fetched at runtime)
+├─ debug/
+│  └─ pipeline-report.json
+├─ graph/
+│  └─ graph.json
+├─ search/
+│  └─ search-index.json
+└─ sitemap/
+   ├─ sitemap.xml
+   └─ rss.xml
+
+.pipeline-cache/        # Cache for incremental builds
+├─ manifest.json
+├─ backlinks.json
+└─ ...
+```
+
+### 14.3 Step Interface
+
+```typescript
+interface Step {
+  id: string;                    // Unique identifier (used as directory name)
+  name: string;                  // Human-readable name
+  description: string;           // What this step does
+  dependsOn: string[];           // List of step IDs that must run first
+  run: (ctx: StepContext) => Promise<StepResult>;
+}
+
+interface StepContext {
+  manifest: Manifest[];          // Parsed entry metadata
+  rawEntries: RawEntry[];        // Raw entries with full content
+  siteUrl: string;
+  siteTitle: string;
+  logger: Logger;
+  hash: (content: string) => string;
+  writeJson: (stepId: string, filename: string, data: unknown, isPublic?: boolean) => Promise<string>;
+  writeText: (stepId: string, filename: string, content: string, isPublic?: boolean) => Promise<string>;
+  readCache: (stepId: string) => Promise<StepCache | null>;
+  writeCache: (stepId: string, cache: StepCache) => Promise<void>;
+  getStepOutput: (stepId: string) => StepOutput | undefined;
+}
+
+interface StepResult {
+  success: boolean;
+  artifacts: Artifact[];         // Files produced by this step
+  error?: string;
+  summary?: Record<string, unknown>;  // Debug/human-readable summary
+}
+
+interface Artifact {
+  path: string;
+  isPublic: boolean;
+  hash?: string;
+}
+```
+
+### 14.4 Step Context Helpers
+
+The `StepContext` provides utilities for steps:
+
+```typescript
+// Hash content for cache invalidation
+const hash = ctx.hash("some content"); // Returns sha256 hex (16 chars)
+
+// Write JSON to step-specific directory
+await ctx.writeJson("backlinks", "backlinks.json", data, false);
+// → src/generated/backlinks/backlinks.json
+
+await ctx.writeJson("graph", "graph.json", data, true);
+// → public/generated/graph/graph.json
+
+// Write text files
+await ctx.writeText("sitemap", "sitemap.xml", xmlContent, true);
+
+// Cache management
+const cache = await ctx.readCache("backlinks");
+await ctx.writeCache("backlinks", { inputHash, outputHash, timestamp, artifacts });
+
+// Access previous step outputs
+const manifestOutput = ctx.getStepOutput("manifest");
+```
+
+### 14.5 Pipeline Runner
+
+The runner handles:
+1. **Dependency resolution** - Topological sort ensures steps run in correct order
+2. **Incremental builds** - Skips steps when input hash matches cache
+3. **Error handling** - Reports failures without crashing
+4. **Debug reporting** - Generates pipeline-report.json
+
+```typescript
+import { runPipeline, defineStep } from "./pipeline/runner";
+
+const steps: Step[] = [
+  manifestStep,
+  backlinksStep,
+  tagsStep,
+  graphStep,
+  searchStep,
+  sitemapStep,
+];
+
+const report = await runPipeline(steps, manifest, rawEntries, siteUrl, siteTitle);
+```
+
+### 14.6 Built-in Steps
+
+| Step ID | Dependencies | Outputs | Description |
+|---------|-------------|---------|-------------|
+| `manifest` | none | `manifest.json` | Entry metadata with resolved links |
+| `backlinks` | `manifest` | `backlinks.json` | Reverse link index |
+| `tags` | `manifest` | `tags.json` | Tag-to-entries mapping |
+| `graph` | `manifest` | `graph.json` | Network graph data |
+| `search` | `manifest` | `search-index.json` | Full-text search index |
+| `content` | `manifest` | `content.json` | Raw MDX content for rendering |
+| `sitemap` | `manifest` | `sitemap.xml`, `rss.xml` | SEO metadata |
+
+### 14.7 How to Add a New Step
+
+1. **Create the step file in `scripts/pipeline/steps/my-step.ts`:**
+
+```typescript
+import type { Step, StepContext, StepResult, Artifact } from "../types";
+
+export const myStep: Step = {
+  id: "my-feature",
+  name: "My Feature",
+  description: "Does something useful",
+  dependsOn: ["manifest"],
+  
+  run: async (ctx: StepContext): Promise<StepResult> => {
+    const artifacts: Artifact[] = [];
+    
+    const entries = ctx.manifest;
+    const result = processData(entries);
+    
+    const outputPath = await ctx.writeJson("my-feature", "output.json", result, false);
+    artifacts.push({ path: outputPath, isPublic: false });
+    
+    return {
+      success: true,
+      artifacts,
+      summary: { itemsProcessed: result.length },
+    };
+  },
+};
+```
+
+2. **Export from `scripts/pipeline/steps/index.ts`:**
+
+```typescript
+export { myStep } from "./my-step";
+```
+
+3. **Register the step in `gen-content.ts`:**
+
+```typescript
+import { manifestStep, backlinksStep, tagsStep, graphStep, searchStep, contentStep, sitemapStep, myStep } from "./pipeline/steps";
+
+const steps = [
+  manifestStep,
+  backlinksStep,
+  tagsStep,
+  graphStep,
+  searchStep,
+  contentStep,
+  sitemapStep,
+  myStep,
+];
+```
+
+4. **Add a loader if needed (for runtime access):**
+
+```typescript
+// src/lib/generated/load-my-feature.ts
+import myFeatureData from "@/generated/my-feature/output.json";
+
+export function getMyFeatureData() {
+  return myFeatureData;
+}
+```
+
+### 14.8 Incremental Build Cache
+
+Each step's cache is stored in `.pipeline-cache/<step-id>.json`:
+
+```json
+{
+  "inputHash": "a1b2c3d4e5f6",
+  "outputHash": "f6e5d4c3b2a1",
+  "timestamp": 1707800000000,
+  "artifacts": ["src/generated/backlinks/backlinks.json"]
+}
+```
+
+When `runPipeline` is called:
+1. Computes input hash from manifest + dependency outputs
+2. Compares with cached hash
+3. Skips execution if hashes match (returns cached artifacts)
+4. Otherwise, runs step and updates cache
+
+To force rebuild all steps, delete `.pipeline-cache/` or pass `force: true`.
+
+### 14.9 Debug Report
+
+After each run, a pipeline report is written to `public/generated/debug/pipeline-report.json`:
+
+```json
+{
+  "timestamp": "2026-02-13T07:30:21.711Z",
+  "duration": 11,
+  "siteUrl": "https://example.com",
+  "siteTitle": "Rhizome",
+  "steps": [
+    {
+      "id": "manifest",
+      "name": "Manifest",
+      "duration": 2,
+      "cached": false,
+      "success": true,
+      "artifacts": [...],
+      "summary": { "entries": 9 }
+    }
+  ],
+  "summary": {
+    "totalSteps": 7,
+    "cachedSteps": 0,
+    "failedSteps": 0,
+    "totalArtifacts": 10
+  }
+}
+```
+
+### 14.10 Future Extensions
+
+The pipeline architecture supports planned features:
+- **PDF indexing step** - Extract text/metadata from PDFs in content/assets/
+- **Graph analytics step** - Compute centrality, communities, orphan detection
+- **Validation step** - Check for broken links, missing required fields
+- **Image optimization step** - Generate thumbnails, WebP versions
+- **External sync step** - Pull content from Notion, GitHub issues, etc.
+
