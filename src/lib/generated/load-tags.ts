@@ -1,4 +1,4 @@
-import tagsIndex from "@/generated/tags.json";
+import tagsIndex from "@/generated/tags/tags.json";
 import type { TagsIndex } from "@/lib/content/types";
 
 export function getTagsIndex(): TagsIndex {

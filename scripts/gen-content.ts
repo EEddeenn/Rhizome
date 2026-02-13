@@ -23,6 +23,8 @@ import { runPipeline } from "./pipeline/runner";
 import type { RawEntry } from "./pipeline/types";
 import { CONTENT_DIR, PUBLIC_DIR } from "./pipeline/constants";
 import {
+  vendorStep,
+  siteConfigStep,
   manifestStep,
   backlinksStep,
   tagsStep,
@@ -128,6 +130,7 @@ async function copyAssets(): Promise<number> {
   let copiedCount = 0;
   for (const assetFile of assetFiles) {
     const relativePath = assetFile.replace(`${CONTENT_DIR}/assets/`, "");
+    if (relativePath === "favicon.ico") continue;
     const destPath = path.join(PUBLIC_DIR, "assets", relativePath);
     await fs.mkdir(path.dirname(destPath), { recursive: true });
     await fs.copyFile(assetFile, destPath);
@@ -164,6 +167,8 @@ async function main(): Promise<void> {
 
   console.log("\n5. Running build pipeline...");
   const steps = [
+    vendorStep,
+    siteConfigStep,
     manifestStep,
     backlinksStep,
     tagsStep,

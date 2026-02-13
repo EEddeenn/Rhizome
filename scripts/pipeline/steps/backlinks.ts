@@ -1,6 +1,5 @@
 import type { Step, StepContext, StepResult, Artifact } from "../types";
 import type { BacklinksIndex } from "../../../src/lib/content/types";
-import { writeLegacyJson } from "../context";
 
 export const backlinksStep: Step = {
   id: "backlinks",
@@ -28,9 +27,6 @@ export const backlinksStep: Step = {
     
     const outputPath = await ctx.writeJson("backlinks", "backlinks.json", backlinks, false);
     artifacts.push({ path: outputPath, isPublic: false });
-    
-    const legacyPath = await writeLegacyJson("backlinks.json", backlinks);
-    artifacts.push({ path: legacyPath, isPublic: false });
     
     return {
       success: true,

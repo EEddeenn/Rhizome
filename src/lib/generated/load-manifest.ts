@@ -1,4 +1,4 @@
-import manifest from "@/generated/manifest.json";
+import manifest from "@/generated/manifest/manifest.json";
 import type { Entry, Manifest } from "@/lib/content/types";
 import { normalizeTitle } from "@/lib/content/normalize";
 

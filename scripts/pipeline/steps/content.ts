@@ -1,5 +1,4 @@
 import type { Step, StepContext, StepResult, Artifact } from "../types";
-import { writeLegacyJson } from "../context";
 
 export const contentStep: Step = {
   id: "content",
@@ -16,9 +15,6 @@ export const contentStep: Step = {
     
     const outputPath = await ctx.writeJson("content", "content.json", contentIndex, false);
     artifacts.push({ path: outputPath, isPublic: false });
-    
-    const legacyPath = await writeLegacyJson("content.json", contentIndex);
-    artifacts.push({ path: legacyPath, isPublic: false });
 
     return {
       success: true,

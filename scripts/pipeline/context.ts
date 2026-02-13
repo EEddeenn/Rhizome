@@ -21,14 +21,6 @@ export function hashObject(obj: unknown): string {
   return hashContent(JSON.stringify(obj, Object.keys(obj as object).sort()));
 }
 
-export async function writeLegacyJson(filename: string, data: unknown): Promise<string> {
-  const content = JSON.stringify(data, null, 2);
-  const destPath = path.join(GENERATED_DIR, filename);
-  await fs.mkdir(GENERATED_DIR, { recursive: true });
-  await fs.writeFile(destPath, content);
-  return destPath;
-}
-
 export function createStepContext(
   manifest: Manifest[],
   rawEntries: RawEntry[],

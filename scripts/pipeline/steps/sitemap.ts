@@ -1,7 +1,7 @@
 import type { Step, StepContext, StepResult, Artifact } from "../types";
-import { PUBLIC_DIR } from "../constants";
 import fs from "fs/promises";
 import path from "path";
+import { PUBLIC_DIR } from "../constants";
 
 function escapeXML(str: string): string {
   return str
@@ -40,6 +40,10 @@ ${urls}
     const sitemapPath = await ctx.writeText("sitemap", "sitemap.xml", sitemap, true);
     artifacts.push({ path: sitemapPath, isPublic: true });
 
+    const sitemapRootPath = path.join(PUBLIC_DIR, "sitemap.xml");
+    await fs.writeFile(sitemapRootPath, sitemap);
+    artifacts.push({ path: sitemapRootPath, isPublic: true });
+
     const rssNow = new Date().toUTCString();
     const items = [...ctx.manifest]
       .sort((a, b) => {
@@ -75,11 +79,9 @@ ${items}
     const rssPath = await ctx.writeText("sitemap", "rss.xml", rss, true);
     artifacts.push({ path: rssPath, isPublic: true });
 
-    // Copy to public root for legacy compatibility
-    await fs.writeFile(path.join(PUBLIC_DIR, "sitemap.xml"), sitemap);
-    await fs.writeFile(path.join(PUBLIC_DIR, "rss.xml"), rss);
-    artifacts.push({ path: path.join(PUBLIC_DIR, "sitemap.xml"), isPublic: true });
-    artifacts.push({ path: path.join(PUBLIC_DIR, "rss.xml"), isPublic: true });
+    const rssRootPath = path.join(PUBLIC_DIR, "rss.xml");
+    await fs.writeFile(rssRootPath, rss);
+    artifacts.push({ path: rssRootPath, isPublic: true });
 
     return {
       success: true,

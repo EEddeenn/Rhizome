@@ -2,6 +2,64 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2026-02-13
+
+### Added
+
+#### Pluggable Build Pipeline
+- `scripts/pipeline/types.ts` — Step, StepContext, StepResult, Artifact interfaces
+- `scripts/pipeline/constants.ts` — CONTENT_DIR, PUBLIC_DIR, GENERATED_DIR, CACHE_DIR
+- `scripts/pipeline/context.ts` — Helpers (hashing, file I/O, logging)
+- `scripts/pipeline/runner.ts` — Pipeline orchestrator with topological sort
+- `scripts/pipeline/steps/` — Individual step implementations
+  - `vendor.ts` — Copy vendor assets from node_modules (KaTeX, PDF.js, fonts)
+  - `site-config.ts` — Generate robots.txt and _headers with SITE_URL
+  - `manifest.ts`, `backlinks.ts`, `tags.ts`, `graph.ts`, `search.ts`, `content.ts`, `sitemap.ts`
+- Incremental build support with content hashing
+- `.pipeline-cache/` directory for caching step outputs
+- `public/generated/debug/pipeline-report.json` for debugging builds
+- Unit tests for pipeline runner (`tests/pipeline.test.ts`)
+
+#### Template System
+- `templates/note.mdx` — Template for new notes
+- `templates/article.mdx` — Template for new articles
+- `scripts/new-content.ts` — Create new content from templates
+- `npm run new -- <type> <title>` command
+
+#### Fully Generated Public Folder
+- `public/` is now fully generated and gitignored
+- All static assets copied from node_modules or content during build:
+  - `favicon.ico` from `content/assets/`
+  - `katex.min.css` and fonts from `katex` package
+  - `pdf.worker.min.js` from `pdfjs-dist`
+- sitemap.xml, rss.xml, robots.txt, _headers copied to root for SEO
+
+### Changed
+
+#### Code Cleanup
+- Removed unused functions: `slugToPathSegments()`, `pathSegmentsToSlug()`, `defineStep()`
+- Made `sortByDateDesc()` and `sortByTitleAsc()` internal (unexported)
+- Consolidated `normalizeTitle()` usage (replaced 4 inline duplications)
+- Removed `postinstall` script from package.json (vendor step handles it)
+- Removed legacy file writes from pipeline steps
+
+#### Import Paths
+- KaTeX CSS: `/generated/vendor/katex.min.css`
+- PDF.js worker: `/generated/vendor/pdf.worker.min.js`
+- Loaders use step-specific paths (e.g., `@/generated/manifest/manifest.json`)
+
+#### Pipeline Order
+```
+vendor → site-config → manifest → backlinks → tags → graph → search → content → sitemap
+```
+
+### Removed
+- `src/app/favicon.ico` — Moved to `content/assets/favicon.ico`
+- `public/*.svg` — Removed obsolete Next.js default SVGs
+- `public/katex.min.css`, `public/fonts/`, `public/pdf.worker.min.js` — Now in `/generated/vendor/`
+
+---
+
 ## [0.7.0] - 2026-02-13
 
 ### Changed

@@ -1,4 +1,4 @@
-import backlinksIndex from "@/generated/backlinks.json";
+import backlinksIndex from "@/generated/backlinks/backlinks.json";
 import type { BacklinksIndex } from "@/lib/content/types";
 
 export function getBacklinksIndex(): BacklinksIndex {

@@ -1,7 +1,4 @@
 import type { Step, StepContext, StepResult, Artifact } from "../types";
-import { GENERATED_DIR } from "../constants";
-import { writeLegacyJson } from "../context";
-import path from "path";
 
 export const manifestStep: Step = {
   id: "manifest",
@@ -13,9 +10,6 @@ export const manifestStep: Step = {
     
     const outputPath = await ctx.writeJson("manifest", "manifest.json", ctx.manifest, false);
     artifacts.push({ path: outputPath, isPublic: false });
-    
-    const legacyPath = await writeLegacyJson("manifest.json", ctx.manifest);
-    artifacts.push({ path: legacyPath, isPublic: false });
     
     return {
       success: true,

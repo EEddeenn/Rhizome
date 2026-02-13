@@ -56,44 +56,48 @@
 
 ```
 .
-├─ app/
-│  ├─ (site)/
-│  │  ├─ layout.tsx
-│  │  ├─ page.tsx
-│  │  ├─ notes/
-│  │  │  ├─ page.tsx
-│  │  │  └─ [...slug]/page.tsx
-│  │  ├─ articles/
-│  │  │  ├─ page.tsx
-│  │  │  └─ [...slug]/page.tsx
-│  │  ├─ tags/
-│  │  │  ├─ page.tsx
-│  │  │  └─ [tag]/page.tsx
-│  │  ├─ search/page.tsx
-│  │  └─ graph/page.tsx
-│  └─ globals.css
-│
-├─ components/
-│  ├─ mdx/
-│  │  ├─ MDXComponents.tsx
-│  │  ├─ CodeBlock.tsx
-│  │  ├─ Callout.tsx
-│  │  └─ Mermaid.tsx (optional; client)
-│  ├─ layout/
-│  │  ├─ Nav.tsx
-│  │  ├─ Footer.tsx
-│  │  └─ Breadcrumbs.tsx
-│  └─ blocks/
-│     ├─ EntryList.tsx
-│     ├─ BacklinksPanel.tsx
-│     └─ TagPills.tsx
-│
-├─ content/
-│  ├─ notes/**.mdx
-│  ├─ articles/**.mdx
-│  └─ assets/** (images, attachments)
-│
 ├─ src/
+│  ├─ app/
+│  │  ├─ (site)/
+│  │  │  ├─ layout.tsx
+│  │  │  ├─ page.tsx
+│  │  │  ├─ notes/
+│  │  │  │  ├─ page.tsx
+│  │  │  │  └─ [...slug]/page.tsx
+│  │  │  ├─ articles/
+│  │  │  │  ├─ page.tsx
+│  │  │  │  └─ [...slug]/page.tsx
+│  │  │  ├─ tags/
+│  │  │  │  ├─ page.tsx
+│  │  │  │  └─ [tag]/page.tsx
+│  │  │  ├─ search/page.tsx
+│  │  │  └─ graph/page.tsx
+│  │  ├─ globals.css
+│  │  └─ layout.tsx
+│  │
+│  ├─ components/
+│  │  ├─ mdx/
+│  │  │  ├─ MDXComponents.tsx
+│  │  │  ├─ Callout.tsx
+│  │  │  ├─ Mermaid.tsx
+│  │  │  ├─ PDFViewer.tsx
+│  │  │  └─ PDFViewerInner.tsx
+│  │  ├─ layout/
+│  │  │  ├─ Nav.tsx
+│  │  │  ├─ Footer.tsx
+│  │  │  ├─ Breadcrumbs.tsx
+│  │  │  ├─ SearchBar.tsx
+│  │  │  └─ ThemeToggle.tsx
+│  │  └─ blocks/
+│  │     ├─ EntryList.tsx
+│  │     ├─ EntryListSection.tsx
+│  │     ├─ EntryPage.tsx
+│  │     ├─ EntryMetadata.tsx
+│  │     ├─ CategoryPage.tsx
+│  │     ├─ BacklinksPanel.tsx
+│  │     ├─ TableOfContents.tsx
+│  │     └─ TagPills.tsx
+│  │
 │  ├─ lib/
 │  │  ├─ content/
 │  │  │  ├─ types.ts
@@ -101,31 +105,58 @@
 │  │  │  ├─ normalize.ts
 │  │  │  ├─ link-resolver.ts
 │  │  │  ├─ sort.ts
-│  │  │  └─ reading-time.ts
-│  │  ├─ generated/
-│  │  │  ├─ load-manifest.ts
-│  │  │  ├─ load-tags.ts
-│  │  │  ├─ load-backlinks.ts
-│  │  │  └─ load-search.ts
-│  │  └─ ui/
-│  │     └─ classnames.ts
+│  │  │  ├─ reading-time.ts
+│  │  │  ├─ mdx-config.ts
+│  │  │  └─ remark-wiki-links.ts
+│  │  └─ generated/
+│  │     ├─ load-manifest.ts
+│  │     ├─ load-tags.ts
+│  │     ├─ load-backlinks.ts
+│  │     ├─ load-search.ts
+│  │     └─ load-content.ts
+│  │
+│  └─ generated/              # Generated, gitignored
+│     ├─ manifest/manifest.json
+│     ├─ backlinks/backlinks.json
+│     ├─ tags/tags.json
+│     ├─ content/content.json
+│     └─ (legacy symlinks for backward compat)
+│
+├─ content/
+│  ├─ notes/**.mdx
+│  ├─ articles/**.mdx
+│  └─ assets/
+│     ├─ favicon.ico
+│     └─ pdfs/**.pdf
+│
+├─ public/                    # Fully generated, gitignored
+│  ├─ favicon.ico
+│  ├─ sitemap.xml
+│  ├─ rss.xml
+│  ├─ robots.txt
+│  ├─ _headers
+│  ├─ assets/pdfs/**.pdf
 │  └─ generated/
-│     ├─ manifest.json
-│     ├─ tags.json
-│     ├─ backlinks.json
-│     ├─ graph.json
-│     ├─ search-index.json
-│     └─ mdx/
-│        ├─ import-map.ts
-│        └─ modules/**.mdx
+│     ├─ debug/pipeline-report.json
+│     ├─ graph/graph.json
+│     ├─ search/search-index.json
+│     ├─ site-config/{robots.txt, _headers}
+│     ├─ sitemap/{sitemap.xml, rss.xml}
+│     └─ vendor/
+│        ├─ katex.min.css
+│        ├─ pdf.worker.min.js
+│        └─ fonts/KaTeX_*.woff{,2}
 │
 ├─ scripts/
 │  ├─ pipeline/
 │  │  ├─ types.ts
+│  │  ├─ constants.ts
 │  │  ├─ context.ts
 │  │  ├─ runner.ts
 │  │  └─ steps/
 │  │     ├─ index.ts
+│  │     ├─ vendor.ts
+│  │     ├─ site-config.ts
 │  │     ├─ manifest.ts
 │  │     ├─ backlinks.ts
 │  │     ├─ tags.ts
@@ -135,13 +166,26 @@
 │  │     └─ sitemap.ts
 │  ├─ gen-content.ts
 │  ├─ new-content.ts
-│  └─ watch.ts (optional)
+│  └─ watch.ts
 │
+├─ templates/
+│  ├─ note.mdx
+│  └─ article.mdx
+│
+├─ tests/
+│  ├─ pipeline.test.ts
+│  ├─ link-resolver.test.ts
+│  ├─ normalize.test.ts
+│  └─ slug.test.ts
+│
+├─ .pipeline-cache/           # Cache, gitignored
 ├─ next.config.mjs
 ├─ tailwind.config.ts
 ├─ tsconfig.json
 ├─ package.json
-└─ README.md
+├─ DESIGN.md
+├─ README.md
+└─ CHANGELOG.md
 ```
 
 ---
@@ -739,58 +783,60 @@ The content generator uses a step-based pipeline architecture that allows new fe
 - Produces artifacts (files) and returns a result summary
 - Supports incremental builds via content hashing
 
+The `public/` folder is **fully generated** and gitignored. All static assets are copied from `node_modules/` or `content/` during the build.
+
 ### 14.2 Directory Structure
 
 ```
-scripts/
-├─ pipeline/
-│  ├─ types.ts          # Step, StepContext, StepResult interfaces
-│  ├─ constants.ts      # Shared constants (CONTENT_DIR, PUBLIC_DIR, etc.)
-│  ├─ context.ts        # Helper functions (hashing, file I/O, logging)
-│  ├─ runner.ts         # Pipeline orchestrator with dependency resolution
-│  └─ steps/            # Individual step implementations
-│     ├─ index.ts       # Re-exports all steps
-│     ├─ manifest.ts    # Entry metadata
-│     ├─ backlinks.ts   # Reverse link index
-│     ├─ tags.ts        # Tag-to-entries mapping
-│     ├─ graph.ts       # Network graph data
-│     ├─ search.ts      # Full-text search index
-│     ├─ content.ts     # Raw MDX content
-│     └─ sitemap.ts     # SEO metadata (sitemap.xml, rss.xml)
-├─ gen-content.ts       # Main generator using the pipeline
-├─ new-content.ts       # Create new content from templates
-└─ watch.ts             # Watch mode wrapper
+scripts/pipeline/
+├─ types.ts              # Step, StepContext, StepResult interfaces
+├─ constants.ts          # CONTENT_DIR, PUBLIC_DIR, GENERATED_DIR, CACHE_DIR
+├─ context.ts            # Helpers: hashing, file I/O, logging
+├─ runner.ts             # Pipeline orchestrator with topological sort
+└─ steps/
+   ├─ index.ts           # Re-exports all steps
+   ├─ vendor.ts          # Copy vendor assets (katex, pdf.worker, fonts)
+   ├─ site-config.ts     # Generate robots.txt, _headers
+   ├─ manifest.ts        # Entry metadata
+   ├─ backlinks.ts       # Reverse link index
+   ├─ tags.ts            # Tag-to-entries mapping
+   ├─ graph.ts           # Network graph data
+   ├─ search.ts          # Full-text search index
+   ├─ content.ts         # Raw MDX content for rendering
+   └─ sitemap.ts         # sitemap.xml, rss.xml (copies to root)
 
-src/generated/          # Private generated files (bundled into app)
-├─ manifest.json        # Legacy location
-├─ backlinks.json       # Legacy location
-├─ tags.json            # Legacy location
-├─ content.json         # Legacy location
-├─ manifest/            # Step-based location
-│  └─ manifest.json
-├─ backlinks/
-│  └─ backlinks.json
-├─ tags/
-│  └─ tags.json
-├─ content/
-│  └─ content.json
-└─ graph/
-   └─ graph.json
+src/generated/           # Private generated files (bundled into app)
+├─ manifest/manifest.json
+├─ backlinks/backlinks.json
+├─ tags/tags.json
+└─ content/content.json
 
-public/generated/       # Public generated files (fetched at runtime)
-├─ debug/
-│  └─ pipeline-report.json
-├─ graph/
-│  └─ graph.json
-├─ search/
-│  └─ search-index.json
-└─ sitemap/
-   ├─ sitemap.xml
-   └─ rss.xml
+public/                  # Fully generated, gitignored
+├─ favicon.ico           # Copied from content/assets/
+├─ sitemap.xml           # Copied from generated/sitemap/
+├─ rss.xml               # Copied from generated/sitemap/
+├─ robots.txt            # Copied from generated/site-config/
+├─ _headers              # Copied from generated/site-config/
+├─ assets/pdfs/          # Copied from content/assets/
+└─ generated/
+   ├─ debug/pipeline-report.json
+   ├─ graph/graph.json
+   ├─ search/search-index.json
+   ├─ site-config/
+   │  ├─ robots.txt
+   │  └─ _headers
+   ├─ sitemap/
+   │  ├─ sitemap.xml
+   │  └─ rss.xml
+   └─ vendor/
+      ├─ katex.min.css
+      ├─ pdf.worker.min.js
+      └─ fonts/KaTeX_*.woff{,2}
 
-.pipeline-cache/        # Cache for incremental builds
+.pipeline-cache/         # Incremental build cache
+├─ vendor.json
+├─ site-config.json
 ├─ manifest.json
-├─ backlinks.json
 └─ ...
 ```
 
@@ -833,31 +879,19 @@ interface Artifact {
 }
 ```
 
-### 14.4 Step Context Helpers
+### 14.4 Built-in Steps
 
-The `StepContext` provides utilities for steps:
-
-```typescript
-// Hash content for cache invalidation
-const hash = ctx.hash("some content"); // Returns sha256 hex (16 chars)
-
-// Write JSON to step-specific directory
-await ctx.writeJson("backlinks", "backlinks.json", data, false);
-// → src/generated/backlinks/backlinks.json
-
-await ctx.writeJson("graph", "graph.json", data, true);
-// → public/generated/graph/graph.json
-
-// Write text files
-await ctx.writeText("sitemap", "sitemap.xml", xmlContent, true);
-
-// Cache management
-const cache = await ctx.readCache("backlinks");
-await ctx.writeCache("backlinks", { inputHash, outputHash, timestamp, artifacts });
-
-// Access previous step outputs
-const manifestOutput = ctx.getStepOutput("manifest");
-```
+| Step ID | Dependencies | Outputs | Description |
+|---------|-------------|---------|-------------|
+| `vendor` | none | katex.min.css, pdf.worker.min.js, fonts/, favicon.ico | Copies vendor assets from node_modules and content/assets |
+| `site-config` | none | robots.txt, _headers | Generates site config with SITE_URL |
+| `manifest` | none | manifest.json | Entry metadata with resolved links |
+| `backlinks` | `manifest` | backlinks.json | Reverse link index |
+| `tags` | `manifest` | tags.json | Tag-to-entries mapping |
+| `graph` | `manifest` | graph.json | Network graph data (public) |
+| `search` | `manifest` | search-index.json | Full-text search index (public) |
+| `content` | `manifest` | content.json | Raw MDX content for rendering |
+| `sitemap` | `manifest` | sitemap.xml, rss.xml | SEO metadata (copies to root) |
 
 ### 14.5 Pipeline Runner
 
@@ -868,31 +902,59 @@ The runner handles:
 4. **Debug reporting** - Generates pipeline-report.json
 
 ```typescript
-import { runPipeline, defineStep } from "./pipeline/runner";
-
-const steps: Step[] = [
+import { runPipeline } from "./pipeline/runner";
+import {
+  vendorStep,
+  siteConfigStep,
   manifestStep,
   backlinksStep,
   tagsStep,
   graphStep,
   searchStep,
+  contentStep,
+  sitemapStep,
+} from "./pipeline/steps";
+
+const steps = [
+  vendorStep,
+  siteConfigStep,
+  manifestStep,
+  backlinksStep,
+  tagsStep,
+  graphStep,
+  searchStep,
+  contentStep,
   sitemapStep,
 ];
 
 const report = await runPipeline(steps, manifest, rawEntries, siteUrl, siteTitle);
 ```
 
-### 14.6 Built-in Steps
+Pipeline execution order:
+```
+vendor → site-config → manifest → backlinks → tags → graph → search → content → sitemap
+```
 
-| Step ID | Dependencies | Outputs | Description |
-|---------|-------------|---------|-------------|
-| `manifest` | none | `manifest.json` | Entry metadata with resolved links |
-| `backlinks` | `manifest` | `backlinks.json` | Reverse link index |
-| `tags` | `manifest` | `tags.json` | Tag-to-entries mapping |
-| `graph` | `manifest` | `graph.json` | Network graph data |
-| `search` | `manifest` | `search-index.json` | Full-text search index |
-| `content` | `manifest` | `content.json` | Raw MDX content for rendering |
-| `sitemap` | `manifest` | `sitemap.xml`, `rss.xml` | SEO metadata |
+### 14.6 Incremental Build Cache
+
+Each step's cache is stored in `.pipeline-cache/<step-id>.json`:
+
+```json
+{
+  "inputHash": "a1b2c3d4e5f6",
+  "outputHash": "f6e5d4c3b2a1",
+  "timestamp": 1707800000000,
+  "artifacts": ["src/generated/backlinks/backlinks.json"]
+}
+```
+
+When `runPipeline` is called:
+1. Computes input hash from manifest + dependency outputs
+2. Compares with cached hash
+3. Skips execution if hashes match (returns cached artifacts)
+4. Otherwise, runs step and updates cache
+
+To force rebuild all steps, delete `.pipeline-cache/`.
 
 ### 14.7 How to Add a New Step
 
@@ -934,9 +996,11 @@ export { myStep } from "./my-step";
 3. **Register the step in `gen-content.ts`:**
 
 ```typescript
-import { manifestStep, backlinksStep, tagsStep, graphStep, searchStep, contentStep, sitemapStep, myStep } from "./pipeline/steps";
+import { ..., myStep } from "./pipeline/steps";
 
 const steps = [
+  vendorStep,
+  siteConfigStep,
   manifestStep,
   backlinksStep,
   tagsStep,
@@ -948,74 +1012,41 @@ const steps = [
 ];
 ```
 
-4. **Add a loader if needed (for runtime access):**
-
-```typescript
-// src/lib/generated/load-my-feature.ts
-import myFeatureData from "@/generated/my-feature/output.json";
-
-export function getMyFeatureData() {
-  return myFeatureData;
-}
-```
-
-### 14.8 Incremental Build Cache
-
-Each step's cache is stored in `.pipeline-cache/<step-id>.json`:
-
-```json
-{
-  "inputHash": "a1b2c3d4e5f6",
-  "outputHash": "f6e5d4c3b2a1",
-  "timestamp": 1707800000000,
-  "artifacts": ["src/generated/backlinks/backlinks.json"]
-}
-```
-
-When `runPipeline` is called:
-1. Computes input hash from manifest + dependency outputs
-2. Compares with cached hash
-3. Skips execution if hashes match (returns cached artifacts)
-4. Otherwise, runs step and updates cache
-
-To force rebuild all steps, delete `.pipeline-cache/` or pass `force: true`.
-
-### 14.9 Debug Report
+### 14.8 Debug Report
 
 After each run, a pipeline report is written to `public/generated/debug/pipeline-report.json`:
 
 ```json
 {
   "timestamp": "2026-02-13T07:30:21.711Z",
-  "duration": 11,
+  "duration": 21,
   "siteUrl": "https://example.com",
   "siteTitle": "Rhizome",
   "steps": [
     {
-      "id": "manifest",
-      "name": "Manifest",
-      "duration": 2,
+      "id": "vendor",
+      "name": "Vendor Assets",
+      "duration": 9,
       "cached": false,
       "success": true,
       "artifacts": [...],
-      "summary": { "entries": 9 }
+      "summary": { "katexCss": true, "fonts": 22, "pdfWorker": true, "favicon": true }
     }
   ],
   "summary": {
-    "totalSteps": 7,
+    "totalSteps": 9,
     "cachedSteps": 0,
     "failedSteps": 0,
-    "totalArtifacts": 10
+    "totalArtifacts": 57
   }
 }
 ```
 
-### 14.10 Future Extensions
+### 14.9 Future Extensions
 
 The pipeline architecture supports planned features:
 - **PDF indexing step** - Extract text/metadata from PDFs in content/assets/
 - **Graph analytics step** - Compute centrality, communities, orphan detection
 - **Validation step** - Check for broken links, missing required fields
 - **Image optimization step** - Generate thumbnails, WebP versions
-- **External sync step** - Pull content from Notion, GitHub issues, etc.
 
