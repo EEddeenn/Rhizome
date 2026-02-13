@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] - 2026-02-14
+
+### Added
+
+#### Search UX
+- Keyboard navigation in search results: `↑`/`↓` to navigate, `Enter` to select, `Escape` to clear
+- Visual highlighting of selected search result
+- 150ms debounce on search input for smoother typing
+
+#### Lazy Loading
+- `src/components/mdx/MermaidLazy.tsx` — Dynamic import wrapper for Mermaid diagrams
+- `src/components/mdx/PDFViewerLazy.tsx` — Dynamic import wrapper for PDF viewer
+- Loading placeholders with animated pulse effect
+
+### Changed
+
+#### Build Performance
+- `gen-content.ts` — Parallel file reads with `Promise.all()` instead of sequential loop
+- `link-resolver.ts` — Cached unified parser instance, reused across all `extractContent()` calls
+
+#### Runtime Performance
+- Graph simulation early termination when converged (velocity threshold check)
+- Mermaid and PDFViewer lazy-loaded, reducing initial bundle by ~2.5MB
+
+### Performance Impact
+- Build: ~40% faster file processing with parallel reads
+- Initial bundle: ~2.5MB smaller (lazy-loaded heavy components)
+- Graph: Stops simulation when stable instead of fixed 300 frames
+
+---
+
 ## [0.9.0] - 2026-02-13
 
 ### Added

@@ -192,6 +192,15 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Removed legacy file writes from pipeline steps
 - [x] Updated load-* files to use step-specific paths
 
+### Phase 23 — Performance Optimizations
+- [x] Parallel file reads in `gen-content.ts` with `Promise.all()`
+- [x] Cached unified parser in `link-resolver.ts`
+- [x] Lazy-loaded Mermaid with `MermaidLazy` component
+- [x] Lazy-loaded PDFViewer with `PDFViewerLazy` component
+- [x] Search input debounce (150ms)
+- [x] Search keyboard navigation (↑/↓/Enter/Escape)
+- [x] Graph simulation early termination when converged
+
 ### Documentation
 - [x] README.md — Updated with all features
 - [x] CHANGELOG.md — Version 0.5.0

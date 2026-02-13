@@ -25,7 +25,7 @@ A static personal notes and knowledge management system built with Next.js, MDX,
 ### Navigation
 - **Table of Contents** - Auto-generated from headings
 - **Breadcrumbs** - Navigate note hierarchy
-- **Full-text Search** - MiniSearch with fuzzy matching
+- **Full-text Search** - MiniSearch with fuzzy matching and keyboard navigation
 - **Graph View** - Visualize knowledge connections
 
 ### Technical
@@ -261,10 +261,12 @@ Level 1: backlinks, tags, graph, search, content, sitemap (parallel)
 ### Build Optimizations
 
 - **Parallel Execution**: Independent steps run concurrently via `Promise.all()`
+- **Parallel File Reads**: Content files parsed concurrently, ~40% faster
 - **Single AST Parse**: Headings and plain text extracted in one pass
 - **Minified JSON**: ~30% smaller generated files
 - **Set-based Indexing**: O(1) lookups for backlinks and tags
 - **Search Index**: Stop word filtering (~31% reduction), configurable text limit
+- **Lazy Loading**: Mermaid and PDFViewer loaded on-demand (~2.5MB smaller initial bundle)
 
 Environment variables:
 - `SEARCH_TEXT_LIMIT` — Max characters per search doc (default: 10000)

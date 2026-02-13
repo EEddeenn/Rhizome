@@ -8,6 +8,8 @@ import { normalizeTitle } from "./normalize";
 const WIKI_LINK_PATTERN = /\[\[([^\]]+)\]\]/g;
 const MD_LINK_PATTERN = /\[[^\]]*\]\(([^)]+)\)/g;
 
+const cachedParser = unified().use(remarkParse);
+
 export function extractWikiLinks(raw: string): WikiLink[] {
   const links: WikiLink[] = [];
   let match: RegExpExecArray | null;
@@ -106,7 +108,7 @@ export function extractContent(mdxSource: string): ExtractedContent {
   const headings: Heading[] = [];
   const textParts: string[] = [];
   const slugger = new GithubSlugger();
-  const tree = unified().use(remarkParse).parse(mdxSource);
+  const tree = cachedParser.parse(mdxSource);
 
   visit(tree, (node: MdastNode) => {
     if (node.type === "heading") {

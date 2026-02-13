@@ -40,6 +40,23 @@ export default function GraphPage() {
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
   const [loading, setLoading] = useState(true);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const html = document.documentElement;
+    setIsDark(html.classList.contains("dark"));
+
+    const observer = new MutationObserver(() => {
+      setIsDark(html.classList.contains("dark"));
+    });
+
+    observer.observe(html, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const updateSize = () => {
@@ -91,14 +108,10 @@ export default function GraphPage() {
     const nodeMap = nodeMapRef.current;
     const edges = edgesRef.current;
 
-    ctx.fillStyle = document.documentElement.classList.contains("dark")
-      ? "#1f2937"
-      : "#f9fafb";
+    ctx.fillStyle = isDark ? "#1f2937" : "#f9fafb";
     ctx.fillRect(0, 0, width, height);
 
-    ctx.strokeStyle = document.documentElement.classList.contains("dark")
-      ? "#374151"
-      : "#e5e7eb";
+    ctx.strokeStyle = isDark ? "#374151" : "#e5e7eb";
     ctx.lineWidth = 1;
     for (const edge of edges) {
       const source = nodeMap.get(edge.source);
@@ -128,14 +141,12 @@ export default function GraphPage() {
     }
 
     if (hoveredNode) {
-      ctx.fillStyle = document.documentElement.classList.contains("dark")
-        ? "#f9fafb"
-        : "#1f2937";
+      ctx.fillStyle = isDark ? "#f9fafb" : "#1f2937";
       ctx.font = "14px system-ui";
       ctx.textAlign = "center";
       ctx.fillText(hoveredNode.title, hoveredNode.x, hoveredNode.y - 18);
     }
-  }, [hoveredNode, canvasSize]);
+  }, [hoveredNode, canvasSize, isDark]);
 
   useEffect(() => {
     if (loading || nodesRef.current.length === 0) return;
@@ -149,6 +160,10 @@ export default function GraphPage() {
     const centerY = height / 2;
     const padding = 30;
     const maxFrames = 300;
+    const velocityThreshold = 0.1;
+    const stabilityFrames = 10;
+
+    let stableCount = 0;
 
     const simulate = () => {
       const nodes = nodesRef.current;
@@ -197,20 +212,31 @@ export default function GraphPage() {
         node.vy += (centerY - node.y) * centerForce;
       }
 
+      let totalVelocity = 0;
       for (const node of nodes) {
         node.x += node.vx * alpha;
         node.y += node.vy * alpha;
         node.x = Math.max(padding, Math.min(width - padding, node.x));
         node.y = Math.max(padding, Math.min(height - padding, node.y));
+        totalVelocity += Math.abs(node.vx) + Math.abs(node.vy);
       }
+
+      const avgVelocity = totalVelocity / nodes.length;
+      if (avgVelocity < velocityThreshold) {
+        stableCount++;
+      } else {
+        stableCount = 0;
+      }
+
+      return stableCount >= stabilityFrames;
     };
 
     const animate = () => {
-      simulate();
+      const converged = simulate();
       draw();
       frameRef.current++;
 
-      if (frameRef.current < maxFrames) {
+      if (!converged && frameRef.current < maxFrames) {
         animationRef.current = requestAnimationFrame(animate);
       }
     };

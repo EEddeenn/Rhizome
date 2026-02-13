@@ -1,7 +1,7 @@
 import type { MDXComponents } from "mdx/types";
-import { Mermaid } from "./Mermaid";
+import { MermaidLazy } from "./MermaidLazy";
 import { Callout } from "./Callout";
-import { PDFViewer } from "./PDFViewer";
+import { PDFViewerLazy } from "./PDFViewerLazy";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -26,9 +26,9 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         <table>{children}</table>
       </div>
     ),
-    Mermaid,
+    Mermaid: MermaidLazy,
     Callout,
-    PDFViewer,
+    PDFViewer: PDFViewerLazy,
     ...components,
   };
 }

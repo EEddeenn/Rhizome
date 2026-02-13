@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import MiniSearch from "minisearch";
@@ -16,6 +16,17 @@ const miniSearchOptions = {
   },
 };
 
+function useDebouncedValue<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 function SearchContent() {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
@@ -24,6 +35,10 @@ function SearchContent() {
   const [miniSearch, setMiniSearch] = useState<MiniSearch<SearchDoc> | null>(null);
   const [allTags, setAllTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const debouncedQuery = useDebouncedValue(query, 150);
 
   useEffect(() => {
     const q = searchParams.get("q");
@@ -47,9 +62,9 @@ function SearchContent() {
   }, []);
 
   const results = useMemo(() => {
-    if (!miniSearch || !query.trim()) return [];
+    if (!miniSearch || !debouncedQuery.trim()) return [];
 
-    let filtered = miniSearch.search(query) as unknown as SearchDoc[];
+    let filtered = miniSearch.search(debouncedQuery) as unknown as SearchDoc[];
 
     if (typeFilter) {
       filtered = filtered.filter((r) => r.type === typeFilter);
@@ -60,7 +75,27 @@ function SearchContent() {
     }
 
     return filtered;
-  }, [query, typeFilter, tagFilter, miniSearch]);
+  }, [debouncedQuery, typeFilter, tagFilter, miniSearch]);
+
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [results.length]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prev) => Math.max(prev - 1, -1));
+    } else if (e.key === "Enter" && selectedIndex >= 0 && results[selectedIndex]) {
+      e.preventDefault();
+      window.location.href = results[selectedIndex].route;
+    } else if (e.key === "Escape") {
+      setSelectedIndex(-1);
+      inputRef.current?.focus();
+    }
+  }, [results, selectedIndex]);
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
@@ -72,9 +107,11 @@ function SearchContent() {
         <>
           <div className="mb-6 space-y-3 sm:space-y-4">
             <input
+              ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Search notes and articles..."
               className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               autoFocus
@@ -114,11 +151,15 @@ function SearchContent() {
 
               {results.length > 0 ? (
                 <ul className="space-y-3 sm:space-y-4">
-                  {results.map((result) => (
+                  {results.map((result, index) => (
                     <li key={result.id}>
                       <Link
                         href={result.route}
-                        className="block p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
+                        className={`block p-3 sm:p-4 border rounded-lg transition-colors ${
+                          index === selectedIndex
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                            : "border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400"
+                        }`}
                       >
                         <div>
                           <h2 className="font-semibold text-base sm:text-lg">{result.title}</h2>

@@ -152,14 +152,16 @@ async function main(): Promise<void> {
   console.log(`   Found ${filePaths.length} MDX files`);
 
   console.log("\n2. Parsing frontmatter and extracting metadata...");
-  const rawEntries: RawEntry[] = [];
-  for (const filePath of filePaths) {
-    const src = await fs.readFile(filePath, "utf-8");
-    const entry = await buildRawEntry(filePath, src);
-    if (entry) {
-      rawEntries.push(entry);
+  const entryPromises = filePaths.map(async (filePath) => {
+    try {
+      const src = await fs.readFile(filePath, "utf-8");
+      return await buildRawEntry(filePath, src);
+    } catch (error) {
+      console.error(`   Error processing ${filePath}: ${error}`);
+      return null;
     }
-  }
+  });
+  const rawEntries = (await Promise.all(entryPromises)).filter((e): e is RawEntry => e !== null);
   console.log(`   Parsed ${rawEntries.length} entries`);
 
   console.log("\n3. Building title index...");
