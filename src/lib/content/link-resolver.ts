@@ -5,7 +5,7 @@ import GithubSlugger from "github-slugger";
 import type { WikiLink, Heading } from "./types";
 import { normalizeTitle } from "./normalize";
 
-const WIKI_LINK_PATTERN = /\[\[([^\]]+)\]\]/g;
+const WIKI_LINK_PATTERN = /(!?)\[\[([^\]#|]+)(?:#(\^?[^\]|]+))?(?:\|([^\]]+))?\]\]/g;
 const MD_LINK_PATTERN = /\[[^\]]*\]\(([^)]+)\)/g;
 
 const cachedParser = unified().use(remarkParse);
@@ -25,20 +25,20 @@ export function extractWikiLinks(raw: string): WikiLink[] {
     WIKI_LINK_PATTERN.lastIndex = 0;
     
     while ((match = WIKI_LINK_PATTERN.exec(text)) !== null) {
-      const content = match[1];
-      const pipeIndex = content.indexOf("|");
-      if (pipeIndex !== -1) {
-        links.push({
-          raw: match[0],
-          title: content.slice(0, pipeIndex).trim(),
-          alias: content.slice(pipeIndex + 1).trim(),
-        });
-      } else {
-        links.push({
-          raw: match[0],
-          title: content.trim(),
-        });
-      }
+      const isEmbed = match[1] === "!";
+      const title = match[2].trim();
+      const anchor = match[3]?.trim();
+      const alias = match[4]?.trim();
+      const isBlockId = anchor?.startsWith("^") ?? false;
+
+      links.push({
+        raw: match[0],
+        title,
+        alias,
+        anchor,
+        isBlockId,
+        isEmbed,
+      });
     }
   });
 
@@ -277,15 +277,8 @@ export function extractLinksWithContext(content: string): LinkWithContext[] {
     
     while ((match = WIKI_LINK_PATTERN.exec(text)) !== null) {
       const fullMatch = match[0];
-      const linkContent = match[1];
-      const pipeIndex = linkContent.indexOf("|");
-      
-      const title = pipeIndex !== -1 
-        ? linkContent.slice(0, pipeIndex).trim() 
-        : linkContent.trim();
-      const alias = pipeIndex !== -1 
-        ? linkContent.slice(pipeIndex + 1).trim() 
-        : undefined;
+      const title = match[2].trim();
+      const alias = match[4]?.trim();
       
       const globalPosition = nodeStartOffset + match.index;
       

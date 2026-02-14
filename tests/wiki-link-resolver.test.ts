@@ -22,7 +22,9 @@ describe("wiki-link-resolver", () => {
           { title: "My Note", route: "/notes/my-note" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("My Note"), "/notes/my-note");
+        const result = resolver("My Note");
+        assert.strictEqual(result.route, "/notes/my-note");
+        assert.strictEqual(result.exists, true);
       });
 
       it("resolves case-insensitively (lowercase)", () => {
@@ -30,7 +32,7 @@ describe("wiki-link-resolver", () => {
           { title: "My Note", route: "/notes/my-note" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("my note"), "/notes/my-note");
+        assert.strictEqual(resolver("my note").route, "/notes/my-note");
       });
 
       it("resolves case-insensitively (uppercase)", () => {
@@ -38,7 +40,7 @@ describe("wiki-link-resolver", () => {
           { title: "My Note", route: "/notes/my-note" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("MY NOTE"), "/notes/my-note");
+        assert.strictEqual(resolver("MY NOTE").route, "/notes/my-note");
       });
 
       it("returns fallback for unknown title", () => {
@@ -46,19 +48,41 @@ describe("wiki-link-resolver", () => {
           { title: "My Note", route: "/notes/my-note" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("Unknown"), "/notes/unknown");
+        const result = resolver("Unknown");
+        assert.strictEqual(result.route, "/notes/unknown");
+        assert.strictEqual(result.exists, false);
       });
 
       it("slugifies fallback with spaces", () => {
         const manifest = createManifest([]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("Some New Note"), "/notes/some-new-note");
+        assert.strictEqual(resolver("Some New Note").route, "/notes/some-new-note");
       });
 
       it("returns fallback for empty manifest", () => {
         const manifest = createManifest([]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("Any Title"), "/notes/any-title");
+        assert.strictEqual(resolver("Any Title").route, "/notes/any-title");
+      });
+
+      it("passes anchor through", () => {
+        const manifest = createManifest([
+          { title: "My Note", route: "/notes/my-note" },
+        ]);
+        const resolver = createWikiLinkResolver(manifest);
+        const result = resolver("My Note", "section-heading");
+        assert.strictEqual(result.route, "/notes/my-note");
+        assert.strictEqual(result.anchor, "section-heading");
+      });
+
+      it("handles block ID anchor", () => {
+        const manifest = createManifest([
+          { title: "My Note", route: "/notes/my-note" },
+        ]);
+        const resolver = createWikiLinkResolver(manifest);
+        const result = resolver("My Note", "^abc123");
+        assert.strictEqual(result.route, "/notes/my-note");
+        assert.strictEqual(result.anchor, "^abc123");
       });
     });
 
@@ -70,9 +94,9 @@ describe("wiki-link-resolver", () => {
           { title: "My Article", route: "/articles/my-article" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("Note One"), "/notes/note-one");
-        assert.strictEqual(resolver("Note Two"), "/notes/note-two");
-        assert.strictEqual(resolver("My Article"), "/articles/my-article");
+        assert.strictEqual(resolver("Note One").route, "/notes/note-one");
+        assert.strictEqual(resolver("Note Two").route, "/notes/note-two");
+        assert.strictEqual(resolver("My Article").route, "/articles/my-article");
       });
 
       it("last entry wins for duplicate titles", () => {
@@ -81,7 +105,7 @@ describe("wiki-link-resolver", () => {
           { title: "Duplicate", route: "/notes/second" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("Duplicate"), "/notes/second");
+        assert.strictEqual(resolver("Duplicate").route, "/notes/second");
       });
     });
 
@@ -91,14 +115,14 @@ describe("wiki-link-resolver", () => {
           { title: "日本語", route: "/notes/japanese" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("日本語"), "/notes/japanese");
+        assert.strictEqual(resolver("日本語").route, "/notes/japanese");
       });
 
       it("handles unicode title fallback", () => {
         const manifest = createManifest([]);
         const resolver = createWikiLinkResolver(manifest);
         const result = resolver("未知");
-        assert.strictEqual(result, "/notes/未知");
+        assert.strictEqual(result.route, "/notes/未知");
       });
 
       it("normalizes extra spaces in title", () => {
@@ -106,7 +130,7 @@ describe("wiki-link-resolver", () => {
           { title: "My Note", route: "/notes/my-note" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("My   Note"), "/notes/my-note");
+        assert.strictEqual(resolver("My   Note").route, "/notes/my-note");
       });
 
       it("normalizes leading/trailing spaces", () => {
@@ -114,13 +138,13 @@ describe("wiki-link-resolver", () => {
           { title: "My Note", route: "/notes/my-note" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("  My Note  "), "/notes/my-note");
+        assert.strictEqual(resolver("  My Note  ").route, "/notes/my-note");
       });
 
       it("handles special chars in fallback", () => {
         const manifest = createManifest([]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("C++ Guide"), "/notes/c++-guide");
+        assert.strictEqual(resolver("C++ Guide").route, "/notes/c++-guide");
       });
 
       it("resolves special chars in manifest title", () => {
@@ -128,7 +152,7 @@ describe("wiki-link-resolver", () => {
           { title: "C++ Guide", route: "/notes/cpp-guide" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("C++ Guide"), "/notes/cpp-guide");
+        assert.strictEqual(resolver("C++ Guide").route, "/notes/cpp-guide");
       });
 
       it("handles very long title", () => {
@@ -136,13 +160,13 @@ describe("wiki-link-resolver", () => {
         const manifest = createManifest([]);
         const resolver = createWikiLinkResolver(manifest);
         const result = resolver(longTitle);
-        assert.strictEqual(result, `/notes/${longTitle.toLowerCase()}`);
+        assert.strictEqual(result.route, `/notes/${longTitle.toLowerCase()}`);
       });
 
       it("handles empty title", () => {
         const manifest = createManifest([]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver(""), "/notes/");
+        assert.strictEqual(resolver("").route, "/notes/");
       });
 
       it("returns route with leading slash", () => {
@@ -151,7 +175,7 @@ describe("wiki-link-resolver", () => {
         ]);
         const resolver = createWikiLinkResolver(manifest);
         const result = resolver("Note");
-        assert.ok(result.startsWith("/"));
+        assert.ok(result.route.startsWith("/"));
       });
 
       it("resolves article routes correctly", () => {
@@ -159,7 +183,7 @@ describe("wiki-link-resolver", () => {
           { title: "My Article", route: "/articles/my-article" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("My Article"), "/articles/my-article");
+        assert.strictEqual(resolver("My Article").route, "/articles/my-article");
       });
     });
 
@@ -169,7 +193,7 @@ describe("wiki-link-resolver", () => {
           { title: "A B", route: "/notes/ab" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("A\tB"), "/notes/ab");
+        assert.strictEqual(resolver("A\tB").route, "/notes/ab");
       });
 
       it("normalizes mixed whitespace", () => {
@@ -177,7 +201,7 @@ describe("wiki-link-resolver", () => {
           { title: "Hello World", route: "/notes/hello-world" },
         ]);
         const resolver = createWikiLinkResolver(manifest);
-        assert.strictEqual(resolver("Hello  \t  World"), "/notes/hello-world");
+        assert.strictEqual(resolver("Hello  \t  World").route, "/notes/hello-world");
       });
     });
   });

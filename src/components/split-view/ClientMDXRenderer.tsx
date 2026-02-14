@@ -11,10 +11,12 @@ import rehypeSlug from "rehype-slug";
 import { remarkWikiLinks } from "@/lib/content/remark-wiki-links";
 import { remarkObsidianCallouts } from "@/lib/content/remark-obsidian-callouts";
 import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
-import { createWikiLinkResolver } from "@/lib/content/wiki-link-resolver";
+import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
 import { MermaidLazy } from "@/components/mdx/MermaidLazy";
 import { Callout } from "@/components/mdx/Callout";
 import { PDFViewerLazy } from "@/components/mdx/PDFViewerLazy";
+import { NoteEmbedClient, EmbedProvider } from "@/components/mdx/NoteEmbedClient";
+import { EmbedError } from "@/components/mdx/EmbedError";
 import { InternalLink } from "./InternalLink";
 import type { Manifest } from "@/lib/content/types";
 
@@ -43,7 +45,8 @@ export function ClientMDXRenderer({ slug }: ClientMDXRendererProps) {
           return;
         }
 
-        const resolver = createWikiLinkResolver(manifest);
+        const linkResolver = createWikiLinkResolver(manifest);
+        const embedResolver = createEmbedResolver(manifest);
 
         return serialize(rawContent, {
           parseFrontmatter: false,
@@ -52,7 +55,7 @@ export function ClientMDXRenderer({ slug }: ClientMDXRendererProps) {
               remarkGfm,
               remarkMath,
               remarkObsidianCallouts,
-              [remarkWikiLinks, { resolve: resolver }],
+              [remarkWikiLinks, { resolve: linkResolver, resolveEmbed: embedResolver }],
             ],
             rehypePlugins: [rehypeSlug, rehypeKatex, rehypeHighlight],
           },
@@ -76,6 +79,8 @@ export function ClientMDXRenderer({ slug }: ClientMDXRendererProps) {
     Mermaid: MermaidLazy,
     Callout,
     PDFViewer: PDFViewerLazy,
+    NoteEmbed: NoteEmbedClient,
+    EmbedError,
   }), []);
 
   if (error) {
@@ -97,8 +102,10 @@ export function ClientMDXRenderer({ slug }: ClientMDXRendererProps) {
   }
 
   return (
-    <div className="prose max-w-none dark:prose-invert prose-sm">
-      <MDXRemote {...compiled} components={mdxComponents} />
-    </div>
+    <EmbedProvider>
+      <div className="prose max-w-none dark:prose-invert prose-sm">
+        <MDXRemote {...compiled} components={mdxComponents} />
+      </div>
+    </EmbedProvider>
   );
 }

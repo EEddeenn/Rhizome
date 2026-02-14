@@ -20,6 +20,10 @@ describe("link resolver utilities", () => {
       assert.deepStrictEqual(links[0], {
         raw: "[[Some Note]]",
         title: "Some Note",
+        alias: undefined,
+        anchor: undefined,
+        isBlockId: false,
+        isEmbed: false,
       });
     });
 
@@ -31,6 +35,65 @@ describe("link resolver utilities", () => {
         raw: "[[Some Note|this link]]",
         title: "Some Note",
         alias: "this link",
+        anchor: undefined,
+        isBlockId: false,
+        isEmbed: false,
+      });
+    });
+
+    it("extracts wiki links with heading anchor", () => {
+      const md = "See [[Note#Section]] for more.";
+      const links = extractWikiLinks(md);
+      assert.strictEqual(links.length, 1);
+      assert.deepStrictEqual(links[0], {
+        raw: "[[Note#Section]]",
+        title: "Note",
+        alias: undefined,
+        anchor: "Section",
+        isBlockId: false,
+        isEmbed: false,
+      });
+    });
+
+    it("extracts wiki links with block ID anchor", () => {
+      const md = "See [[Note#^abc123]] for more.";
+      const links = extractWikiLinks(md);
+      assert.strictEqual(links.length, 1);
+      assert.deepStrictEqual(links[0], {
+        raw: "[[Note#^abc123]]",
+        title: "Note",
+        alias: undefined,
+        anchor: "^abc123",
+        isBlockId: true,
+        isEmbed: false,
+      });
+    });
+
+    it("extracts wiki links with anchor and alias", () => {
+      const md = "See [[Note#Section|my link]] for more.";
+      const links = extractWikiLinks(md);
+      assert.strictEqual(links.length, 1);
+      assert.deepStrictEqual(links[0], {
+        raw: "[[Note#Section|my link]]",
+        title: "Note",
+        alias: "my link",
+        anchor: "Section",
+        isBlockId: false,
+        isEmbed: false,
+      });
+    });
+
+    it("extracts embed wiki links", () => {
+      const md = "Here is ![[Embedded Note]] content.";
+      const links = extractWikiLinks(md);
+      assert.strictEqual(links.length, 1);
+      assert.deepStrictEqual(links[0], {
+        raw: "![[Embedded Note]]",
+        title: "Embedded Note",
+        alias: undefined,
+        anchor: undefined,
+        isBlockId: false,
+        isEmbed: true,
       });
     });
 

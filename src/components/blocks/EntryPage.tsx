@@ -2,7 +2,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import type { Entry } from "@/lib/content/types";
 import { getBacklinksForSlug } from "@/lib/generated/load-backlinks";
 import { getMdxContent } from "@/lib/generated/load-content";
-import { getMdxPlugins } from "@/lib/content/mdx-config";
+import { getMdxPlugins, getMdxComponents } from "@/lib/content/mdx-config";
 import { TagPills } from "@/components/blocks/TagPills";
 import { BacklinksPanel } from "@/components/blocks/BacklinksPanel";
 import { TableOfContents } from "@/components/blocks/TableOfContents";
@@ -24,6 +24,7 @@ export function EntryPage({ entry, categoryLabel, categoryHref }: EntryPageProps
   const source = getMdxContent(entry.slug);
   const { remarkPlugins, rehypePlugins } = getMdxPlugins();
   const mdxComponents = useMDXComponents({});
+  const embedComponents = getMdxComponents();
 
   const breadcrumbItems = [
     { label: categoryLabel, href: categoryHref },
@@ -60,7 +61,7 @@ export function EntryPage({ entry, categoryLabel, categoryHref }: EntryPageProps
       <div className="prose max-w-none">
         <MDXRemote 
           source={source} 
-          components={{ ...mdxComponents, Mermaid: MermaidLazy, Callout, PDFViewer: PDFViewerLazy }}
+          components={{ ...mdxComponents, ...embedComponents, Mermaid: MermaidLazy, Callout, PDFViewer: PDFViewerLazy }}
           options={{
             mdxOptions: {
               remarkPlugins,

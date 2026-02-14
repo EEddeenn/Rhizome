@@ -1,0 +1,103 @@
+---
+title: "Embeds and Anchors"
+date: "2026-02-14"
+type: "note"
+tags: ["guide", "embeds", "anchors", "obsidian"]
+summary: "Learn how to use Obsidian-style embeds and anchors for linking and transcluding content."
+---
+
+# Embeds and Anchors
+
+Rhizome supports Obsidian-compatible syntax for linking to specific sections and embedding content inline.
+
+## Heading Anchors
+
+Link to a specific section within a note using the `#` syntax:
+
+| Syntax | Result |
+|--------|--------|
+| `[[Note\|#Section]]` | Links to a specific heading |
+| `[[Welcome to Rhizome\|#Features]]` | [[Welcome to Rhizome#Features]] |
+
+The anchor text is case-insensitive and matches the heading text.
+
+## Block IDs
+
+Link to a specific paragraph or content block using block IDs:
+
+```markdown
+Some important content ^my-block-id
+```
+
+Then link to it: `[[Note#^my-block-id]]`
+
+This is a paragraph with a block ID. ^demo-block
+
+You can link to this block: `[[Embeds and Anchors#^demo-block]]`
+
+## Note Embeds
+
+Embed entire notes inline using the `!` prefix:
+
+### Full Note Embed
+
+```markdown
+![[Note Title]]
+```
+
+Example:
+
+![[Markdown Guide#Wiki-Links]]
+
+## Section Embeds
+
+Embed just a specific section from a note:
+
+```markdown
+![[Note Title#Section Name]]
+```
+
+This transcludes the section including all nested subheadings.
+
+## PDF Embeds
+
+Embed PDF files directly in your notes:
+
+```markdown
+![[document.pdf]]
+![[document.pdf#page=5]]
+```
+
+PDFs are looked up in `/assets/pdfs/` by default.
+
+Example with page number:
+
+<Callout type="note">
+To embed PDFs, place your PDF files in `content/assets/pdfs/` and reference them by filename.
+</Callout>
+
+## Embed Errors
+
+When an embed target cannot be found, an error is displayed:
+
+- **Not found**: The note or file doesn't exist
+- **Section not found**: The note exists but the heading wasn't found
+- **Block not found**: The block ID wasn't found in the note
+- **Cycle detected**: Recursive embed detected (embedding a note that embeds itself)
+
+## Deep Linking
+
+Anchors work with split-view navigation. Clicking `[[Note#Section]]` opens the note in a split pane and scrolls to that section.
+
+## Combined Syntax
+
+You can combine all features:
+
+| Syntax | Purpose |
+|--------|---------|
+| `[[Note]]` | Basic link |
+| `[[Note\|#Section]]` | Link with anchor |
+| `[[Note\|^block-id]]` | Link to block |
+| `[[Note\|#Section\|alias]]` | Link with anchor and alias |
+| `![[Note]]` | Full embed |
+| `![[Note\|#Section]]` | Section embed |

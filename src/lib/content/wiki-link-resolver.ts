@@ -1,15 +1,70 @@
 import { normalizeTitle } from "./normalize";
 import type { Manifest } from "./types";
 
-export function createWikiLinkResolver(manifest: Manifest): (title: string) => string {
+export interface ResolvedLink {
+  route: string;
+  anchor?: string;
+  exists: boolean;
+}
+
+export interface ResolvedEmbed {
+  type: "note" | "pdf";
+  slug?: string;
+  path?: string;
+  anchor?: string;
+  page?: number;
+}
+
+export function createWikiLinkResolver(manifest: Manifest): (title: string, anchor?: string) => ResolvedLink {
   const titleToRoute = new Map<string, string>();
 
   for (const entry of manifest) {
     titleToRoute.set(normalizeTitle(entry.title), entry.route);
   }
 
-  return (title: string): string => {
+  return (title: string, anchor?: string): ResolvedLink => {
     const route = titleToRoute.get(normalizeTitle(title));
-    return route ?? `/notes/${title.toLowerCase().replace(/\s+/g, "-")}`;
+    if (route) {
+      return { route, anchor, exists: true };
+    }
+    return {
+      route: `/notes/${title.toLowerCase().replace(/\s+/g, "-")}`,
+      anchor,
+      exists: false,
+    };
+  };
+}
+
+export function createEmbedResolver(manifest: Manifest): (target: string, anchor?: string) => ResolvedEmbed | null {
+  const titleToSlug = new Map<string, string>();
+
+  for (const entry of manifest) {
+    titleToSlug.set(normalizeTitle(entry.title), entry.slug);
+  }
+
+  return (target: string, anchor?: string): ResolvedEmbed | null => {
+    const lowerTarget = target.toLowerCase();
+    
+    if (lowerTarget.endsWith(".pdf")) {
+      const pdfPath = target.startsWith("/") ? target : `/assets/pdfs/${target}`;
+      let page: number | undefined;
+      
+      if (anchor) {
+        const pageMatch = anchor.match(/^page=(\d+)$/i);
+        if (pageMatch) {
+          page = parseInt(pageMatch[1], 10);
+        }
+      }
+      
+      return { type: "pdf", path: pdfPath, page };
+    }
+    
+    const slug = titleToSlug.get(normalizeTitle(target));
+    if (slug) {
+      return { type: "note", slug, anchor };
+    }
+    
+    const fallbackSlug = `notes/${target.toLowerCase().replace(/\s+/g, "-")}`;
+    return { type: "note", slug: fallbackSlug, anchor };
   };
 }

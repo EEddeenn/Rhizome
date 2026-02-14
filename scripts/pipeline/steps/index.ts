@@ -1,6 +1,7 @@
 export { vendorStep } from "./vendor";
 export { siteConfigStep } from "./site-config";
 export { manifestStep } from "./manifest";
+export { anchorsStep } from "./anchors";
 export { backlinksStep } from "./backlinks";
 export { tagsStep } from "./tags";
 export { graphStep } from "./graph";

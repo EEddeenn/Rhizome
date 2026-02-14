@@ -2,6 +2,67 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.16.0] - 2026-02-14
+
+### Added
+
+#### Obsidian-Compatible Embeds and Anchors
+- `[[Note#Section]]` — Link to specific headings within notes
+- `[[Note#^block-id]]` — Link to block IDs (paragraphs marked with `^id`)
+- `![[Note]]` — Embed entire notes inline
+- `![[Note#Section]]` — Embed specific sections (includes nested subheadings)
+- `![[file.pdf]]` — Embed PDF files from `/assets/pdfs/`
+- `![[file.pdf#page=N]]` — Embed PDFs at specific page
+
+#### New Components
+- `src/components/mdx/NoteEmbed.tsx` — RSC component for note transclusion with cycle detection
+- `src/components/mdx/NoteEmbedClient.tsx` — Client-side embed component for split-view
+- `src/components/mdx/EmbedError.tsx` — Styled error display for failed embeds
+
+#### New Utilities
+- `src/lib/content/block-ids.ts` — Block ID extraction and heading assignment
+- `src/lib/content/section-extractor.ts` — Extract content sections by heading
+- `src/lib/content/wiki-link-resolver.ts` — Extended with `createEmbedResolver()`
+- `src/lib/content/remark-wiki-links.ts` — Complete rewrite with anchor/embed support
+- `src/lib/generated/load-anchors.ts` — Loader for anchor index
+
+#### Pipeline Step
+- `scripts/pipeline/steps/anchors.ts` — Builds anchor index (block IDs + heading mappings)
+
+#### Types
+- `WikiLink` — Added `anchor`, `isBlockId`, `isEmbed` fields
+- `AnchorsEntry`, `AnchorsIndex`, `BlockIdInfo` — New types for anchor data
+
+#### Test Coverage
+- `tests/block-ids.test.ts` — Block ID extraction and assignment tests
+- `tests/section-extractor.test.ts` — Section extraction tests
+- Extended `tests/link-resolver.test.ts` with anchor/embed tests
+
+#### Content
+- `content/notes/embeds-and-anchors.mdx` — Documentation for embed/anchor features
+
+### Changed
+
+#### Extended Wiki-Link Syntax
+- `remark-wiki-links.ts` — New regex pattern supports embeds (`!`), anchors (`#`), block IDs (`^`)
+- Links with anchors include `#section` or `#^blockid` in URL
+- Embeds render as `NoteEmbed` or `PDFViewer` MDX components
+
+#### Component Registration
+- `mdx-config.ts` — Added `getMdxComponents()` returning `NoteEmbed`, `EmbedError`
+- `EntryPage.tsx` — Includes embed components in MDX rendering
+- `ClientMDXRenderer.tsx` — Includes `NoteEmbedClient` with `EmbedProvider` context
+
+### Fixed
+
+#### Embed Cycle Detection
+- `NoteEmbed.tsx` — Uses React `cache()` API to detect and prevent circular embeds
+
+#### PDF Embed Support
+- `PDFViewerInner.tsx` — Already supports `initialPage` prop for page-specific embeds
+
+---
+
 ## [0.15.0] - 2026-02-14
 
 ### Added

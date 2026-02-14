@@ -1,9 +1,10 @@
 import manifest from "@/generated/manifest/manifest.json";
 import type { Entry, Manifest } from "@/lib/content/types";
-import { createWikiLinkResolver } from "@/lib/content/wiki-link-resolver";
+import { createWikiLinkResolver, createEmbedResolver, type ResolvedLink, type ResolvedEmbed } from "@/lib/content/wiki-link-resolver";
 
 let entryMap: Map<string, Entry> | null = null;
-let cachedResolver: ((title: string) => string) | null = null;
+let cachedResolver: ((title: string, anchor?: string) => ResolvedLink) | null = null;
+let cachedEmbedResolver: ((target: string, anchor?: string) => ResolvedEmbed | null) | null = null;
 let notesCache: Entry[] | null = null;
 let articlesCache: Entry[] | null = null;
 
@@ -43,9 +44,16 @@ export function getArticles(): Entry[] {
   return articlesCache;
 }
 
-export function getWikiLinkResolver(): (title: string) => string {
+export function getWikiLinkResolver(): (title: string, anchor?: string) => ResolvedLink {
   if (!cachedResolver) {
     cachedResolver = createWikiLinkResolver(manifest as Manifest);
   }
   return cachedResolver;
+}
+
+export function getEmbedResolver(): (target: string, anchor?: string) => ResolvedEmbed | null {
+  if (!cachedEmbedResolver) {
+    cachedEmbedResolver = createEmbedResolver(manifest as Manifest);
+  }
+  return cachedEmbedResolver;
 }

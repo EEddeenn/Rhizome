@@ -65,6 +65,21 @@ export type WikiLink = {
   raw: string;
   title: string;
   alias?: string;
+  anchor?: string;
+  isBlockId?: boolean;
+  isEmbed?: boolean;
 };
+
+export type BlockIdInfo = {
+  position: number;
+  line: number;
+  headingId?: string;
+};
+
+export type AnchorsEntry = {
+  blockIds: Record<string, BlockIdInfo>;
+};
+
+export type AnchorsIndex = Record<string, AnchorsEntry>;
 
 export type Manifest = Entry[];
