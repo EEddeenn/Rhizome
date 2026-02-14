@@ -42,6 +42,7 @@ export default function GraphPage() {
   const [loading, setLoading] = useState(true);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const [isDark, setIsDark] = useState(false);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -78,30 +79,35 @@ export default function GraphPage() {
       .then((res) => res.json())
       .then((data: Graph) => {
         setGraph(data);
-
-        const { width, height } = canvasSize;
-        const centerX = width / 2;
-        const centerY = height / 2;
-        const radiusX = width / 4;
-        const radiusY = height / 4;
-
-        nodesRef.current = data.nodes.map((n, i) => {
-          const angle = (i / data.nodes.length) * 2 * Math.PI;
-          return {
-            ...n,
-            x: Math.cos(angle) * radiusX + centerX,
-            y: Math.sin(angle) * radiusY + centerY,
-            vx: 0,
-            vy: 0,
-          };
-        });
-        
-        nodeMapRef.current = new Map(nodesRef.current.map(n => [n.id, n]));
-        edgesRef.current = data.edges;
-        prevCanvasSizeRef.current = { width, height };
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (!graph || initializedRef.current) return;
+    initializedRef.current = true;
+
+    const { width, height } = canvasSize;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radiusX = width / 4;
+    const radiusY = height / 4;
+
+    nodesRef.current = graph.nodes.map((n, i) => {
+      const angle = (i / graph.nodes.length) * 2 * Math.PI;
+      return {
+        ...n,
+        x: Math.cos(angle) * radiusX + centerX,
+        y: Math.sin(angle) * radiusY + centerY,
+        vx: 0,
+        vy: 0,
+      };
+    });
+
+    nodeMapRef.current = new Map(nodesRef.current.map((n) => [n.id, n]));
+    edgesRef.current = graph.edges;
+    prevCanvasSizeRef.current = { width, height };
+  }, [graph, canvasSize]);
 
   useEffect(() => {
     if (loading || nodesRef.current.length === 0) return;
