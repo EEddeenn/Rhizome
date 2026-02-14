@@ -24,13 +24,26 @@ export function InternalLink({ href, children }: InternalLinkProps) {
     );
   }
 
+  const isInternalNote = href.startsWith("/notes/") || href.startsWith("/articles/");
+
   const handleClick = (e: React.MouseEvent) => {
+    if (!isInternalNote) return;
+    
     e.preventDefault();
-    const slug = href.replace(/^\//, "");
-    openPane(slug);
+    const url = new URL(href, window.location.origin);
+    const slug = url.pathname.replace(/^\//, "");
+    const searchParams: Record<string, string> = {};
+    url.searchParams.forEach((v, k) => {
+      searchParams[k] = v;
+    });
+    openPane(slug, Object.keys(searchParams).length > 0 ? searchParams : undefined);
   };
 
   if (isMobile) {
+    return <a href={href}>{children}</a>;
+  }
+
+  if (!isInternalNote) {
     return <a href={href}>{children}</a>;
   }
 

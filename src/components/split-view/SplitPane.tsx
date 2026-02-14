@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { ClientMDXRenderer } from "./ClientMDXRenderer";
-import { useSplitView } from "@/lib/context/SplitViewContext";
+import { useSplitView, type PaneData } from "@/lib/context/SplitViewContext";
+import { PaneSearchParamsProvider } from "@/lib/context/PaneSearchParamsContext";
 import { TagPills } from "@/components/blocks/TagPills";
 import type { Entry, Manifest } from "@/lib/content/types";
 
@@ -12,23 +13,23 @@ let manifestPromise: Promise<Manifest> | null = null;
 async function loadManifest(): Promise<Manifest> {
   if (manifestCache) return manifestCache;
   if (manifestPromise) return manifestPromise;
-  
+
   manifestPromise = fetch("/generated/manifest/manifest.json")
     .then((res) => res.json())
     .then((data) => {
       manifestCache = data;
       return data;
     });
-  
+
   return manifestPromise;
 }
 
 interface SplitPaneProps {
-  slug: string;
+  pane: PaneData;
   index: number;
 }
 
-export function SplitPane({ slug, index }: SplitPaneProps) {
+export function SplitPane({ pane, index }: SplitPaneProps) {
   const [entry, setEntry] = useState<Entry | null>(null);
   const [loading, setLoading] = useState(true);
   const { closePane } = useSplitView();
@@ -37,7 +38,7 @@ export function SplitPane({ slug, index }: SplitPaneProps) {
     setLoading(true);
     loadManifest()
       .then((manifest) => {
-        const found = manifest.find((e) => e.slug === slug);
+        const found = manifest.find((e) => e.slug === pane.slug);
         setEntry(found || null);
         setLoading(false);
       })
@@ -45,14 +46,14 @@ export function SplitPane({ slug, index }: SplitPaneProps) {
         setEntry(null);
         setLoading(false);
       });
-  }, [slug]);
+  }, [pane.slug]);
 
   const handleClose = () => {
     closePane(index);
   };
 
   const handleOpenFull = () => {
-    window.location.href = `/${slug}`;
+    window.location.href = `/${pane.slug}`;
   };
 
   if (loading) {
@@ -91,7 +92,7 @@ export function SplitPane({ slug, index }: SplitPaneProps) {
         </div>
         <div className="flex-1 flex items-center justify-center p-4">
           <p className="text-gray-500 dark:text-gray-400 text-sm">
-            Content not found: {slug}
+            Content not found: {pane.slug}
           </p>
         </div>
       </div>
@@ -133,23 +134,25 @@ export function SplitPane({ slug, index }: SplitPaneProps) {
         </div>
       </div>
       <div className="flex-1 overflow-auto">
-        <div className="p-4">
-          <div className="mb-4">
-            {entry.summary && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                {entry.summary}
-              </p>
-            )}
-            <TagPills tags={entry.tags} />
-            {entry.date && (
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                {entry.date}
-                {entry.readingTimeMin && ` · ${entry.readingTimeMin} min read`}
-              </p>
-            )}
+        <PaneSearchParamsProvider searchParams={pane.searchParams}>
+          <div className="p-4">
+            <div className="mb-4">
+              {entry.summary && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                  {entry.summary}
+                </p>
+              )}
+              <TagPills tags={entry.tags} />
+              {entry.date && (
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                  {entry.date}
+                  {entry.readingTimeMin && ` · ${entry.readingTimeMin} min read`}
+                </p>
+              )}
+            </div>
+            <ClientMDXRenderer slug={pane.slug} />
           </div>
-          <ClientMDXRenderer slug={slug} />
-        </div>
+        </PaneSearchParamsProvider>
       </div>
     </div>
   );

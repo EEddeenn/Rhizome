@@ -61,7 +61,8 @@ export function extractMarkdownInternalRoutes(mdxSource: string): string[] {
 }
 
 export function routeToSlug(route: string): string {
-  return route.replace(/^\//, "");
+  const pathWithoutQuery = route.split("?")[0];
+  return pathWithoutQuery.replace(/^\//, "");
 }
 
 export function resolveRoutesToSlugs(routes: string[]): string[] {

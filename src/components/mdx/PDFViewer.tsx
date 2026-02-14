@@ -3,10 +3,11 @@
 import { Suspense, useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
+import { usePaneSearchParams } from "@/lib/context/PaneSearchParamsContext";
 
 const PDFViewerInner = dynamic(
   () => import("./PDFViewerInner").then((mod) => mod.PDFViewerInner),
-  { 
+  {
     ssr: false,
     loading: () => (
       <div className="pdf-viewer border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900 animate-pulse h-[60vh] sm:h-[80vh]">
@@ -34,19 +35,24 @@ function getPDFPath(src: string): string {
 }
 
 function PDFViewerWithParams({ src, id, height }: PDFViewerProps) {
-  const searchParams = useSearchParams();
+  const urlSearchParams = useSearchParams();
+  const paneSearchParams = usePaneSearchParams();
   const [initialPage, setInitialPage] = useState<number>(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrolledRef = useRef<string | null>(null);
 
+  const isInSplitPane = Object.keys(paneSearchParams).length > 0;
+  const searchParams = isInSplitPane ? paneSearchParams : Object.fromEntries(urlSearchParams.entries());
+
   useEffect(() => {
     const paramKey = id ? `pdfPage_${id}` : "pdfPage";
-    const pageParam = searchParams.get(paramKey);
-    
+    const pageParam = searchParams[paramKey];
+
     if (pageParam) {
       const page = parseInt(pageParam, 10);
       if (!isNaN(page) && page > 0) {
         setInitialPage(page);
+
         const scrollKey = `${paramKey}=${pageParam}`;
         if (scrolledRef.current !== scrollKey) {
           scrolledRef.current = scrollKey;
@@ -60,10 +66,11 @@ function PDFViewerWithParams({ src, id, height }: PDFViewerProps) {
 
   return (
     <div ref={containerRef}>
-      <PDFViewerInner 
-        src={getPDFPath(src)} 
-        height={height} 
-        initialPage={initialPage} 
+      <PDFViewerInner
+        key={initialPage}
+        src={getPDFPath(src)}
+        height={height}
+        initialPage={initialPage}
       />
     </div>
   );
@@ -71,9 +78,9 @@ function PDFViewerWithParams({ src, id, height }: PDFViewerProps) {
 
 export function PDFViewer(props: PDFViewerProps) {
   const fallbackHeight = props.height ? undefined : "h-[60vh] sm:h-[80vh]";
-  
+
   return (
-    <Suspense 
+    <Suspense
       fallback={
         <div className={`pdf-viewer border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900 animate-pulse ${fallbackHeight || ""}`} style={props.height ? { height: props.height } : undefined}>
           <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm sm:text-base">

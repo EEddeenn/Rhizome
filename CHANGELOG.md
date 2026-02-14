@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] - 2026-02-14
+
+### Added
+
+#### Split View with Search Params Support
+- `src/lib/context/PaneSearchParamsContext.tsx` — New context for per-pane search parameters
+- Split panes now preserve URL search parameters (e.g., `?pdfPage=5`) when opened
+- PDF deep links in split view open a new pane with the PDF navigated to the correct page
+- URL encoding format: `?split=notes/foo?pdfPage=5,notes/bar` preserves params per pane
+- Each pane has a unique `id` for proper React reconciliation
+
+### Changed
+
+#### Split View Architecture
+- Pane data structure changed from `string[]` to `PaneData[]` with `{ id, slug, searchParams }`
+- `openPane()` now accepts optional second parameter for search params
+- `LinkInterceptor` extracts both slug and query params from clicked links
+- `InternalLink` and `SplitViewLink` updated to pass search params
+- `SplitPane` wraps content in `PaneSearchParamsProvider` for context-aware param access
+- Duplicate pane detection prevents opening same slug+params combination twice
+- `getPaneKey()` helper returns unique pane ID for React keys
+
+#### PDF Viewer
+- Uses `usePaneSearchParams()` hook to read params from split pane context
+- Deep links in split view create new pane and scroll to the PDF within that pane
+- Both normal navigation and split pane navigation scroll to PDF correctly
+
+#### Link Resolver
+- `routeToSlug()` now strips query params from routes to prevent "dangling links" warnings for valid URLs with params
+
+### Fixed
+
+#### Split View
+- PDF deep links now work correctly in split view - params are preserved and passed to the new pane
+- Multiple PDFs with different `id` props can each have their own deep-linked page in split view
+- Fixed duplicate key warning when same note with different params is opened
+- Fixed original pane scrolling when deep link is clicked in split view
+
+---
+
 ## [0.11.0] - 2026-02-14
 
 ### Added

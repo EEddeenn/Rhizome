@@ -67,8 +67,13 @@ describe("link resolver utilities", () => {
     });
 
     it("ignores relative links", () => {
-      const md = "Relative [link](./page).";
+      const md = "See [section](#section) or [page](page.html).";
       assert.strictEqual(extractMarkdownInternalRoutes(md).length, 0);
+    });
+
+    it("extracts routes with query params", () => {
+      const md = "See [page 5](/notes/foo?pdfPage=5).";
+      assert.deepStrictEqual(extractMarkdownInternalRoutes(md), ["/notes/foo?pdfPage=5"]);
     });
   });
 
@@ -76,6 +81,11 @@ describe("link resolver utilities", () => {
     it("converts route to slug", () => {
       assert.strictEqual(routeToSlug("/notes/foo"), "notes/foo");
       assert.strictEqual(routeToSlug("/articles/bar"), "articles/bar");
+    });
+
+    it("strips query params from route", () => {
+      assert.strictEqual(routeToSlug("/notes/foo?pdfPage=5"), "notes/foo");
+      assert.strictEqual(routeToSlug("/articles/bar?a=1&b=2"), "articles/bar");
     });
   });
 

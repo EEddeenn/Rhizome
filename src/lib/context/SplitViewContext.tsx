@@ -2,9 +2,19 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 
+export interface PaneData {
+  id: string;
+  slug: string;
+  searchParams?: Record<string, string>;
+}
+
+export function getPaneKey(pane: PaneData): string {
+  return pane.id;
+}
+
 interface SplitViewContextValue {
-  panes: string[];
-  openPane: (slug: string) => void;
+  panes: PaneData[];
+  openPane: (slug: string, searchParams?: Record<string, string>) => void;
   closePane: (index: number) => void;
   closeAll: () => void;
   isMobile: boolean;
@@ -26,18 +36,35 @@ interface SplitViewProviderProps {
 
 const MOBILE_BREAKPOINT = 768;
 
-function parseSplitParam(param: string | null): string[] {
+function parseSplitParam(param: string | null): PaneData[] {
   if (!param) return [];
-  return param.split(",").filter(Boolean);
+  return param.split(",").filter(Boolean).map((segment, index) => {
+    const [slug, queryString] = segment.split("?");
+    const id = `pane-${Date.now()}-${index}`;
+    if (!queryString) return { id, slug };
+    const searchParams: Record<string, string> = {};
+    new URLSearchParams(queryString).forEach((v, k) => {
+      searchParams[k] = v;
+    });
+    return { id, slug, searchParams };
+  });
 }
 
-function buildSplitParam(panes: string[]): string | null {
+function buildSplitParam(panes: PaneData[]): string | null {
   if (panes.length === 0) return null;
-  return panes.join(",");
+  return panes
+    .map((p) => {
+      if (!p.searchParams || Object.keys(p.searchParams).length === 0) {
+        return p.slug;
+      }
+      const qs = new URLSearchParams(p.searchParams).toString();
+      return `${p.slug}?${qs}`;
+    })
+    .join(",");
 }
 
 export function SplitViewProvider({ children }: SplitViewProviderProps) {
-  const [panes, setPanes] = useState<string[]>([]);
+  const [panes, setPanes] = useState<PaneData[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
@@ -67,7 +94,7 @@ export function SplitViewProvider({ children }: SplitViewProviderProps) {
     setInitialized(true);
   }, [isMobile]);
 
-  const syncUrl = useCallback((newPanes: string[]) => {
+  const syncUrl = useCallback((newPanes: PaneData[]) => {
     if (isMobile || typeof window === "undefined") return;
 
     const url = new URL(window.location.href);
@@ -82,46 +109,69 @@ export function SplitViewProvider({ children }: SplitViewProviderProps) {
     window.history.replaceState(null, "", url.toString());
   }, [isMobile]);
 
-  const openPane = useCallback((slug: string) => {
-    if (isMobile) {
-      window.location.href = `/${slug}`;
-      return;
-    }
-
-    setPanes((prev) => {
-      if (prev.includes(slug)) return prev;
-      const newPanes = [...prev, slug].slice(-2);
-      syncUrl(newPanes);
-      return newPanes;
-    });
-  }, [isMobile, syncUrl]);
-
-  const closePane = useCallback((index: number) => {
-    setPanes((prev) => {
-      const newPanes = prev.filter((_, i) => i !== index);
-      syncUrl(newPanes);
-      return newPanes;
-    });
-  }, [syncUrl]);
-
-  const closeAll = useCallback(() => {
-    setPanes([]);
-    syncUrl([]);
-  }, [syncUrl]);
-
   useEffect(() => {
-    if (initialized && !isMobile && panes.length > 0) {
+    if (initialized && !isMobile) {
       syncUrl(panes);
     }
   }, [panes, initialized, isMobile, syncUrl]);
 
-  const value = useMemo(() => ({
-    panes,
-    openPane,
-    closePane,
-    closeAll,
-    isMobile,
-  }), [panes, openPane, closePane, closeAll, isMobile]);
+  const openPane = useCallback((slug: string, searchParams?: Record<string, string>) => {
+    if (isMobile) {
+      const url = searchParams
+        ? `/${slug}?${new URLSearchParams(searchParams).toString()}`
+        : `/${slug}`;
+      window.location.href = url;
+      return;
+    }
+
+    setPanes((prev) => {
+      const newPane: PaneData = {
+        id: `pane-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        slug,
+      };
+      if (searchParams && Object.keys(searchParams).length > 0) {
+        newPane.searchParams = searchParams;
+      }
+      
+      const newParams = newPane.searchParams || {};
+      const newKeys = Object.keys(newParams).sort().join(",");
+      const newValues = Object.keys(newParams).sort().map(k => newParams[k]).join(",");
+      const newSignature = `${newKeys}:${newValues}`;
+      
+      const exactMatch = prev.find((p) => {
+        if (p.slug !== slug) return false;
+        const pParams = p.searchParams || {};
+        const pKeys = Object.keys(pParams).sort().join(",");
+        const pValues = Object.keys(pParams).sort().map(k => pParams[k]).join(",");
+        return `${pKeys}:${pValues}` === newSignature;
+      });
+      
+      if (exactMatch) {
+        return prev;
+      }
+      
+      return [...prev, newPane].slice(-2);
+    });
+  }, [isMobile]);
+
+  const closePane = useCallback((index: number) => {
+    setPanes((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const closeAll = useCallback(() => {
+    setPanes([]);
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      panes,
+      openPane,
+      closePane,
+      closeAll,
+      isMobile,
+    }),
+    [panes, openPane, closePane, closeAll, isMobile]
+  );
 
   return (
     <SplitViewContext.Provider value={value}>

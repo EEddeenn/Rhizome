@@ -201,6 +201,20 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Search keyboard navigation (↑/↓/Enter/Escape)
 - [x] Graph simulation early termination when converged
 
+### Phase 24 — Split View with Search Params
+- [x] `src/lib/context/PaneSearchParamsContext.tsx` — Per-pane search params context
+- [x] Split pane data structure supports search params (`PaneData` type with `id`, `slug`, `searchParams`)
+- [x] Unique pane IDs for proper React reconciliation via `getPaneKey()`
+- [x] `openPane()` accepts optional search params with duplicate detection
+- [x] `LinkInterceptor` extracts query params from clicked links
+- [x] `InternalLink` and `SplitViewLink` pass search params
+- [x] `SplitPane` wraps content in `PaneSearchParamsProvider`
+- [x] `PDFViewer` uses `usePaneSearchParams()` for split view compatibility
+- [x] PDF deep links in split view open new pane with correct page
+- [x] Scroll to PDF works in both normal navigation and split panes
+- [x] URL encoding preserves params: `?split=slug?pdfPage=5`
+- [x] `routeToSlug()` strips query params to prevent false dangling link warnings
+
 ### Documentation
 - [x] README.md — Updated with all features
 - [x] CHANGELOG.md — Version 0.5.0
@@ -252,5 +266,6 @@ None remaining - all features from IMPLEMENTED.md have been completed.
 | Fully Generated Public | ✅ Complete |
 | Template System | ✅ Complete |
 | Code Cleanup | ✅ Complete |
+| Split View | ✅ Complete |
 
 **Status**: ✅ Feature-complete and deployable to Cloudflare Pages.
