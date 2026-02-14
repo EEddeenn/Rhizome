@@ -3,7 +3,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { getMdxContent } from "@/lib/generated/load-content";
 import { getEntryBySlug } from "@/lib/generated/load-manifest";
 import { getMdxPlugins } from "@/lib/content/mdx-config";
-import { extractSection } from "@/lib/content/section-extractor";
+import { extractSectionBySlug } from "@/lib/content/section-extractor";
 import { EmbedError } from "./EmbedError";
 import { MermaidLazy } from "./MermaidLazy";
 import { Callout } from "./Callout";
@@ -41,7 +41,7 @@ export function NoteEmbed({ slug, anchor, blockId }: NoteEmbedProps) {
   }
 
   if (anchor) {
-    const sectionContent = extractSection(content, anchor);
+    const sectionContent = extractSectionBySlug(content, anchor);
     if (!sectionContent) {
       return <EmbedError target={`${slug}#${anchor}`} reason="section_not_found" />;
     }

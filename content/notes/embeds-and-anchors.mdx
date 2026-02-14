@@ -14,7 +14,7 @@ Rhizome supports Obsidian-compatible syntax for linking to specific sections and
 Try clicking the anchor links on this page to see auto-scrolling in action. Links work in both full-page view and split-view panes.
 </Callout>
 
-## Heading Anchors ^heading-anchors
+## Heading Anchors
 
 Link to a specific section within a note using the `#` syntax:
 
@@ -26,7 +26,7 @@ Link to a specific section within a note using the `#` syntax:
 
 The anchor text is case-insensitive and automatically slugified to match heading IDs.
 
-## Block IDs ^block-ids
+## Block IDs
 
 Link to a specific paragraph or content block using block IDs:
 
@@ -50,7 +50,7 @@ Block IDs are useful for:
 
 Example: Link to the quick start guide with `[[Welcome to Rhizome#^quick-start]]`
 
-## Note Embeds ^note-embeds
+## Note Embeds
 
 Embed entire notes inline using the `!` prefix:
 
@@ -89,6 +89,8 @@ PDFs are looked up in `/assets/pdfs/` by default.
 
 Example with page number:
 
+![[sample_indexed_v2.pdf#page=1]]
+
 <Callout type="note">
 To embed PDFs, place your PDF files in `content/assets/pdfs/` and reference them by filename.
 </Callout>
@@ -102,13 +104,13 @@ When an embed target cannot be found, an error is displayed:
 - **Block not found**: The block ID wasn't found in the note
 - **Cycle detected**: Recursive embed detected (embedding a note that embeds itself)
 
-## Deep Linking ^deep-linking
+## Deep Linking
 
 Anchors work with split-view navigation. Clicking `[[Note#Section]]` opens the note in a split pane and automatically scrolls to that section.
 
 Try it: [[Split-View Navigation#Pane Controls]] opens the split-view docs scrolled to the controls section.
 
-## Combined Syntax ^combined-syntax
+## Combined Syntax
 
 You can combine all features:
 

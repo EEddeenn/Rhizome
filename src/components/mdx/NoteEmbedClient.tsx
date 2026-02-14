@@ -12,7 +12,7 @@ import { remarkWikiLinks } from "@/lib/content/remark-wiki-links";
 import { remarkObsidianCallouts } from "@/lib/content/remark-obsidian-callouts";
 import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
 import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
-import { extractSection } from "@/lib/content/section-extractor";
+import { extractSectionBySlug } from "@/lib/content/section-extractor";
 import { EmbedError } from "./EmbedError";
 import type { Manifest } from "@/lib/content/types";
 
@@ -71,7 +71,7 @@ export function NoteEmbedClient({ slug, anchor, blockId }: NoteEmbedClientProps)
         }
 
         if (anchor) {
-          const sectionContent = extractSection(content, anchor);
+          const sectionContent = extractSectionBySlug(content, anchor);
           if (!sectionContent) {
             setError({ target: `${slug}#${anchor}`, reason: "section_not_found" });
             return null;
