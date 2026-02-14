@@ -41,6 +41,9 @@ export const backlinksStep: Step = {
     const outputPath = await ctx.writeJson("backlinks", "backlinks.json", backlinks, false);
     artifacts.push({ path: outputPath, isPublic: false });
     
+    const publicPath = await ctx.writeJson("backlinks", "backlinks.json", backlinks, true);
+    artifacts.push({ path: publicPath, isPublic: true });
+    
     if (danglingLinks.size > 0) {
       ctx.logger.warn(`Found ${danglingLinks.size} entries with dangling links:`);
       for (const [slug, targets] of danglingLinks) {

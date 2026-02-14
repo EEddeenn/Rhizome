@@ -13,8 +13,10 @@ All notable changes to this project will be documented in this file.
 - URL encoding format: `?split=notes/foo?pdfPage=5,notes/bar` preserves params per pane
 - Each pane has a unique `id` for proper React reconciliation
 - Table of contents dropdown in split pane header (click button to show dropdown, click heading to scroll and close)
+- Backlinks dropdown in split pane header (shows entries that link to current note, click to open in pane)
 - Duplicate pane button in split pane header (copies current pane including search params)
 - Added `rehype-slug` to `ClientMDXRenderer` so headings have IDs for anchor navigation
+- Backlinks JSON now generated to public folder for client-side access
 
 ### Changed
 

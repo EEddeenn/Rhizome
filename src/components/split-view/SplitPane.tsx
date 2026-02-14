@@ -5,10 +5,12 @@ import { ClientMDXRenderer } from "./ClientMDXRenderer";
 import { useSplitView, type PaneData } from "@/lib/context/SplitViewContext";
 import { PaneSearchParamsProvider } from "@/lib/context/PaneSearchParamsContext";
 import { TagPills } from "@/components/blocks/TagPills";
-import type { Entry, Manifest, Heading } from "@/lib/content/types";
+import type { Entry, Manifest, Heading, BacklinksIndex } from "@/lib/content/types";
 
 let manifestCache: Manifest | null = null;
 let manifestPromise: Promise<Manifest> | null = null;
+let backlinksCache: BacklinksIndex | null = null;
+let backlinksPromise: Promise<BacklinksIndex> | null = null;
 
 async function loadManifest(): Promise<Manifest> {
   if (manifestCache) return manifestCache;
@@ -22,6 +24,20 @@ async function loadManifest(): Promise<Manifest> {
     });
 
   return manifestPromise;
+}
+
+async function loadBacklinks(): Promise<BacklinksIndex> {
+  if (backlinksCache) return backlinksCache;
+  if (backlinksPromise) return backlinksPromise;
+
+  backlinksPromise = fetch("/generated/backlinks/backlinks.json")
+    .then((res) => res.json())
+    .then((data) => {
+      backlinksCache = data;
+      return data;
+    });
+
+  return backlinksPromise;
 }
 
 interface SplitPaneTocDropdownProps {
@@ -94,6 +110,68 @@ function SplitPaneTocDropdown({ headings, paneRef, isOpen, onClose }: SplitPaneT
   );
 }
 
+interface SplitPaneBacklinksDropdownProps {
+  backlinks: string[];
+  manifest: Manifest;
+  isOpen: boolean;
+  onClose: () => void;
+  onOpenPane: (slug: string) => void;
+}
+
+function SplitPaneBacklinksDropdown({ backlinks, manifest, isOpen, onClose, onOpenPane }: SplitPaneBacklinksDropdownProps) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !backlinks || backlinks.length === 0) return null;
+
+  const entries = backlinks
+    .map((slug) => manifest.find((e) => e.slug === slug))
+    .filter((e): e is Entry => e !== undefined);
+
+  return (
+    <div
+      ref={dropdownRef}
+      className="absolute right-0 top-full mt-1 w-64 max-h-80 overflow-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+    >
+      <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          Backlinks ({entries.length})
+        </h3>
+      </div>
+      <ul className="py-1">
+        {entries.map((entry) => (
+          <li key={entry.slug}>
+            <button
+              onClick={() => {
+                onOpenPane(entry.slug);
+                onClose();
+              }}
+              className="w-full text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 block py-1.5 px-2"
+            >
+              <span className="text-xs text-gray-500 dark:text-gray-400 uppercase mr-1">
+                {entry.type}
+              </span>
+              {entry.title}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 interface SplitPaneProps {
   pane: PaneData;
   index: number;
@@ -101,17 +179,22 @@ interface SplitPaneProps {
 
 export function SplitPane({ pane, index }: SplitPaneProps) {
   const [entry, setEntry] = useState<Entry | null>(null);
+  const [manifest, setManifest] = useState<Manifest | null>(null);
+  const [backlinks, setBacklinks] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [showToc, setShowToc] = useState(false);
+  const [showBacklinks, setShowBacklinks] = useState(false);
   const paneRef = useRef<HTMLDivElement>(null);
   const { closePane, openPane } = useSplitView();
 
   useEffect(() => {
     setLoading(true);
-    loadManifest()
-      .then((manifest) => {
-        const found = manifest.find((e) => e.slug === pane.slug);
+    Promise.all([loadManifest(), loadBacklinks()])
+      .then(([manifestData, backlinksData]) => {
+        setManifest(manifestData);
+        const found = manifestData.find((e) => e.slug === pane.slug);
         setEntry(found || null);
+        setBacklinks(backlinksData[pane.slug] || []);
         setLoading(false);
       })
       .catch(() => {
@@ -220,6 +303,27 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
           </button>
+          {backlinks.length > 0 && manifest && (
+            <>
+              <button
+                onClick={() => setShowBacklinks(!showBacklinks)}
+                className={`p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded ${showBacklinks ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
+                aria-label="Backlinks"
+                title="Backlinks"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>
+              </button>
+              <SplitPaneBacklinksDropdown
+                backlinks={backlinks}
+                manifest={manifest}
+                isOpen={showBacklinks}
+                onClose={() => setShowBacklinks(false)}
+                onOpenPane={(slug) => openPane(slug, undefined, true)}
+              />
+            </>
+          )}
           <button
             onClick={handleOpenFull}
             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400"
