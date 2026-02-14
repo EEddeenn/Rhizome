@@ -26,7 +26,13 @@ export type Entry = {
 
 export type TagsIndex = Record<string, string[]>;
 
-export type BacklinksIndex = Record<string, string[]>;
+export type BacklinkInfo = {
+  slug: string;
+  snippet: string;
+  heading?: string;
+};
+
+export type BacklinksIndex = Record<string, BacklinkInfo[]>;
 
 export type GraphNode = {
   id: string;

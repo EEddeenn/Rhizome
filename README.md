@@ -11,18 +11,19 @@ A static personal notes and knowledge management system built with Next.js, MDX,
 ### Content
 - **MDX Support** - Write notes in MDX with YAML frontmatter
 - **Wiki-links** - Link between notes using `[[Note Title]]` syntax
-- **Backlinks** - See what notes link to the current page
+- **Backlinks** - See what notes link to the current page, with context snippets and heading grouping
 - **Tags** - Organize content with tags and browse by tag
 - **Status Tracking** - Mark items as to-read, reading, or done
 
 ### Rich Content
-- **Callouts** - Note, tip, warning, danger, and info blocks
+- **Callouts** - Note, tip, warning, danger, and info blocks (supports foldable callouts with `+`/`-`)
 - **Code Highlighting** - Syntax highlighting for 50+ languages
 - **Math** - KaTeX for LaTeX equations (inline and block)
 - **Diagrams** - Mermaid flowcharts, sequence diagrams, class diagrams, and more
 - **PDF Viewer** - Embed PDFs with page navigation, zoom, and deep linking
 
 ### Navigation
+- **Split-View** - Click wiki-links to open notes side-by-side
 - **Table of Contents** - Auto-generated from headings
 - **Breadcrumbs** - Navigate note hierarchy
 - **Full-text Search** - MiniSearch with fuzzy matching and keyboard navigation
@@ -134,6 +135,37 @@ With custom text: [[Note Title|display text]]
 
 ### Callouts
 
+**Obsidian-style syntax** (recommended):
+
+```mdx
+> [!note]
+> General information.
+
+> [!tip] Pro Tip
+> Helpful suggestion.
+
+> [!warning]
+> Important caveat.
+
+> [!danger] Critical Warning
+> Critical warning.
+
+> [!info]
+> Background information.
+```
+
+**Foldable callouts** (click to expand/collapse):
+
+```mdx
+> [!note]+ Expanded by default
+> This content is visible.
+
+> [!note]- Collapsed by default
+> This content is hidden until clicked.
+```
+
+**MDX component syntax** (for more control):
+
 ```mdx
 <Callout type="note">
 General information.
@@ -142,19 +174,9 @@ General information.
 <Callout type="tip" title="Pro Tip">
 Helpful suggestion.
 </Callout>
-
-<Callout type="warning">
-Important caveat.
-</Callout>
-
-<Callout type="danger" title="Warning">
-Critical warning.
-</Callout>
-
-<Callout type="info">
-Background information.
-</Callout>
 ```
+
+Supported types: `note`, `tip`, `warning`, `danger`, `info`. Type aliases like `[!error]`, `[!bug]`, `[!quote]` are also supported.
 
 ### Code Blocks
 

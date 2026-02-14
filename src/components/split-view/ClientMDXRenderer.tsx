@@ -9,6 +9,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import { remarkWikiLinks } from "@/lib/content/remark-wiki-links";
+import { remarkObsidianCallouts } from "@/lib/content/remark-obsidian-callouts";
 import { MermaidLazy } from "@/components/mdx/MermaidLazy";
 import { Callout } from "@/components/mdx/Callout";
 import { PDFViewerLazy } from "@/components/mdx/PDFViewerLazy";
@@ -99,6 +100,7 @@ export function ClientMDXRenderer({ slug }: ClientMDXRendererProps) {
             remarkPlugins: [
               remarkGfm,
               remarkMath,
+              remarkObsidianCallouts,
               [remarkWikiLinks, { resolve: resolver }],
             ],
             rehypePlugins: [rehypeSlug, rehypeKatex, rehypeHighlight],

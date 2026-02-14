@@ -2,48 +2,91 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.12.0] - 2026-02-14
+## [0.14.0] - 2026-02-14
 
 ### Added
 
-#### Split View with Search Params Support
-- `src/lib/context/PaneSearchParamsContext.tsx` — New context for per-pane search parameters
-- Split panes now preserve URL search parameters (e.g., `?pdfPage=5`) when opened
-- PDF deep links in split view open a new pane with the PDF navigated to the correct page
-- URL encoding format: `?split=notes/foo?pdfPage=5,notes/bar` preserves params per pane
-- Each pane has a unique `id` for proper React reconciliation
-- Table of contents dropdown in split pane header (click button to show dropdown, click heading to scroll and close)
-- Backlinks dropdown in split pane header (shows entries that link to current note, click to open in pane)
-- Duplicate pane button in split pane header (copies current pane including search params)
-- Added `rehype-slug` to `ClientMDXRenderer` so headings have IDs for anchor navigation
-- Backlinks JSON now generated to public folder for client-side access
+#### Foldable Callouts
+- `Callout.tsx` — Added `fold` prop for collapsible callouts (`open` or `closed` state)
+- Supports `> [!note]+` (expanded) and `> [!note]-` (collapsed) Obsidian syntax
+- Click-to-expand/collapse with visual arrow indicators
+
+#### Split-View Callout Support
+- `ClientMDXRenderer.tsx` — Added `remarkObsidianCallouts` plugin to split-view MDX pipeline
+- Callouts now render correctly in both full-page and split-view modes
 
 ### Changed
 
-#### Split View Architecture
-- Pane data structure changed from `string[]` to `PaneData[]` with `{ id, slug, searchParams }`
-- `openPane()` now accepts optional second parameter for search params
-- `LinkInterceptor` extracts both slug and query params from clicked links
-- `InternalLink` and `SplitViewLink` updated to pass search params
-- `SplitPane` wraps content in `PaneSearchParamsProvider` for context-aware param access
-- Duplicate pane detection prevents opening same slug+params combination twice
-- `getPaneKey()` helper returns unique pane ID for React keys
-
-#### PDF Viewer
-- Uses `usePaneSearchParams()` hook to read params from split pane context
-- Deep links in split view create new pane and scroll to the PDF within that pane
-- Both normal navigation and split pane navigation scroll to PDF correctly
-
-#### Link Resolver
-- `routeToSlug()` now strips query params from routes to prevent "dangling links" warnings for valid URLs with params
+#### Performance Optimizations
+- `backlinks.ts` — O(1) title lookup using pre-built `Map` instead of O(n) `Array.find()`
+- `remark-obsidian-callouts.ts` — Removed unnecessary `structuredClone`, modifies AST in place
 
 ### Fixed
 
-#### Split View
-- PDF deep links now work correctly in split view - params are preserved and passed to the new pane
-- Multiple PDFs with different `id` props can each have their own deep-linked page in split view
-- Fixed duplicate key warning when same note with different params is opened
-- Fixed original pane scrolling when deep link is clicked in split view
+#### Link Position Calculation
+- `link-resolver.ts` — Global position now correctly computed from AST node positions instead of unreliable `indexOf` search
+- Fixes incorrect heading association and snippet extraction for duplicate links
+
+#### Graph Visualization
+- `graph/page.tsx` — Fixed HiDPI canvas hover detection using correct scale calculation
+- `graph/page.tsx` — Simulation no longer restarts on hover or dark mode toggle (uses refs for reactive state)
+- `graph/page.tsx` — Nodes reinitialize correctly when graph data changes (removed stale `initializedRef` guard)
+
+#### Type Safety
+- `SplitPane.tsx` — Updated `backlinks` state type from `string[]` to `BacklinkInfo[]` to match enhanced backlinks format
+
+### Tests
+
+#### Improved Test Approach
+- `obsidian-callouts.test.ts` — Rewrote tests to inspect AST directly instead of serializing to markdown
+- Tests now properly validate MDX JSX element structure and attributes
+- Added tests for fold markers (`+`/`-`)
+
+### Documentation
+
+#### New Content
+- `content/notes/split-view-navigation.mdx` — New guide documenting split-view feature, pane controls, deep linking, and use cases
+
+#### Updated Content
+- `content/notes/callouts.mdx` — Added "Foldable Callouts" section and practical FAQ example with 5 collapsible Q&As
+- `content/notes/knowledge-graph-basics.mdx` — Updated backlinks section with context snippets and heading grouping features
+- `content/notes/welcome.mdx` — Added split-view navigation feature, search keyboard shortcuts, and link to new guide
+- `content/notes/markdown-guide.mdx` — Added split-view tip to wiki-links callout
+
+---
+
+## [0.13.0] - 2026-02-14
+
+### Added
+
+#### Obsidian-Style Callouts
+- `src/lib/content/remark-obsidian-callouts.ts` — New remark plugin for parsing Obsidian callout syntax
+- Supports `> [!note]`, `> [!tip]`, `> [!warning]`, `> [!danger]`, `> [!info]` syntax
+- Type aliases: `[!error]`, `[!bug]` → danger; `[!quote]`, `[!example]`, `[!question]` → note; `[!success]`, `[!check]` → tip
+- Optional title after callout type: `> [!note] My Title`
+- Works in plain Markdown/MDX without JSX
+
+#### Enhanced Backlinks
+- `BacklinksIndex` now stores `BacklinkInfo[]` with `slug`, `snippet`, and `heading` fields
+- Context snippets (~100 chars) extracted around each backlink
+- Nearest heading association for each backlink
+- `BACKLINK_SNIPPET_LENGTH` environment variable for configurable snippet length (default: 100)
+- `BacklinksPanel` shows context snippets and groups by heading
+- `extractLinksWithContext()` function for extracting wiki-links with position and context
+
+### Changed
+
+#### Types
+- `BacklinksIndex` changed from `Record<string, string[]>` to `Record<string, BacklinkInfo[]>`
+- `getBacklinksForSlug()` now returns `BacklinkInfo[]` instead of `string[]`
+
+#### Content Processing
+- `mdx-config.ts` — Added `remarkObsidianCallouts` to remark plugins pipeline
+- `link-resolver.ts` — New functions: `extractHeadingPositions()`, `findNearestHeading()`, `extractSnippet()`, `extractLinksWithContext()`
+
+### Tests
+- `tests/obsidian-callouts.test.ts` — Unit tests for Obsidian callout parsing (17 tests)
+- `tests/backlinks-context.test.ts` — Unit tests for backlink context extraction (15 tests)
 
 ---
 

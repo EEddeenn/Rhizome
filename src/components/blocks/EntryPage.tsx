@@ -70,7 +70,7 @@ export function EntryPage({ entry, categoryLabel, categoryHref }: EntryPageProps
         />
       </div>
 
-      <BacklinksPanel slugs={backlinks} />
+      <BacklinksPanel backlinks={backlinks} />
     </article>
   );
 }

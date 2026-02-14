@@ -5,7 +5,7 @@ import { ClientMDXRenderer } from "./ClientMDXRenderer";
 import { useSplitView, type PaneData } from "@/lib/context/SplitViewContext";
 import { PaneSearchParamsProvider } from "@/lib/context/PaneSearchParamsContext";
 import { TagPills } from "@/components/blocks/TagPills";
-import type { Entry, Manifest, Heading, BacklinksIndex } from "@/lib/content/types";
+import type { Entry, Manifest, Heading, BacklinksIndex, BacklinkInfo } from "@/lib/content/types";
 
 let manifestCache: Manifest | null = null;
 let manifestPromise: Promise<Manifest> | null = null;
@@ -111,7 +111,7 @@ function SplitPaneTocDropdown({ headings, paneRef, isOpen, onClose }: SplitPaneT
 }
 
 interface SplitPaneBacklinksDropdownProps {
-  backlinks: string[];
+  backlinks: BacklinkInfo[];
   manifest: Manifest;
   isOpen: boolean;
   onClose: () => void;
@@ -137,7 +137,7 @@ function SplitPaneBacklinksDropdown({ backlinks, manifest, isOpen, onClose, onOp
   if (!isOpen || !backlinks || backlinks.length === 0) return null;
 
   const entries = backlinks
-    .map((slug) => manifest.find((e) => e.slug === slug))
+    .map((info) => manifest.find((e) => e.slug === info.slug))
     .filter((e): e is Entry => e !== undefined);
 
   return (
@@ -180,7 +180,7 @@ interface SplitPaneProps {
 export function SplitPane({ pane, index }: SplitPaneProps) {
   const [entry, setEntry] = useState<Entry | null>(null);
   const [manifest, setManifest] = useState<Manifest | null>(null);
-  const [backlinks, setBacklinks] = useState<string[]>([]);
+  const [backlinks, setBacklinks] = useState<BacklinkInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [showToc, setShowToc] = useState(false);
   const [showBacklinks, setShowBacklinks] = useState(false);

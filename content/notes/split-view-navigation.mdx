@@ -1,0 +1,86 @@
+---
+title: "Split-View Navigation"
+date: "2026-02-14"
+type: "note"
+tags: ["guide", "navigation", "features"]
+summary: "Navigate notes side-by-side with split-view panes for comparing and cross-referencing content."
+---
+
+# Split-View Navigation
+
+Split-view navigation lets you open multiple notes side-by-side, making it easy to compare content, follow citation chains, and build context without losing your place.
+
+## How It Works
+
+Click any wiki-link to open it in a split pane alongside your current note. The original note stays visible on the left while the linked content appears on the right.
+
+<Callout type="tip">
+Split-view is perfect for when you're reading a note and want to quickly check a referenced concept without navigating away.
+</Callout>
+
+## Opening Panes
+
+| Action | Result |
+|--------|--------|
+| Click a wiki-link | Opens in new pane on the right |
+| Click another link | Replaces the rightmost pane |
+| Click a link in a pane | Opens in that pane |
+
+The system keeps track of which pane you're interacting with and updates accordingly.
+
+## Pane Controls
+
+Each pane has a toolbar with these actions:
+
+| Control | Description |
+|---------|-------------|
+| **Close** (×) | Dismiss the pane |
+| **Open Full** (⤢) | Navigate to the note as a full page |
+| **Duplicate** (⧉) | Open another copy of the same note |
+
+## Deep Linking
+
+Share or bookmark specific pane configurations using URL parameters:
+
+```
+/notes/origin-note?pane=linked-note
+```
+
+Multiple panes can be chained:
+
+```
+/notes/a?pane=b&pane=c
+```
+
+<Callout type="info" title="URL Encoding">
+Note slugs in URL parameters use forward slashes: `?pane=notes/another-note`. Special characters are URL-encoded.
+</Callout>
+
+## Use Cases
+
+### Following Citation Chains
+
+When reading [[Building a Second Brain]], you might click through to [[Knowledge Graph Basics]], then to [[Welcome to Rhizome]] — each opening in a new pane while preserving your reading history.
+
+### Comparing Related Notes
+
+Open multiple notes on similar topics to compare approaches, definitions, or code examples side-by-side.
+
+### Reference While Writing
+
+Keep a reference note open in one pane while writing in another, making it easy to copy terminology, verify facts, or maintain consistency.
+
+### Cross-Checking Backlinks
+
+When a note has multiple backlinks, open several of them in split view to understand how different contexts reference the same concept.
+
+## Limitations
+
+- Panes are read-only in split view (no editing)
+- Complex interactive components may have reduced functionality
+- Very long notes may impact performance with many panes open
+
+## Related Features
+
+- [[Knowledge Graph Basics]] - Visualize connections between notes
+- [[Welcome to Rhizome]] - Overview of all Rhizome features

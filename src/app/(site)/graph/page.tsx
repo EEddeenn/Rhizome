@@ -36,19 +36,22 @@ export default function GraphPage() {
   const animationRef = useRef<number | null>(null);
   const frameRef = useRef(0);
   const prevCanvasSizeRef = useRef({ width: 800, height: 600 });
+  const hoveredNodeRef = useRef<Node | null>(null);
+  const isDarkRef = useRef(false);
 
   const [graph, setGraph] = useState<Graph | null>(null);
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
   const [loading, setLoading] = useState(true);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const [isDark, setIsDark] = useState(false);
-  const initializedRef = useRef(false);
 
   useEffect(() => {
     const html = document.documentElement;
+    isDarkRef.current = html.classList.contains("dark");
     setIsDark(html.classList.contains("dark"));
 
     const observer = new MutationObserver(() => {
+      isDarkRef.current = html.classList.contains("dark");
       setIsDark(html.classList.contains("dark"));
     });
 
@@ -84,8 +87,7 @@ export default function GraphPage() {
   }, []);
 
   useEffect(() => {
-    if (!graph || initializedRef.current) return;
-    initializedRef.current = true;
+    if (!graph) return;
 
     const { width, height } = canvasSize;
     const centerX = width / 2;
@@ -139,11 +141,13 @@ export default function GraphPage() {
     const nodes = nodesRef.current;
     const nodeMap = nodeMapRef.current;
     const edges = edgesRef.current;
+    const currentHovered = hoveredNodeRef.current;
+    const currentIsDark = isDarkRef.current;
 
-    ctx.fillStyle = isDark ? "#1f2937" : "#f9fafb";
+    ctx.fillStyle = currentIsDark ? "#1f2937" : "#f9fafb";
     ctx.fillRect(0, 0, width, height);
 
-    ctx.strokeStyle = isDark ? "#374151" : "#e5e7eb";
+    ctx.strokeStyle = currentIsDark ? "#374151" : "#e5e7eb";
     ctx.lineWidth = 1;
     for (const edge of edges) {
       const source = nodeMap.get(edge.source);
@@ -157,7 +161,7 @@ export default function GraphPage() {
     }
 
     for (const node of nodes) {
-      const isHovered = hoveredNode?.id === node.id;
+      const isHovered = currentHovered?.id === node.id;
       const radius = isHovered ? 12 : 8;
 
       ctx.beginPath();
@@ -172,13 +176,15 @@ export default function GraphPage() {
       }
     }
 
-    if (hoveredNode) {
-      ctx.fillStyle = isDark ? "#f9fafb" : "#1f2937";
+    if (currentHovered) {
+      ctx.fillStyle = currentIsDark ? "#f9fafb" : "#1f2937";
       ctx.font = "14px system-ui";
       ctx.textAlign = "center";
-      ctx.fillText(hoveredNode.title, hoveredNode.x, hoveredNode.y - 18);
+      ctx.fillText(currentHovered.title, currentHovered.x, currentHovered.y - 18);
     }
-  }, [hoveredNode, canvasSize, isDark]);
+  }, [canvasSize]);
+
+  const simulateRef = useRef<() => boolean>(() => false);
 
   useEffect(() => {
     if (loading || nodesRef.current.length === 0) return;
@@ -198,7 +204,7 @@ export default function GraphPage() {
     let stableCount = 0;
     frameRef.current = 0;
 
-    const simulate = () => {
+    simulateRef.current = () => {
       const nodes = nodesRef.current;
       const nodeMap = nodeMapRef.current;
       const edges = edgesRef.current;
@@ -265,7 +271,7 @@ export default function GraphPage() {
     };
 
     const animate = () => {
-      const converged = simulate();
+      const converged = simulateRef.current();
       draw();
       frameRef.current++;
 
@@ -281,21 +287,30 @@ export default function GraphPage() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [loading, canvasSize, draw]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, canvasSize]);
 
   useEffect(() => {
     draw();
   }, [draw]);
+
+  useEffect(() => {
+    hoveredNodeRef.current = hoveredNode;
+    draw();
+  }, [hoveredNode, draw]);
+
+  useEffect(() => {
+    isDarkRef.current = isDark;
+    draw();
+  }, [isDark, draw]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
+    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
 
     const hovered = nodesRef.current.find((node) => {
       const dx = node.x - x;

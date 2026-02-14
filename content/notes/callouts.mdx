@@ -10,9 +10,94 @@ summary: "How to use callout components to highlight important information."
 
 Callouts (also known as admonitions) draw attention to important information. Use them for tips, warnings, notes, and more.
 
-## Basic Usage
+## Obsidian-Style Syntax
 
-Callouts are MDX components. Use them in your notes like this:
+Rhizome supports Obsidian-compatible callout syntax using blockquotes:
+
+```markdown
+> [!note] Optional Title
+> Content goes here.
+
+> [!warning] No Title
+> Just content, no title needed.
+```
+
+This renders as:
+
+> [!note] Optional Title
+> Content goes here.
+
+> [!warning]
+> This callout has no title, just content.
+
+### Supported Callout Types
+
+| Syntax | Type | Use Case |
+|--------|------|----------|
+| `[!note]` | Note | General information |
+| `[!tip]` | Tip | Helpful suggestions |
+| `[!warning]` | Warning | Important caveats |
+| `[!danger]` | Danger | Critical warnings |
+| `[!info]` | Info | Background information |
+
+### Type Aliases
+
+Obsidian uses additional type names that map to the core types:
+
+| Syntax | Maps To |
+|--------|---------|
+| `[!error]`, `[!bug]` | danger |
+| `[!quote]`, `[!example]`, `[!question]` | note |
+| `[!success]`, `[!check]` | tip |
+| `[!failure]` | danger |
+
+### Multi-line Content
+
+> [!tip] Pro Tip
+> Callouts can span multiple lines.
+> Each line just needs the `>` prefix.
+> 
+> You can even have multiple paragraphs!
+
+```markdown
+> [!tip] Pro Tip
+> Callouts can span multiple lines.
+> Each line just needs the `>` prefix.
+```
+
+### Foldable Callouts
+
+Add `+` or `-` after the type to make callouts collapsible:
+
+- `+` starts expanded (user can collapse)
+- `-` starts collapsed (user can expand)
+
+> [!tip]+ Expandable Tip
+> This callout starts expanded. Click the arrow to collapse it.
+
+> [!warning]- Collapsed Warning
+> This callout starts collapsed. Click to reveal the content.
+
+```markdown
+> [!tip]+ Click to Expand
+> This content is visible by default.
+
+> [!warning]- Collapsed by Default
+> This content is hidden by default.
+```
+
+**Use cases for foldable callouts:**
+
+| Use Case | Type | State |
+|----------|------|-------|
+| FAQ answers | `[!note]-` | Collapsed |
+| Optional deep-dives | `[!info]+` | Expanded |
+| Spoiler content | `[!warning]-` | Collapsed |
+| Technical appendix | `[!note]-` | Collapsed |
+
+## MDX Component Syntax
+
+For more control, you can use the MDX component syntax directly:
 
 ```mdx
 <Callout type="note">
@@ -84,6 +169,32 @@ Callouts support:
 
 Even blockquotes work inside callouts.
 </Callout>
+
+## Practical Example: FAQ Section
+
+Foldable callouts are ideal for FAQ-style content. Each question is collapsed by default, keeping the page clean while making answers available on demand:
+
+> [!note]- What is a wiki-link?
+> A wiki-link uses double brackets to connect notes by title: `[[Note Title]]`. Rhizome resolves links case-insensitively, so `[[welcome]]` and `[[Welcome]]` link to the same note.
+
+> [!note]- How do backlinks work?
+> Backlinks appear automatically when other notes link to the current note. Rhizome shows context snippets and groups them by heading to help you understand how ideas connect.
+
+> [!tip]- What's the difference between notes and articles?
+> **Notes** are for reference material, guides, and concepts. **Articles** are for longer-form, date-oriented content like essays or blog posts. Both support the same formatting features.
+
+> [!info]- Can I use LaTeX math?
+> Yes! Use `$...$` for inline math and `$$...$$` for block equations. See [[Mathematical Notation]] for examples including commutative diagrams.
+
+> [!warning]- What if I delete a linked note?
+> The link becomes "dangling" — it displays as text but doesn't navigate. The build process warns about dangling links so you can fix them.
+
+```markdown
+> [!note]- Question goes here?
+> Answer content appears when the user clicks to expand.
+> 
+> You can include multiple paragraphs, **formatting**, and more.
+```
 
 ## Use Case Examples
 

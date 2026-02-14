@@ -1,39 +1,100 @@
 import Link from "next/link";
+import type { BacklinkInfo, Entry } from "@/lib/content/types";
 import { getEntryBySlug } from "@/lib/generated/load-manifest";
-import type { Entry } from "@/lib/content/types";
 
 interface BacklinksPanelProps {
-  slugs: string[];
+  backlinks: BacklinkInfo[];
 }
 
-export function BacklinksPanel({ slugs }: BacklinksPanelProps) {
-  if (!slugs || slugs.length === 0) return null;
+function groupByHeading(backlinks: BacklinkInfo[]): Map<string | null, BacklinkInfo[]> {
+  const groups = new Map<string | null, BacklinkInfo[]>();
+  
+  for (const backlink of backlinks) {
+    const key = backlink.heading || null;
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key)!.push(backlink);
+  }
+  
+  return groups;
+}
 
-  const entries = slugs
-    .map((slug) => getEntryBySlug(slug))
-    .filter((e): e is Entry => e !== undefined);
+export function BacklinksPanel({ backlinks }: BacklinksPanelProps) {
+  if (!backlinks || backlinks.length === 0) return null;
 
-  if (entries.length === 0) return null;
+  const entriesWithInfo = backlinks
+    .map((info) => {
+      const entry = getEntryBySlug(info.slug);
+      return entry ? { entry, info } : null;
+    })
+    .filter((e): e is { entry: Entry; info: BacklinkInfo } => e !== null);
+
+  if (entriesWithInfo.length === 0) return null;
+
+  const grouped = groupByHeading(backlinks);
+  const entriesMap = new Map(entriesWithInfo.map(({ entry, info }) => [info.slug, entry]));
+  const hasHeadings = [...grouped.keys()].some((h) => h !== null);
 
   return (
     <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-border">
       <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Backlinks</h2>
-      <ul className="space-y-1.5 sm:space-y-2">
-        {entries.map((entry) => (
-          <li key={entry.slug}>
-            <Link
-              href={entry.route}
-              className="text-blue-600 dark:text-blue-400 hover:underline flex items-start sm:items-center gap-2 text-sm sm:text-base"
-            >
-              <span className="text-muted flex-shrink-0">→</span>
-              <span className="truncate">{entry.title}</span>
-              {entry.summary && (
-                <span className="text-muted text-xs sm:text-sm hidden sm:inline truncate">— {entry.summary}</span>
+      
+      {hasHeadings ? (
+        <div className="space-y-4">
+          {[...grouped.entries()].map(([heading, infos]) => (
+            <div key={heading || "ungrouped"}>
+              {heading && (
+                <h3 className="text-sm font-medium text-muted mb-2">{heading}</h3>
               )}
-            </Link>
-          </li>
-        ))}
-      </ul>
+              <ul className="space-y-2">
+                {infos.map((info) => {
+                  const entry = entriesMap.get(info.slug);
+                  if (!entry) return null;
+                  
+                  return (
+                    <li key={info.slug}>
+                      <Link
+                        href={entry.route}
+                        className="block group"
+                      >
+                        <span className="text-blue-600 dark:text-blue-400 group-hover:underline font-medium">
+                          {entry.title}
+                        </span>
+                        {info.snippet && (
+                          <p className="text-sm text-muted mt-0.5 line-clamp-2">
+                            {info.snippet}
+                          </p>
+                        )}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {entriesWithInfo.map(({ entry, info }) => (
+            <li key={info.slug}>
+              <Link
+                href={entry.route}
+                className="block group"
+              >
+                <span className="text-blue-600 dark:text-blue-400 group-hover:underline font-medium">
+                  {entry.title}
+                </span>
+                {info.snippet && (
+                  <p className="text-sm text-muted mt-0.5 line-clamp-2">
+                    {info.snippet}
+                  </p>
+                )}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

@@ -1,8 +1,12 @@
+"use client";
+
 type CalloutType = "note" | "tip" | "warning" | "danger" | "info";
+type FoldState = "open" | "closed";
 
 interface CalloutProps {
   type?: CalloutType;
   title?: string;
+  fold?: FoldState;
   children: React.ReactNode;
 }
 
@@ -34,16 +38,34 @@ const styles: Record<CalloutType, { border: string; bg: string; icon: string }> 
   },
 };
 
-export function Callout({ type = "note", title, children }: CalloutProps) {
+import { useState } from "react";
+
+export function Callout({ type = "note", title, fold, children }: CalloutProps) {
   const style = styles[type];
+  const isFoldable = fold !== undefined;
+  const [isExpanded, setIsExpanded] = useState(fold !== "closed");
+
+  const handleClick = () => {
+    if (isFoldable) {
+      setIsExpanded(!isExpanded);
+    }
+  };
 
   return (
     <div className={`my-4 border-l-4 ${style.border} ${style.bg} p-4 rounded-r`}>
-      <div className="flex items-start gap-2">
-        <span className="text-lg">{style.icon}</span>
+      <div
+        className={`flex items-start gap-2 ${isFoldable ? "cursor-pointer select-none" : ""}`}
+        onClick={handleClick}
+        role={isFoldable ? "button" : undefined}
+        aria-expanded={isFoldable ? isExpanded : undefined}
+      >
+        <span className="text-lg">
+          {isFoldable && (isExpanded ? "▼" : "▶")}
+          {!isFoldable && style.icon}
+        </span>
         <div className="flex-1">
           {title && <div className="font-semibold mb-1">{title}</div>}
-          <div className="text-sm">{children}</div>
+          {isExpanded && <div className="text-sm">{children}</div>}
         </div>
       </div>
     </div>
