@@ -12,7 +12,7 @@ A knowledge graph represents information as a network of interconnected ideas. U
 
 ## Core Concepts
 
-### Nodes
+### Nodes ^def-node
 
 Each note, article, or piece of content is a **node** in the graph. Nodes contain:
 
@@ -22,7 +22,7 @@ Each note, article, or piece of content is a **node** in the graph. Nodes contai
 
 In Rhizome, every MDX file becomes a node.
 
-### Edges
+### Edges ^def-edge
 
 Links between notes create **edges** that show relationships. Edges can represent:
 
@@ -33,7 +33,7 @@ Links between notes create **edges** that show relationships. Edges can represen
 
 Wiki-links create edges automatically. When you link from note A to note B, you create a directed edge A → B.
 
-### Backlinks
+### Backlinks ^def-backlink
 
 Backlinks show **incoming edges** - which notes link to the current note. They answer: "What points here?"
 
@@ -74,12 +74,14 @@ The graph view reveals:
 
 ## Graph Theory Basics
 
+These concepts help you understand and improve your knowledge graph:
+
 ### Degree
 
 The number of connections a node has:
 
 - **In-degree**: Incoming links (backlinks)
-- **Out-degree**: Outgoing links
+- **Out-degree**: Outgoing links (edges)
 
 High-degree nodes are often important concepts in your knowledge base.
 
@@ -108,7 +110,15 @@ When writing, ask:
 
 Instead of: "See [[Knowledge Graph Basics]] for more."
 
-Try: "Understanding [[Knowledge Graph Basics]] helps you see how connections emerge naturally."
+Try: "Understanding [[Knowledge Graph Basics#Why Graphs Matter]] helps you see how connections emerge naturally."
+
+### Use Anchor Links
+
+Link to specific sections when relevant:
+- `[[Note#Section]]` for precise navigation
+- `[[Note#^block-id]]` for referencing key points
+
+See [[Embeds and Anchors#Heading Anchors]] for details.
 
 ### Create "Hub" Notes
 

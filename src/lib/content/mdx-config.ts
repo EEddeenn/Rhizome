@@ -5,6 +5,7 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import { remarkWikiLinks } from "./remark-wiki-links";
 import { remarkObsidianCallouts } from "./remark-obsidian-callouts";
+import { rehypeBlockIds } from "./rehype-block-ids";
 import { getWikiLinkResolver, getEmbedResolver } from "@/lib/generated/load-manifest";
 import { NoteEmbed } from "@/components/mdx/NoteEmbed";
 import { EmbedError } from "@/components/mdx/EmbedError";
@@ -21,7 +22,7 @@ export function getMdxPlugins() {
         resolveEmbed: getEmbedResolver(),
       }],
     ] as PluggableList,
-    rehypePlugins: [rehypeSlug, rehypeKatex, rehypeHighlight] as PluggableList,
+    rehypePlugins: [rehypeSlug, rehypeBlockIds, rehypeKatex, rehypeHighlight] as PluggableList,
   };
 }
 

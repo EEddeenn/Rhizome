@@ -1,4 +1,5 @@
 import { normalizeTitle } from "./normalize";
+import { slugifyAnchor } from "./slug";
 import type { Manifest } from "./types";
 
 export interface ResolvedLink {
@@ -24,12 +25,17 @@ export function createWikiLinkResolver(manifest: Manifest): (title: string, anch
 
   return (title: string, anchor?: string): ResolvedLink => {
     const route = titleToRoute.get(normalizeTitle(title));
+    const processedAnchor = anchor
+      ? anchor.startsWith("^")
+        ? anchor
+        : slugifyAnchor(anchor)
+      : undefined;
     if (route) {
-      return { route, anchor, exists: true };
+      return { route, anchor: processedAnchor, exists: true };
     }
     return {
       route: `/notes/${title.toLowerCase().replace(/\s+/g, "-")}`,
-      anchor,
+      anchor: processedAnchor,
       exists: false,
     };
   };
@@ -44,6 +50,11 @@ export function createEmbedResolver(manifest: Manifest): (target: string, anchor
 
   return (target: string, anchor?: string): ResolvedEmbed | null => {
     const lowerTarget = target.toLowerCase();
+    const processedAnchor = anchor
+      ? anchor.startsWith("^")
+        ? anchor
+        : slugifyAnchor(anchor)
+      : undefined;
     
     if (lowerTarget.endsWith(".pdf")) {
       const pdfPath = target.startsWith("/") ? target : `/assets/pdfs/${target}`;
@@ -61,10 +72,10 @@ export function createEmbedResolver(manifest: Manifest): (target: string, anchor
     
     const slug = titleToSlug.get(normalizeTitle(target));
     if (slug) {
-      return { type: "note", slug, anchor };
+      return { type: "note", slug, anchor: processedAnchor };
     }
     
     const fallbackSlug = `notes/${target.toLowerCase().replace(/\s+/g, "-")}`;
-    return { type: "note", slug: fallbackSlug, anchor };
+    return { type: "note", slug: fallbackSlug, anchor: processedAnchor };
   };
 }

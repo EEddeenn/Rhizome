@@ -1,6 +1,7 @@
 import { visit } from "unist-util-visit";
 import type { Plugin } from "unified";
-import type { Root, Text, Link, Parent } from "mdast";
+import type { Root, Text, Link, Parent, Paragraph } from "mdast";
+import { slugifyAnchor } from "./slug";
 
 const WIKI_LINK_PATTERN = /(!?)\[\[([^\]#|]+)(?:#(\^?[^\]|]+))?(?:\|([^\]]+))?\]\]/g;
 
@@ -40,10 +41,21 @@ function parsePdfAnchor(anchor: string | undefined): { page?: number; fragment?:
 
 const defaultResolver = (title: string, anchor?: string): ResolvedLink => {
   const route = `/notes/${title.toLowerCase().replace(/\s+/g, "-")}`;
-  return { route, anchor, exists: false };
+  const processedAnchor = anchor
+    ? anchor.startsWith("^")
+      ? anchor
+      : slugifyAnchor(anchor)
+    : undefined;
+  return { route, anchor: processedAnchor, exists: false };
 };
 
 const defaultEmbedResolver = (target: string, anchor?: string): ResolvedEmbed | null => {
+  const processedAnchor = anchor
+    ? anchor.startsWith("^")
+      ? anchor
+      : slugifyAnchor(anchor)
+    : undefined;
+  
   if (isPdfTarget(target)) {
     const { page } = parsePdfAnchor(anchor);
     const pdfPath = target.startsWith("/") ? target : `/assets/pdfs/${target}`;
@@ -51,7 +63,7 @@ const defaultEmbedResolver = (target: string, anchor?: string): ResolvedEmbed | 
   }
   
   const slug = `notes/${target.toLowerCase().replace(/\s+/g, "-")}`;
-  return { type: "note", slug, anchor };
+  return { type: "note", slug, anchor: processedAnchor };
 };
 
 interface MdxJsxAttribute {
@@ -82,6 +94,10 @@ function createMdxElement(name: string, attrs: Record<string, string | undefined
     attributes,
     children: [],
   };
+}
+
+function isMdxJsxFlowElement(node: unknown): node is MdxJsxFlowElement {
+  return typeof node === "object" && node !== null && (node as { type?: string }).type === "mdxJsxFlowElement";
 }
 
 export const remarkWikiLinks: Plugin<[WikiLinkOptions?], Root> = (options = {}) => {
@@ -167,6 +183,34 @@ export const remarkWikiLinks: Plugin<[WikiLinkOptions?], Root> = (options = {}) 
           type: "text",
           value: value.slice(lastIndex),
         });
+      }
+
+      parent.children.splice(index, 1, ...newNodes);
+    });
+
+    visit(tree, "paragraph", (node: Paragraph, index, parent: Parent | undefined) => {
+      if (typeof index !== "number" || !parent) return;
+
+      const hasEmbed = node.children.some(isMdxJsxFlowElement);
+      if (!hasEmbed) return;
+
+      const newNodes: (Paragraph | MdxJsxFlowElement)[] = [];
+      let currentParagraph: Paragraph = { type: "paragraph", children: [] };
+
+      for (const child of node.children) {
+        if (isMdxJsxFlowElement(child)) {
+          if (currentParagraph.children.length > 0) {
+            newNodes.push(currentParagraph);
+            currentParagraph = { type: "paragraph", children: [] };
+          }
+          newNodes.push(child);
+        } else {
+          currentParagraph.children.push(child);
+        }
+      }
+
+      if (currentParagraph.children.length > 0) {
+        newNodes.push(currentParagraph);
       }
 
       parent.children.splice(index, 1, ...newNodes);

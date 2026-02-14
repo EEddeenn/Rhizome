@@ -10,7 +10,7 @@ summary: "A comprehensive guide to Markdown formatting in Rhizome."
 
 Rhizome supports GitHub Flavored Markdown (GFM) for rich text formatting.
 
-## Text Formatting
+## Text Formatting ^text-formatting
 
 Basic inline formatting:
 
@@ -30,7 +30,7 @@ Use `#` symbols for headings. The frontmatter title becomes the page title, so s
 #### Sub-subsection
 ```
 
-## Lists
+## Lists ^lists
 
 ### Unordered Lists
 
@@ -52,7 +52,7 @@ Use `#` symbols for headings. The frontmatter title becomes the page title, so s
 - [ ] Incomplete task
 - [ ] Another task
 
-## Wiki-Links
+## Wiki-Links ^wiki-links
 
 Wiki-links are the primary way to connect notes in Rhizome:
 
@@ -60,13 +60,19 @@ Wiki-links are the primary way to connect notes in Rhizome:
 |--------|--------|
 | `[[Note Title]]` | Links to note by title |
 | `[[Note Title\|display text]]` | Shows "display text" but links to note |
+| `[[Note#Section]]` | Links to specific heading in note |
+| `[[Note#^block-id]]` | Links to specific block by ID |
+| `[[Note#Section\|display text]]` | Anchor link with custom text |
 | `[[Knowledge Graph Basics]]` | [[Knowledge Graph Basics]] |
 | `[[Knowledge Graph Basics\|learn about graphs]]` | [[Knowledge Graph Basics\|learn about graphs]] |
+| `[[Embeds and Anchors#Heading Anchors]]` | [[Embeds and Anchors#Heading Anchors]] |
 
 <Callout type="tip">
 Wiki-links are case-insensitive. `[[welcome to rhizome]]` and `[[Welcome to Rhizome]]` link to the same note.
 
 Clicking a wiki-link opens it in a split pane, letting you view both notes side-by-side. See [[Split-View Navigation]] for more.
+
+For advanced features like embedding notes inline (`![[...]]`), see [[Embeds and Anchors]].
 </Callout>
 
 ## Links and Images
@@ -74,8 +80,8 @@ Clicking a wiki-link opens it in a split pane, letting you view both notes side-
 Standard markdown links work alongside wiki-links:
 
 - [External link](https://example.com) opens in a new tab
-- `[text](/notes/slug)` links to internal pages by route
 - Wiki-links connect notes by title: [[Welcome to Rhizome]]
+- Use standard markdown syntax for images: `\![Alt text](/assets/image.png)`
 
 Images are placed in `content/assets/` and referenced as:
 
@@ -83,7 +89,7 @@ Images are placed in `content/assets/` and referenced as:
 ![Alt text](/assets/filename.png)
 ```
 
-## Tables
+## Tables ^tables
 
 | Feature | Status | Description |
 |---------|--------|-------------|
@@ -133,7 +139,7 @@ To display literal characters that have special meaning:
 - `\[not a link\]` → \[not a link\]
 - `` `inline code with *asterisks*` `` → `inline code with *asterisks*`
 
-## Frontmatter
+## Frontmatter ^frontmatter
 
 Every note begins with YAML frontmatter:
 

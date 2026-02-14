@@ -1,5 +1,13 @@
 const CONTENT_DIR = "content";
 
+export function slugifyAnchor(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9\-_]/g, "");
+}
+
 export function slugFromPath(filePath: string): string {
   const normalized = filePath.replace(/\\/g, "/");
   const contentIndex = normalized.indexOf(`${CONTENT_DIR}/`);

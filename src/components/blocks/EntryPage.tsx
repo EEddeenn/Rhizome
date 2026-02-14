@@ -12,6 +12,7 @@ import { MermaidLazy } from "@/components/mdx/MermaidLazy";
 import { Callout } from "@/components/mdx/Callout";
 import { PDFViewerLazy } from "@/components/mdx/PDFViewerLazy";
 import { useMDXComponents } from "@/components/mdx/MDXComponents";
+import { AnchorScroller } from "@/components/blocks/AnchorScroller";
 
 interface EntryPageProps {
   entry: Entry;
@@ -37,6 +38,7 @@ export function EntryPage({ entry, categoryLabel, categoryHref }: EntryPageProps
 
   return (
     <article className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
+      <AnchorScroller />
       <Breadcrumbs items={breadcrumbItems} />
       
       <header className="mb-6 sm:mb-8">

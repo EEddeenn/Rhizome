@@ -9,13 +9,14 @@ interface InternalLinkProps {
 }
 
 export function InternalLink({ href, children }: InternalLinkProps) {
-  const { openPane, isMobile } = useSplitView();
+  const { openPane, isMobile, panes } = useSplitView();
 
   if (!href) {
     return <span>{children}</span>;
   }
 
   const { isExternal, isInternalNote } = classifyLink(href);
+  const { slug, searchParams, anchor } = parseSlugFromHref(href);
 
   if (isExternal) {
     return (
@@ -26,11 +27,35 @@ export function InternalLink({ href, children }: InternalLinkProps) {
   }
 
   const handleClick = (e: React.MouseEvent) => {
+    if (isMobile) return;
+
     if (!isInternalNote) return;
 
+    const isAnchorOnly = !href.startsWith("/") && href.startsWith("#");
+    
+    if (isAnchorOnly && anchor) {
+      e.preventDefault();
+      const element = document.getElementById(anchor);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      return;
+    }
+
+    const currentPaneSlug = panes.length > 0 ? panes[panes.length - 1]?.slug : null;
+    const isSamePane = currentPaneSlug === slug;
+
+    if (isSamePane && anchor) {
+      e.preventDefault();
+      const element = document.getElementById(anchor);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      return;
+    }
+
     e.preventDefault();
-    const { slug, searchParams } = parseSlugFromHref(href);
-    openPane(slug, searchParams);
+    openPane(slug, searchParams, false, anchor);
   };
 
   if (isMobile) {

@@ -18,7 +18,7 @@ Click any wiki-link to open it in a split pane alongside your current note. The 
 Split-view is perfect for when you're reading a note and want to quickly check a referenced concept without navigating away.
 </Callout>
 
-## Opening Panes
+## Opening Panes ^opening-panes
 
 | Action | Result |
 |--------|--------|
@@ -28,7 +28,7 @@ Split-view is perfect for when you're reading a note and want to quickly check a
 
 The system keeps track of which pane you're interacting with and updates accordingly.
 
-## Pane Controls
+## Pane Controls ^pane-controls
 
 Each pane has a toolbar with these actions:
 
@@ -38,7 +38,7 @@ Each pane has a toolbar with these actions:
 | **Open Full** (⤢) | Navigate to the note as a full page |
 | **Duplicate** (⧉) | Open another copy of the same note |
 
-## Deep Linking
+## Deep Linking ^deep-linking
 
 Share or bookmark specific pane configurations using URL parameters:
 
@@ -56,11 +56,17 @@ Multiple panes can be chained:
 Note slugs in URL parameters use forward slashes: `?pane=notes/another-note`. Special characters are URL-encoded.
 </Callout>
 
+### Anchor Scrolling in Split-View
+
+When you click an anchor link like `[[Note#Section]]`, the split pane opens and automatically scrolls to that section. This works for both heading anchors and block IDs.
+
+Example: [[Embeds and Anchors#Combined Syntax]] opens the combined syntax reference.
+
 ## Use Cases
 
 ### Following Citation Chains
 
-When reading [[Building a Second Brain]], you might click through to [[Knowledge Graph Basics]], then to [[Welcome to Rhizome]] — each opening in a new pane while preserving your reading history.
+When reading [[Building a Second Brain]], you might click through to [[Knowledge Graph Basics#Core Concepts]], then to [[Welcome to Rhizome#Wiki-links]] — each opening in a new pane while preserving your reading history.
 
 ### Comparing Related Notes
 

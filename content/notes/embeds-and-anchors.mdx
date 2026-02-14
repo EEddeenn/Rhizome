@@ -10,18 +10,23 @@ summary: "Learn how to use Obsidian-style embeds and anchors for linking and tra
 
 Rhizome supports Obsidian-compatible syntax for linking to specific sections and embedding content inline.
 
-## Heading Anchors
+<Callout type="tip">
+Try clicking the anchor links on this page to see auto-scrolling in action. Links work in both full-page view and split-view panes.
+</Callout>
+
+## Heading Anchors ^heading-anchors
 
 Link to a specific section within a note using the `#` syntax:
 
 | Syntax | Result |
 |--------|--------|
 | `[[Note\|#Section]]` | Links to a specific heading |
-| `[[Welcome to Rhizome\|#Features]]` | [[Welcome to Rhizome#Features]] |
+| `[[Welcome to Rhizome\|#Core Features]]` | [[Welcome to Rhizome#Core Features]] |
+| `[[Knowledge Graph Basics\|#Why Graphs Matter]]` | [[Knowledge Graph Basics#Why Graphs Matter]] |
 
-The anchor text is case-insensitive and matches the heading text.
+The anchor text is case-insensitive and automatically slugified to match heading IDs.
 
-## Block IDs
+## Block IDs ^block-ids
 
 Link to a specific paragraph or content block using block IDs:
 
@@ -33,9 +38,19 @@ Then link to it: `[[Note#^my-block-id]]`
 
 This is a paragraph with a block ID. ^demo-block
 
-You can link to this block: `[[Embeds and Anchors#^demo-block]]`
+You can link to this block: `[[Embeds and Anchors#^demo-block]]` → [[Embeds and Anchors#^demo-block]]
 
-## Note Embeds
+### When to Use Block IDs
+
+Block IDs are useful for:
+
+- Referencing specific tips or key points from other notes
+- Creating permalinks to important paragraphs
+- Linking to content that might move if headings change
+
+Example: Link to the quick start guide with `[[Welcome to Rhizome#^quick-start]]`
+
+## Note Embeds ^note-embeds
 
 Embed entire notes inline using the `!` prefix:
 
@@ -57,7 +72,9 @@ Embed just a specific section from a note:
 ![[Note Title#Section Name]]
 ```
 
-This transcludes the section including all nested subheadings.
+This transcludes the section including all nested subheadings. Here's a working example:
+
+![[Knowledge Graph Basics#Why Graphs Matter]]
 
 ## PDF Embeds
 
@@ -85,11 +102,13 @@ When an embed target cannot be found, an error is displayed:
 - **Block not found**: The block ID wasn't found in the note
 - **Cycle detected**: Recursive embed detected (embedding a note that embeds itself)
 
-## Deep Linking
+## Deep Linking ^deep-linking
 
-Anchors work with split-view navigation. Clicking `[[Note#Section]]` opens the note in a split pane and scrolls to that section.
+Anchors work with split-view navigation. Clicking `[[Note#Section]]` opens the note in a split pane and automatically scrolls to that section.
 
-## Combined Syntax
+Try it: [[Split-View Navigation#Pane Controls]] opens the split-view docs scrolled to the controls section.
+
+## Combined Syntax ^combined-syntax
 
 You can combine all features:
 
@@ -97,7 +116,7 @@ You can combine all features:
 |--------|---------|
 | `[[Note]]` | Basic link |
 | `[[Note\|#Section]]` | Link with anchor |
-| `[[Note\|^block-id]]` | Link to block |
+| `[[Note\|#^block-id]]` | Link to block |
 | `[[Note\|#Section\|alias]]` | Link with anchor and alias |
 | `![[Note]]` | Full embed |
 | `![[Note\|#Section]]` | Section embed |

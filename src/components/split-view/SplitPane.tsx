@@ -153,13 +153,18 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
   const [manifest, setManifest] = useState<Manifest | null>(null);
   const [backlinks, setBacklinks] = useState<BacklinkInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [contentReady, setContentReady] = useState(false);
   const [showToc, setShowToc] = useState(false);
   const [showBacklinks, setShowBacklinks] = useState(false);
   const paneRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const scrolledRef = useRef<string | null>(null);
   const { closePane, openPane } = useSplitView();
 
   useEffect(() => {
     setLoading(true);
+    setContentReady(false);
+    scrolledRef.current = null;
     Promise.all([loadManifest(), loadBacklinks()])
       .then(([manifestData, backlinksData]) => {
         setManifest(manifestData);
@@ -172,7 +177,31 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
         setEntry(null);
         setLoading(false);
       });
-  }, [pane.slug]);
+  }, [pane.slug, pane.id]);
+
+  useEffect(() => {
+    if (loading || !pane.anchor || !contentReady) return;
+    
+    const scrollKey = `${pane.slug}#${pane.anchor}`;
+    if (scrolledRef.current === scrollKey) return;
+
+    const container = contentRef.current;
+    if (!container) return;
+
+    const tryScroll = (attempts: number) => {
+      if (attempts <= 0) return;
+      
+      const element = container.querySelector(`#${CSS.escape(pane.anchor!)}`);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+        scrolledRef.current = scrollKey;
+      } else if (attempts > 1) {
+        setTimeout(() => tryScroll(attempts - 1), 150);
+      }
+    };
+
+    setTimeout(() => tryScroll(20), 50);
+  }, [loading, pane.anchor, pane.slug, contentReady]);
 
   const handleClose = () => {
     closePane(index);
@@ -317,7 +346,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
           </button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto">
+      <div ref={contentRef} className="flex-1 overflow-auto">
         <PaneSearchParamsProvider searchParams={pane.searchParams}>
           <div className="p-4">
             <div className="mb-4">
@@ -334,7 +363,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
                 </p>
               )}
             </div>
-            <ClientMDXRenderer slug={pane.slug} />
+            <ClientMDXRenderer slug={pane.slug} onReady={() => setContentReady(true)} />
           </div>
         </PaneSearchParamsProvider>
       </div>

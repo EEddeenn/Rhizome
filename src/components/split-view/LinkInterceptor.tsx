@@ -5,7 +5,7 @@ import { useSplitView } from "@/lib/context/SplitViewContext";
 import { classifyLink, parseSlugFromHref } from "@/lib/content/link-utils";
 
 export function LinkInterceptor() {
-  const { openPane, isMobile } = useSplitView();
+  const { openPane, isMobile, panes } = useSplitView();
 
   useEffect(() => {
     if (isMobile) return;
@@ -22,10 +22,33 @@ export function LinkInterceptor() {
       const { isExternal, isInternalNote } = classifyLink(href);
       if (isExternal) return;
 
-      if (isInternalNote) {
+      const isAnchorOnly = !href.startsWith("/") && href.startsWith("#");
+      const { slug, searchParams, anchor: urlAnchor } = parseSlugFromHref(href);
+
+      if (isAnchorOnly && urlAnchor) {
         e.preventDefault();
-        const { slug, searchParams } = parseSlugFromHref(href);
-        openPane(slug, searchParams);
+        const element = document.getElementById(urlAnchor);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        return;
+      }
+
+      if (isInternalNote) {
+        const currentPaneSlug = panes.length > 0 ? panes[panes.length - 1]?.slug : null;
+        const isSamePane = currentPaneSlug === slug;
+
+        if (isSamePane && urlAnchor) {
+          e.preventDefault();
+          const element = document.getElementById(urlAnchor);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          return;
+        }
+
+        e.preventDefault();
+        openPane(slug, searchParams, false, urlAnchor);
       }
     };
 
@@ -33,7 +56,7 @@ export function LinkInterceptor() {
     return () => {
       document.removeEventListener("click", handleClick, true);
     };
-  }, [openPane, isMobile]);
+  }, [openPane, isMobile, panes]);
 
   return null;
 }

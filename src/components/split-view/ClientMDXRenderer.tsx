@@ -10,6 +10,7 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import { remarkWikiLinks } from "@/lib/content/remark-wiki-links";
 import { remarkObsidianCallouts } from "@/lib/content/remark-obsidian-callouts";
+import { rehypeBlockIds } from "@/lib/content/rehype-block-ids";
 import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
 import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
 import { MermaidLazy } from "@/components/mdx/MermaidLazy";
@@ -27,9 +28,10 @@ const loadManifest = createCachedFetcher<Manifest>("/generated/manifest/manifest
 
 interface ClientMDXRendererProps {
   slug: string;
+  onReady?: () => void;
 }
 
-export function ClientMDXRenderer({ slug }: ClientMDXRendererProps) {
+export function ClientMDXRenderer({ slug, onReady }: ClientMDXRendererProps) {
   const [compiled, setCompiled] = useState<MDXRemoteSerializeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +59,7 @@ export function ClientMDXRenderer({ slug }: ClientMDXRendererProps) {
               remarkObsidianCallouts,
               [remarkWikiLinks, { resolve: linkResolver, resolveEmbed: embedResolver }],
             ],
-            rehypePlugins: [rehypeSlug, rehypeKatex, rehypeHighlight],
+            rehypePlugins: [rehypeSlug, rehypeBlockIds, rehypeKatex, rehypeHighlight],
           },
         });
       })
@@ -68,6 +70,12 @@ export function ClientMDXRenderer({ slug }: ClientMDXRendererProps) {
         setError(`Failed to load content: ${err.message}`);
       });
   }, [slug]);
+
+  useEffect(() => {
+    if ((compiled || error) && onReady) {
+      requestAnimationFrame(() => onReady());
+    }
+  }, [compiled, error, onReady]);
 
   const mdxComponents = useMemo(() => ({
     a: InternalLink,

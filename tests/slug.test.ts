@@ -4,6 +4,7 @@ import {
   slugFromPath,
   routeFromSlug,
   getEntryTypeFromSlug,
+  slugifyAnchor,
 } from "../src/lib/content/slug";
 
 describe("slug utilities", () => {
@@ -53,6 +54,32 @@ describe("slug utilities", () => {
 
     it("defaults to note for unknown prefix", () => {
       assert.strictEqual(getEntryTypeFromSlug("other/foo"), "note");
+    });
+  });
+
+  describe("slugifyAnchor", () => {
+    it("lowercases text", () => {
+      assert.strictEqual(slugifyAnchor("Core Features"), "core-features");
+    });
+
+    it("replaces spaces with hyphens", () => {
+      assert.strictEqual(slugifyAnchor("Hello World"), "hello-world");
+    });
+
+    it("removes special characters", () => {
+      assert.strictEqual(slugifyAnchor("What's New?"), "whats-new");
+    });
+
+    it("preserves hyphens and underscores", () => {
+      assert.strictEqual(slugifyAnchor("My_Section-Name"), "my_section-name");
+    });
+
+    it("trims whitespace", () => {
+      assert.strictEqual(slugifyAnchor("  Trimmed  "), "trimmed");
+    });
+
+    it("collapses multiple spaces", () => {
+      assert.strictEqual(slugifyAnchor("Multiple   Spaces"), "multiple-spaces");
     });
   });
 });

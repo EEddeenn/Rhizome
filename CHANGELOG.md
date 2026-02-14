@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.17.0] - 2026-02-14
+
+### Added
+
+#### Auto-Scrolling for Anchors
+- Clicking links with heading anchors (`[[Note#Section]]`) now scrolls to the target
+- Clicking links with block ID anchors (`[[Note#^block-id]]`) now scrolls to the target
+- Works for same-page anchor links (`#section`)
+- Works in split-view panes with automatic scroll after content loads
+
+#### Block ID HTML Rendering
+- `src/lib/content/rehype-block-ids.ts` — New rehype plugin to add `id` attributes to paragraphs with block IDs
+- Block IDs (`^id`) are now stripped from visible text and added as HTML `id` attributes
+- Enables native anchor scrolling to block ID targets
+
+### Changed
+
+#### Link Handling
+- `parseSlugFromHref()` — Now returns `anchor` field for hash fragments
+- `InternalLink.tsx` — Handles anchor scrolling for same-pane and cross-pane links
+- `LinkInterceptor.tsx` — Handles anchor scrolling for document-level link interception
+
+#### Plugin Registration
+- `mdx-config.ts` — Added `rehypeBlockIds` to rehype plugin chain
+- `ClientMDXRenderer.tsx` — Added `rehypeBlockIds` for split-view rendering
+
+### Tests
+- Extended `link-utils.test.ts` with anchor parsing tests
+
+---
+
 ## [0.16.0] - 2026-02-14
 
 ### Added

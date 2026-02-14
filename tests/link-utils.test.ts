@@ -157,6 +157,7 @@ describe("link-utils", () => {
         assert.deepStrictEqual(result, {
           slug: "notes/foo",
           searchParams: undefined,
+          anchor: undefined,
         });
       });
 
@@ -165,6 +166,7 @@ describe("link-utils", () => {
         assert.deepStrictEqual(result, {
           slug: "notes/foo",
           searchParams: { page: "1" },
+          anchor: undefined,
         });
       });
 
@@ -173,6 +175,7 @@ describe("link-utils", () => {
         assert.deepStrictEqual(result, {
           slug: "notes/foo",
           searchParams: { a: "1", b: "2" },
+          anchor: undefined,
         });
       });
 
@@ -181,6 +184,7 @@ describe("link-utils", () => {
         assert.deepStrictEqual(result, {
           slug: "articles/bar",
           searchParams: undefined,
+          anchor: undefined,
         });
       });
 
@@ -189,6 +193,7 @@ describe("link-utils", () => {
         assert.deepStrictEqual(result, {
           slug: "notes/2024/my-note",
           searchParams: undefined,
+          anchor: undefined,
         });
       });
 
@@ -197,6 +202,43 @@ describe("link-utils", () => {
         assert.deepStrictEqual(result, {
           slug: "",
           searchParams: undefined,
+          anchor: undefined,
+        });
+      });
+
+      it("parses anchor", () => {
+        const result = parseSlugFromHref("/notes/foo#section");
+        assert.deepStrictEqual(result, {
+          slug: "notes/foo",
+          searchParams: undefined,
+          anchor: "section",
+        });
+      });
+
+      it("parses anchor with query params", () => {
+        const result = parseSlugFromHref("/notes/foo?page=1#section");
+        assert.deepStrictEqual(result, {
+          slug: "notes/foo",
+          searchParams: { page: "1" },
+          anchor: "section",
+        });
+      });
+
+      it("parses block ID anchor", () => {
+        const result = parseSlugFromHref("/notes/foo#^abc123");
+        assert.deepStrictEqual(result, {
+          slug: "notes/foo",
+          searchParams: undefined,
+          anchor: "^abc123",
+        });
+      });
+
+      it("parses anchor-only link", () => {
+        const result = parseSlugFromHref("#section");
+        assert.deepStrictEqual(result, {
+          slug: "",
+          searchParams: undefined,
+          anchor: "section",
         });
       });
     });
@@ -238,12 +280,18 @@ describe("link-utils", () => {
         assert.deepStrictEqual(result, {
           slug: "",
           searchParams: { q: "search" },
+          anchor: undefined,
         });
       });
 
       it("handles special chars in slug", () => {
         const result = parseSlugFromHref("/notes/c++-guide");
         assert.strictEqual(result.slug, "notes/c++-guide");
+      });
+
+      it("handles unicode in anchor (percent-encoded)", () => {
+        const result = parseSlugFromHref("/notes/foo#日本語");
+        assert.strictEqual(result.anchor, "%E6%97%A5%E6%9C%AC%E8%AA%9E");
       });
     });
   });

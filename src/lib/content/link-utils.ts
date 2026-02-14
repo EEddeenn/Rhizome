@@ -20,6 +20,7 @@ export function classifyLink(href: string | undefined): LinkClassification {
 export function parseSlugFromHref(href: string): {
   slug: string;
   searchParams?: Record<string, string>;
+  anchor?: string;
 } {
   const url = new URL(href, "http://dummy.local");
   const slug = url.pathname.replace(/^\//, "");
@@ -27,8 +28,10 @@ export function parseSlugFromHref(href: string): {
   url.searchParams.forEach((v, k) => {
     searchParams[k] = v;
   });
+  const anchor = url.hash ? url.hash.slice(1) : undefined;
   return {
     slug,
     searchParams: Object.keys(searchParams).length > 0 ? searchParams : undefined,
+    anchor,
   };
 }

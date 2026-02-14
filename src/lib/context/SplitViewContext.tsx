@@ -6,6 +6,7 @@ export interface PaneData {
   id: string;
   slug: string;
   searchParams?: Record<string, string>;
+  anchor?: string;
 }
 
 export function getPaneKey(pane: PaneData): string {
@@ -14,7 +15,7 @@ export function getPaneKey(pane: PaneData): string {
 
 interface SplitViewContextValue {
   panes: PaneData[];
-  openPane: (slug: string, searchParams?: Record<string, string>, force?: boolean) => void;
+  openPane: (slug: string, searchParams?: Record<string, string>, force?: boolean, anchor?: string) => void;
   closePane: (index: number) => void;
   closeAll: () => void;
   isMobile: boolean;
@@ -115,11 +116,16 @@ export function SplitViewProvider({ children }: SplitViewProviderProps) {
     }
   }, [panes, initialized, isMobile, syncUrl]);
 
-  const openPane = useCallback((slug: string, searchParams?: Record<string, string>, force?: boolean) => {
+  const openPane = useCallback((slug: string, searchParams?: Record<string, string>, force?: boolean, anchor?: string) => {
     if (isMobile) {
-      const url = searchParams
-        ? `/${slug}?${new URLSearchParams(searchParams).toString()}`
-        : `/${slug}`;
+      let url = `/${slug}`;
+      const params = new URLSearchParams(searchParams || {});
+      if (anchor) {
+        url += `#${anchor}`;
+      }
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
       window.location.href = url;
       return;
     }
@@ -128,6 +134,7 @@ export function SplitViewProvider({ children }: SplitViewProviderProps) {
       const newPane: PaneData = {
         id: `pane-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         slug,
+        anchor,
       };
       if (searchParams && Object.keys(searchParams).length > 0) {
         newPane.searchParams = searchParams;
@@ -137,14 +144,14 @@ export function SplitViewProvider({ children }: SplitViewProviderProps) {
         const newParams = newPane.searchParams || {};
         const newKeys = Object.keys(newParams).sort().join(",");
         const newValues = Object.keys(newParams).sort().map(k => newParams[k]).join(",");
-        const newSignature = `${newKeys}:${newValues}`;
+        const newSignature = `${newKeys}:${newValues}:${anchor || ""}`;
         
         const exactMatch = prev.find((p) => {
           if (p.slug !== slug) return false;
           const pParams = p.searchParams || {};
           const pKeys = Object.keys(pParams).sort().join(",");
           const pValues = Object.keys(pParams).sort().map(k => pParams[k]).join(",");
-          return `${pKeys}:${pValues}` === newSignature;
+          return `${pKeys}:${pValues}:${p.anchor || ""}` === newSignature;
         });
         
         if (exactMatch) {
