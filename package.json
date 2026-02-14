@@ -8,6 +8,7 @@
     "new": "tsx scripts/new-content.ts",
     "predev": "npm run gen",
     "dev": "next dev",
+    "dev:fast": "next dev",
     "prebuild": "npm run gen",
     "build": "next build",
     "start": "next start",

@@ -3,11 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
-import rehypeHighlight from "rehype-highlight";
-import rehypeSlug from "rehype-slug";
+import { sharedRemarkPlugins, sharedRehypePlugins, rehypeSlug } from "@/lib/mdx/plugins";
 import { remarkWikiLinks } from "@/lib/content/remark-wiki-links";
 import { remarkObsidianCallouts } from "@/lib/content/remark-obsidian-callouts";
 import { rehypeBlockIds } from "@/lib/content/rehype-block-ids";
@@ -54,12 +50,11 @@ export function ClientMDXRenderer({ slug, onReady }: ClientMDXRendererProps) {
           parseFrontmatter: false,
           mdxOptions: {
             remarkPlugins: [
-              remarkGfm,
-              remarkMath,
+              ...sharedRemarkPlugins,
               remarkObsidianCallouts,
               [remarkWikiLinks, { resolve: linkResolver, resolveEmbed: embedResolver }],
             ],
-            rehypePlugins: [rehypeSlug, rehypeBlockIds, rehypeKatex, rehypeHighlight],
+            rehypePlugins: [rehypeSlug, rehypeBlockIds, ...sharedRehypePlugins],
           },
         });
       })

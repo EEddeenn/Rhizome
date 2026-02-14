@@ -43,22 +43,18 @@ export const vendorStep: Step = {
       path.join("node_modules", "pdfjs-dist", "build", "pdf.worker.min.mjs"),
       path.join("node_modules", "pdfjs-dist", "build", "pdf.worker.min.js"),
     ];
-    
-    let pdfWorkerCopied = false;
-    for (const src of pdfWorkerSources) {
-      try {
+
+    const pdfWorkerResult = await Promise.any(
+      pdfWorkerSources.map(async (src) => {
         await fs.copyFile(src, pdfWorkerDest);
-        artifacts.push({ path: pdfWorkerDest, isPublic: true });
-        pdfWorkerCopied = true;
-        break;
-      } catch {
-        continue;
-      }
-    }
-    
-    if (!pdfWorkerCopied) {
+        return src;
+      })
+    ).catch(() => null);
+
+    if (!pdfWorkerResult) {
       throw new Error("Could not find pdf.worker.min.js or pdf.worker.min.mjs in node_modules");
     }
+    artifacts.push({ path: pdfWorkerDest, isPublic: true });
 
     const faviconSrc = path.join(CONTENT_DIR, "assets", "favicon.ico");
     const faviconDest = path.join(PUBLIC_DIR, "favicon.ico");
