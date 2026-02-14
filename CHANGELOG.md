@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.15.0] - 2026-02-14
+
+### Added
+
+#### Shared Utilities
+- `src/lib/cache/create-cached-fetcher.ts` — Generic promise-based caching fetcher with deduplication
+- `src/lib/content/wiki-link-resolver.ts` — Factory function for wiki-link title → route resolution
+- `src/lib/content/link-utils.ts` — `classifyLink()` for link type detection, `parseSlugFromHref()` for slug/param extraction
+
+#### Test Coverage
+- `tests/link-utils.test.ts` — 27 tests for link classification and parsing (unicode, special chars, edge cases)
+- `tests/wiki-link-resolver.test.ts` — 20 tests for wiki-link resolution (case insensitivity, whitespace normalization, duplicates)
+- `tests/cached-fetcher.test.ts` — 16 tests for caching behavior (deduplication, error recovery, type safety)
+
+### Changed
+
+#### Code Consolidation
+- `ClientMDXRenderer.tsx` — Uses shared `createCachedFetcher`, `createWikiLinkResolver`, `normalizeTitle`; ~55 lines removed
+- `SplitPane.tsx` — Uses shared `createCachedFetcher`; ~31 lines removed
+- `InternalLink.tsx` — Uses shared `classifyLink`, `parseSlugFromHref`; ~8 lines removed
+- `LinkInterceptor.tsx` — Uses shared `classifyLink`, `parseSlugFromHref`; ~8 lines removed
+- `MDXComponents.tsx` — Uses shared `classifyLink`; ~1 line removed
+- `load-manifest.ts` — Uses shared `createWikiLinkResolver`; ~12 lines removed
+
+### Fixed
+
+#### Cache Error Recovery
+- `create-cached-fetcher.ts` — Failed fetches now clear cached promise, enabling retries instead of permanently caching errors
+
+---
+
 ## [0.14.0] - 2026-02-14
 
 ### Added

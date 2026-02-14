@@ -1,6 +1,7 @@
 "use client";
 
 import { useSplitView } from "@/lib/context/SplitViewContext";
+import { classifyLink, parseSlugFromHref } from "@/lib/content/link-utils";
 
 interface InternalLinkProps {
   href?: string;
@@ -14,7 +15,7 @@ export function InternalLink({ href, children }: InternalLinkProps) {
     return <span>{children}</span>;
   }
 
-  const isExternal = href.startsWith("http") || href.startsWith("//") || href.startsWith("#");
+  const { isExternal, isInternalNote } = classifyLink(href);
 
   if (isExternal) {
     return (
@@ -24,19 +25,12 @@ export function InternalLink({ href, children }: InternalLinkProps) {
     );
   }
 
-  const isInternalNote = href.startsWith("/notes/") || href.startsWith("/articles/");
-
   const handleClick = (e: React.MouseEvent) => {
     if (!isInternalNote) return;
-    
+
     e.preventDefault();
-    const url = new URL(href, window.location.origin);
-    const slug = url.pathname.replace(/^\//, "");
-    const searchParams: Record<string, string> = {};
-    url.searchParams.forEach((v, k) => {
-      searchParams[k] = v;
-    });
-    openPane(slug, Object.keys(searchParams).length > 0 ? searchParams : undefined);
+    const { slug, searchParams } = parseSlugFromHref(href);
+    openPane(slug, searchParams);
   };
 
   if (isMobile) {

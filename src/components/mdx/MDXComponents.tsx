@@ -1,4 +1,5 @@
 import type { MDXComponents } from "mdx/types";
+import { classifyLink } from "@/lib/content/link-utils";
 import { MermaidLazy } from "./MermaidLazy";
 import { Callout } from "./Callout";
 import { PDFViewerLazy } from "./PDFViewerLazy";
@@ -6,7 +7,7 @@ import { PDFViewerLazy } from "./PDFViewerLazy";
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     a: ({ href, children, ...props }) => {
-      const isExternal = href?.startsWith("http") || href?.startsWith("//") || href?.startsWith("#");
+      const { isExternal } = classifyLink(href);
       if (isExternal) {
         return (
           <a

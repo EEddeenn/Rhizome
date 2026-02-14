@@ -5,40 +5,11 @@ import { ClientMDXRenderer } from "./ClientMDXRenderer";
 import { useSplitView, type PaneData } from "@/lib/context/SplitViewContext";
 import { PaneSearchParamsProvider } from "@/lib/context/PaneSearchParamsContext";
 import { TagPills } from "@/components/blocks/TagPills";
+import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
 import type { Entry, Manifest, Heading, BacklinksIndex, BacklinkInfo } from "@/lib/content/types";
 
-let manifestCache: Manifest | null = null;
-let manifestPromise: Promise<Manifest> | null = null;
-let backlinksCache: BacklinksIndex | null = null;
-let backlinksPromise: Promise<BacklinksIndex> | null = null;
-
-async function loadManifest(): Promise<Manifest> {
-  if (manifestCache) return manifestCache;
-  if (manifestPromise) return manifestPromise;
-
-  manifestPromise = fetch("/generated/manifest/manifest.json")
-    .then((res) => res.json())
-    .then((data) => {
-      manifestCache = data;
-      return data;
-    });
-
-  return manifestPromise;
-}
-
-async function loadBacklinks(): Promise<BacklinksIndex> {
-  if (backlinksCache) return backlinksCache;
-  if (backlinksPromise) return backlinksPromise;
-
-  backlinksPromise = fetch("/generated/backlinks/backlinks.json")
-    .then((res) => res.json())
-    .then((data) => {
-      backlinksCache = data;
-      return data;
-    });
-
-  return backlinksPromise;
-}
+const loadManifest = createCachedFetcher<Manifest>("/generated/manifest/manifest.json");
+const loadBacklinks = createCachedFetcher<BacklinksIndex>("/generated/backlinks/backlinks.json");
 
 interface SplitPaneTocDropdownProps {
   headings: Heading[];

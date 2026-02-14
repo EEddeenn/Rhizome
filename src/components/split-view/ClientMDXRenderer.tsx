@@ -10,67 +10,18 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import { remarkWikiLinks } from "@/lib/content/remark-wiki-links";
 import { remarkObsidianCallouts } from "@/lib/content/remark-obsidian-callouts";
+import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
+import { createWikiLinkResolver } from "@/lib/content/wiki-link-resolver";
 import { MermaidLazy } from "@/components/mdx/MermaidLazy";
 import { Callout } from "@/components/mdx/Callout";
 import { PDFViewerLazy } from "@/components/mdx/PDFViewerLazy";
 import { InternalLink } from "./InternalLink";
 import type { Manifest } from "@/lib/content/types";
 
-let contentCache: Record<string, string> | null = null;
-let contentPromise: Promise<Record<string, string>> | null = null;
-let manifestCache: Manifest | null = null;
-let manifestPromise: Promise<Manifest> | null = null;
-let titleToRouteCache: Map<string, string> | null = null;
-
-function normalizeTitle(title: string): string {
-  return title.trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-async function loadContent(): Promise<Record<string, string>> {
-  if (contentCache) return contentCache;
-  if (contentPromise) return contentPromise;
-  
-  contentPromise = fetch("/generated/content/content.json")
-    .then((res) => res.json())
-    .then((data) => {
-      contentCache = data;
-      return data;
-    });
-  
-  return contentPromise;
-}
-
-async function loadManifest(): Promise<Manifest> {
-  if (manifestCache) return manifestCache;
-  if (manifestPromise) return manifestPromise;
-  
-  manifestPromise = fetch("/generated/manifest/manifest.json")
-    .then((res) => res.json())
-    .then((data) => {
-      manifestCache = data;
-      return data;
-    });
-  
-  return manifestPromise;
-}
-
-function buildTitleToRouteMap(manifest: Manifest): Map<string, string> {
-  if (titleToRouteCache) return titleToRouteCache;
-  const map = new Map<string, string>();
-  for (const entry of manifest) {
-    map.set(normalizeTitle(entry.title), entry.route);
-  }
-  titleToRouteCache = map;
-  return map;
-}
-
-function createWikiLinkResolver(manifest: Manifest): (title: string) => string {
-  const titleMap = buildTitleToRouteMap(manifest);
-  return (title: string) => {
-    const route = titleMap.get(normalizeTitle(title));
-    return route || `/notes/${title.toLowerCase().replace(/\s+/g, "-")}`;
-  };
-}
+const loadContent = createCachedFetcher<Record<string, string>>(
+  "/generated/content/content.json"
+);
+const loadManifest = createCachedFetcher<Manifest>("/generated/manifest/manifest.json");
 
 interface ClientMDXRendererProps {
   slug: string;

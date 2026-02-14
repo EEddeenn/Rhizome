@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useSplitView } from "@/lib/context/SplitViewContext";
+import { classifyLink, parseSlugFromHref } from "@/lib/content/link-utils";
 
 export function LinkInterceptor() {
   const { openPane, isMobile } = useSplitView();
@@ -18,20 +19,13 @@ export function LinkInterceptor() {
       const href = anchor.getAttribute("href");
       if (!href) return;
 
-      const isExternal = href.startsWith("http") || href.startsWith("//") || href.startsWith("#");
+      const { isExternal, isInternalNote } = classifyLink(href);
       if (isExternal) return;
-
-      const isInternalNote = href.startsWith("/notes/") || href.startsWith("/articles/");
 
       if (isInternalNote) {
         e.preventDefault();
-        const url = new URL(href, window.location.origin);
-        const slug = url.pathname.replace(/^\//, "");
-        const searchParams: Record<string, string> = {};
-        url.searchParams.forEach((v, k) => {
-          searchParams[k] = v;
-        });
-        openPane(slug, Object.keys(searchParams).length > 0 ? searchParams : undefined);
+        const { slug, searchParams } = parseSlugFromHref(href);
+        openPane(slug, searchParams);
       }
     };
 

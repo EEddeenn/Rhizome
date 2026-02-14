@@ -1,9 +1,9 @@
 import manifest from "@/generated/manifest/manifest.json";
 import type { Entry, Manifest } from "@/lib/content/types";
-import { normalizeTitle } from "@/lib/content/normalize";
+import { createWikiLinkResolver } from "@/lib/content/wiki-link-resolver";
 
 let entryMap: Map<string, Entry> | null = null;
-let wikiLinkResolver: ((title: string) => string) | null = null;
+let cachedResolver: ((title: string) => string) | null = null;
 let notesCache: Entry[] | null = null;
 let articlesCache: Entry[] | null = null;
 
@@ -44,22 +44,8 @@ export function getArticles(): Entry[] {
 }
 
 export function getWikiLinkResolver(): (title: string) => string {
-  if (!wikiLinkResolver) {
-    const entries = getAllEntries();
-    const titleToSlug = new Map<string, string>();
-    
-    for (const entry of entries) {
-      const normalized = normalizeTitle(entry.title);
-      titleToSlug.set(normalized, entry.route);
-    }
-
-    wikiLinkResolver = (title: string): string => {
-      const normalized = normalizeTitle(title);
-      const route = titleToSlug.get(normalized);
-      if (route) return route;
-      return `/notes/${title.toLowerCase().replace(/\s+/g, "-")}`;
-    };
+  if (!cachedResolver) {
+    cachedResolver = createWikiLinkResolver(manifest as Manifest);
   }
-  
-  return wikiLinkResolver;
+  return cachedResolver;
 }
