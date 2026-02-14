@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useMemo } from "react";
-import mermaid from "mermaid";
 
 interface MermaidProps {
   code: string;
@@ -10,6 +9,7 @@ interface MermaidProps {
 export function Mermaid({ code }: MermaidProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isDark, setIsDark] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const id = useMemo(() => `mermaid-${Math.random().toString(36).slice(2)}`, []);
 
   useEffect(() => {
@@ -35,20 +35,28 @@ export function Mermaid({ code }: MermaidProps) {
       if (!ref.current) return;
 
       try {
+        const mermaid = (await import("mermaid")).default;
         mermaid.initialize({
           startOnLoad: false,
           theme: isDark ? "dark" : "default",
           securityLevel: "loose",
         });
         const { svg } = await mermaid.render(id, code);
-        ref.current.innerHTML = svg;
+        if (ref.current) {
+          ref.current.innerHTML = svg;
+        }
+        setError(null);
       } catch (err) {
-        ref.current.innerHTML = `<pre class="text-red-500">Mermaid error: ${(err as Error).message}</pre>`;
+        setError(`Mermaid error: ${(err as Error).message}`);
       }
     };
 
     render();
   }, [code, isDark, id]);
+
+  if (error) {
+    return <pre className="text-red-500 my-4">{error}</pre>;
+  }
 
   return <div ref={ref} className="my-4 flex justify-center" />;
 }

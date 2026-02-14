@@ -5,15 +5,15 @@ import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 import { SearchBar } from "./SearchBar";
 
+const NAV_LINKS = [
+  { href: "/notes", label: "Notes" },
+  { href: "/articles", label: "Articles" },
+  { href: "/tags", label: "Tags" },
+  { href: "/graph", label: "Graph" },
+];
+
 export function Nav() {
   const [isOpen, setIsOpen] = useState(false);
-
-  const navLinks = [
-    { href: "/notes", label: "Notes" },
-    { href: "/articles", label: "Articles" },
-    { href: "/tags", label: "Tags" },
-    { href: "/graph", label: "Graph" },
-  ];
 
   return (
     <nav className="border-b border-border bg-background">
@@ -25,7 +25,7 @@ export function Nav() {
 
           <div className="hidden md:flex items-center gap-4">
             <SearchBar />
-            {navLinks.map((link) => (
+            {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -67,13 +67,13 @@ export function Nav() {
           </button>
         </div>
 
-        {isOpen && (
+        {isOpen ? (
           <div className="md:hidden pb-4 border-t border-border mt-0 pt-4">
             <div className="mb-4">
               <SearchBar fullWidth onSearch={() => setIsOpen(false)} />
             </div>
             <div className="flex flex-col gap-3">
-              {navLinks.map((link) => (
+              {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -88,7 +88,7 @@ export function Nav() {
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </nav>
   );

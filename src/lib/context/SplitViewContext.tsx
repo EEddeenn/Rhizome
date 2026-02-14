@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from "react";
 
 export interface PaneData {
   id: string;
@@ -68,20 +68,25 @@ export function SplitViewProvider({ children }: SplitViewProviderProps) {
   const [panes, setPanes] = useState<PaneData[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const panesLengthRef = useRef(0);
+
+  useEffect(() => {
+    panesLengthRef.current = panes.length;
+  }, [panes.length]);
 
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < MOBILE_BREAKPOINT;
       setIsMobile(mobile);
-      if (mobile && panes.length > 0) {
+      if (mobile && panesLengthRef.current > 0) {
         setPanes([]);
       }
     };
 
     checkMobile();
-    window.addEventListener("resize", checkMobile);
+    window.addEventListener("resize", checkMobile, { passive: true });
     return () => window.removeEventListener("resize", checkMobile);
-  }, [panes.length]);
+  }, []);
 
   useEffect(() => {
     if (isMobile) return;
