@@ -6,13 +6,13 @@ import { PDFViewerLazy } from "./PDFViewerLazy";
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     a: ({ href, children, ...props }) => {
-      const isExternal = href?.startsWith("http");
+      const isExternal = href?.startsWith("http") || href?.startsWith("//") || href?.startsWith("#");
       if (isExternal) {
         return (
           <a
             href={href}
-            target="_blank"
-            rel="noopener noreferrer"
+            target={href?.startsWith("http") ? "_blank" : undefined}
+            rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
             {...props}
           >
             {children}

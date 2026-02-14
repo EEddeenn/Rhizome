@@ -1,6 +1,7 @@
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
+import { SplitViewOverlay } from "@/components/split-view/SplitViewOverlay";
 
 const sansFont = Inter({
   subsets: ["latin"],
@@ -39,6 +40,7 @@ export default function SiteLayout({
           {children}
         </div>
         <Footer />
+        <SplitViewOverlay />
       </body>
     </html>
   );

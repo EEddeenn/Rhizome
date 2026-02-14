@@ -10,6 +10,9 @@ export const manifestStep: Step = {
     
     const outputPath = await ctx.writeJson("manifest", "manifest.json", ctx.manifest, false);
     artifacts.push({ path: outputPath, isPublic: false });
+
+    const publicPath = await ctx.writeJson("manifest", "manifest.json", ctx.manifest, true);
+    artifacts.push({ path: publicPath, isPublic: true });
     
     return {
       success: true,

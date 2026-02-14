@@ -16,6 +16,9 @@ export const contentStep: Step = {
     const outputPath = await ctx.writeJson("content", "content.json", contentIndex, false);
     artifacts.push({ path: outputPath, isPublic: false });
 
+    const publicPath = await ctx.writeJson("content", "content.json", contentIndex, true);
+    artifacts.push({ path: publicPath, isPublic: true });
+
     return {
       success: true,
       artifacts,
