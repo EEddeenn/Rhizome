@@ -24,13 +24,30 @@ async function loadManifest(): Promise<Manifest> {
   return manifestPromise;
 }
 
-interface SplitPaneTocProps {
+interface SplitPaneTocDropdownProps {
   headings: Heading[];
   paneRef: React.RefObject<HTMLDivElement | null>;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-function SplitPaneToc({ headings, paneRef }: SplitPaneTocProps) {
-  if (!headings || headings.length === 0) return null;
+function SplitPaneTocDropdown({ headings, paneRef, isOpen, onClose }: SplitPaneTocDropdownProps) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !headings || headings.length === 0) return null;
 
   const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
   if (filteredHeadings.length === 0) return null;
@@ -44,30 +61,36 @@ function SplitPaneToc({ headings, paneRef }: SplitPaneTocProps) {
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+    onClose();
   };
 
   return (
-    <nav className="mb-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-      <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
-        Table of Contents
-      </h2>
-      <ul className="space-y-1">
+    <div
+      ref={dropdownRef}
+      className="absolute right-0 top-full mt-1 w-64 max-h-80 overflow-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+    >
+      <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          Table of Contents
+        </h3>
+      </div>
+      <ul className="py-1">
         {filteredHeadings.map((heading) => (
           <li
             key={heading.id}
-            style={{ paddingLeft: `${(heading.depth - 2) * 12}px` }}
+            style={{ paddingLeft: `${(heading.depth - 2) * 12 + 8}px` }}
           >
             <a
               href={`#${heading.id}`}
               onClick={(e) => handleClick(e, heading.id)}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline block py-0.5 cursor-pointer"
+              className="text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 block py-1.5 px-2 cursor-pointer"
             >
               {heading.text}
             </a>
           </li>
         ))}
       </ul>
-    </nav>
+    </div>
   );
 }
 
@@ -161,18 +184,26 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
             {entry.title}
           </span>
         </div>
-        <div className="flex gap-1 shrink-0">
+        <div className="flex gap-1 shrink-0 relative">
           {hasHeadings && (
-            <button
-              onClick={() => setShowToc(!showToc)}
-              className={`p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded ${showToc ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
-              aria-label="Table of contents"
-              title="Table of contents"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-              </svg>
-            </button>
+            <>
+              <button
+                onClick={() => setShowToc(!showToc)}
+                className={`p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded ${showToc ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
+                aria-label="Table of contents"
+                title="Table of contents"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+              </button>
+              <SplitPaneTocDropdown
+                headings={entry.headings || []}
+                paneRef={paneRef}
+                isOpen={showToc}
+                onClose={() => setShowToc(false)}
+              />
+            </>
           )}
           <button
             onClick={handleOpenFull}
@@ -213,7 +244,6 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
                 </p>
               )}
             </div>
-            {showToc && <SplitPaneToc headings={entry.headings || []} paneRef={paneRef} />}
             <ClientMDXRenderer slug={pane.slug} />
           </div>
         </PaneSearchParamsProvider>

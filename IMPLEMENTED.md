@@ -214,7 +214,8 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Scroll to PDF works in both normal navigation and split panes
 - [x] URL encoding preserves params: `?split=slug?pdfPage=5`
 - [x] `routeToSlug()` strips query params to prevent false dangling link warnings
-- [x] Table of contents toggle button in split pane header
+- [x] Table of contents dropdown in split pane header
+- [x] Added `rehype-slug` to `ClientMDXRenderer` for heading IDs
 
 ### Documentation
 - [x] README.md — Updated with all features
