@@ -4,7 +4,7 @@ import { getEntryBySlug } from "@/lib/generated/load-manifest";
 import { getMdxPlugins } from "@/lib/content/mdx-config";
 import { extractSectionBySlug } from "@/lib/content/section-extractor";
 import { EmbedError } from "./EmbedError";
-import { MermaidLazy } from "./MermaidLazy";
+import { Mermaid } from "./Mermaid";
 import { Callout } from "./Callout";
 import { PDFViewerLazy } from "./PDFViewerLazy";
 
@@ -60,7 +60,7 @@ function NoteEmbedInternal({ slug, anchor, blockId, parentPath = [] }: NoteEmbed
       <div className="px-4 py-3 prose prose-sm max-w-none dark:prose-invert">
         <MDXRemote
           source={content}
-          components={{ Mermaid: MermaidLazy, Callout, PDFViewer: PDFViewerLazy, NoteEmbed: NestedNoteEmbed, EmbedError }}
+          components={{ Mermaid, Callout, PDFViewer: PDFViewerLazy, NoteEmbed: NestedNoteEmbed, EmbedError }}
           options={{
             mdxOptions: {
               remarkPlugins,

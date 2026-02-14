@@ -113,36 +113,51 @@ function SearchContent() {
       <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Search</h1>
 
       {loading ? (
-        <p className="text-muted">Loading search index...</p>
+        <p className="text-muted">Loading search index…</p>
       ) : (
         <>
           <div className="mb-6 space-y-3 sm:space-y-4">
+            <label htmlFor="search-query" className="sr-only">
+              Search notes and articles
+            </label>
             <input
               ref={inputRef}
-              type="text"
+              id="search-query"
+              type="search"
+              name="q"
+              autoComplete="off"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search notes and articles..."
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              autoFocus
+              placeholder="Search notes and articles…"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             />
 
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4">
+              <label htmlFor="type-filter" className="sr-only">
+                Filter by type
+              </label>
               <select
+                id="type-filter"
+                name="type"
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-sm"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-sm focus-visible:ring-2 focus-visible:ring-blue-500 focus:outline-none"
               >
                 <option value="">All types</option>
                 <option value="note">Notes</option>
                 <option value="article">Articles</option>
               </select>
 
+              <label htmlFor="tag-filter" className="sr-only">
+                Filter by tag
+              </label>
               <select
+                id="tag-filter"
+                name="tag"
                 value={tagFilter}
                 onChange={(e) => setTagFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-sm"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-sm focus-visible:ring-2 focus-visible:ring-blue-500 focus:outline-none"
               >
                 <option value="">All tags</option>
                 {allTags.map((tag) => (
@@ -169,7 +184,7 @@ function SearchContent() {
                     >
                       <Link
                         href={result.route}
-                        className={`block p-3 sm:p-4 border rounded-lg transition-colors ${
+                        className={`block p-3 sm:p-4 border rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                           index === selectedIndex
                             ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                             : "border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400"
@@ -211,7 +226,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<main className="max-w-3xl mx-auto px-4 py-6 sm:py-8"><p className="text-muted">Loading...</p></main>}>
+    <Suspense fallback={<main className="max-w-3xl mx-auto px-4 py-6 sm:py-8"><p className="text-muted">Loading…</p></main>}>
       <SearchContent />
     </Suspense>
   );

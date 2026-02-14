@@ -38,6 +38,7 @@ export default function GraphPage() {
   const prevCanvasSizeRef = useRef({ width: 800, height: 600 });
   const hoveredNodeRef = useRef<Node | null>(null);
   const isDarkRef = useRef(false);
+  const reducedMotionRef = useRef(false);
 
   const [graph, setGraph] = useState<Graph | null>(null);
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
@@ -49,18 +50,29 @@ export default function GraphPage() {
     const html = document.documentElement;
     isDarkRef.current = html.classList.contains("dark");
     setIsDark(html.classList.contains("dark"));
+    reducedMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const observer = new MutationObserver(() => {
       isDarkRef.current = html.classList.contains("dark");
       setIsDark(html.classList.contains("dark"));
     });
 
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handleMotionChange = (e: MediaQueryListEvent) => {
+      reducedMotionRef.current = e.matches;
+    };
+
     observer.observe(html, {
       attributes: true,
       attributeFilter: ["class"],
     });
 
-    return () => observer.disconnect();
+    motionQuery.addEventListener("change", handleMotionChange);
+
+    return () => {
+      observer.disconnect();
+      motionQuery.removeEventListener("change", handleMotionChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -197,7 +209,7 @@ export default function GraphPage() {
     const centerX = width / 2;
     const centerY = height / 2;
     const padding = 30;
-    const maxFrames = 300;
+    const maxFrames = reducedMotionRef.current ? 50 : 300;
     const velocityThreshold = 0.1;
     const stabilityFrames = 10;
 
@@ -320,6 +332,17 @@ export default function GraphPage() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
+    if ((e.key === "Enter" || e.key === " ") && hoveredNode) {
+      e.preventDefault();
+      window.location.href = `/${hoveredNode.id}`;
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredNode(null);
+  };
+
   const typeColors = graph
     ? [...new Set(graph.nodes.map((n) => n.type))].sort()
     : [];
@@ -332,7 +355,7 @@ export default function GraphPage() {
       </p>
 
       {loading ? (
-        <p className="text-gray-500 dark:text-gray-400">Loading graph...</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading graph…</p>
       ) : (
         <>
           <div
@@ -343,10 +366,14 @@ export default function GraphPage() {
               ref={canvasRef}
               width={canvasSize.width}
               height={canvasSize.height}
-              className="w-full h-auto"
+              className="w-full h-auto touch-manipulation"
+              tabIndex={0}
+              role="img"
+              aria-label="Interactive knowledge graph visualization. Hover or use keyboard to explore nodes."
               onMouseMove={handleMouseMove}
               onClick={handleClick}
-              onMouseLeave={() => setHoveredNode(null)}
+              onKeyDown={handleKeyDown}
+              onMouseLeave={handleMouseLeave}
             />
           </div>
 
@@ -356,6 +383,7 @@ export default function GraphPage() {
                 <div
                   className="w-3 h-3 sm:w-4 sm:h-4 rounded-full"
                   style={{ backgroundColor: COLORS[type] || "#6b7280" }}
+                  aria-hidden="true"
                 />
                 <span className="text-xs sm:text-sm capitalize">{type}</span>
               </div>
@@ -366,7 +394,7 @@ export default function GraphPage() {
             <div className="p-3 sm:p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
               <Link
                 href={`/${hoveredNode.id}`}
-                className="text-base sm:text-lg font-semibold hover:underline"
+                className="text-base sm:text-lg font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
               >
                 {hoveredNode.title}
               </Link>
@@ -386,11 +414,12 @@ export default function GraphPage() {
                 <Link
                   key={node.id}
                   href={`/${node.id}`}
-                  className="flex items-center gap-2 sm:gap-3 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-2 sm:gap-3 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
                   <div
                     className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: COLORS[node.type] || "#6b7280" }}
+                    aria-hidden="true"
                   />
                   <span className="text-sm sm:text-base truncate">{node.title}</span>
                   <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-auto flex-shrink-0">

@@ -12,43 +12,71 @@ Rhizome supports Mermaid diagrams for creating flowcharts, sequence diagrams, cl
 
 ## Usage
 
-Use the `Mermaid` component with a `code` prop:
+Use fenced code blocks with the `mermaid` language identifier:
 
-```mdx
-<Mermaid code={`
+````
+```mermaid
 graph LR
     A --> B
-`} />
+```
+````
+
+Renders as:
+
+```mermaid
+graph LR
+    A --> B
+```
+
+Optionally add a title:
+
+````
+```mermaid title="Simple Flow"
+graph LR
+    A --> B
+```
+````
+
+Renders as:
+
+```mermaid title="Simple Flow"
+graph LR
+    A --> B
 ```
 
 <Callout type="tip">
-Use template literals (backticks) for multi-line diagram code. This preserves newlines without escaping.
+Diagrams automatically switch between light and dark themes based on your site preference.
 </Callout>
 
 ## Flowcharts
 
 ### Left to Right
 
-<Mermaid code={`graph LR
+```mermaid
+graph LR
     A[Start] --> B{Decision}
     B -->|Yes| C[Action 1]
     B -->|No| D[Action 2]
     C --> E[End]
-    D --> E`} />
+    D --> E
+```
 
 ### Top to Bottom
 
-<Mermaid code={`graph TD
+```mermaid
+graph TD
     Client[Client App] --> LoadBalancer[Load Balancer]
     LoadBalancer --> Server1[Server 1]
     LoadBalancer --> Server2[Server 2]
     Server1 --> Database[(Database)]
     Server2 --> Database
-    Database --> Cache[(Cache)]`} />
+    Database --> Cache[(Cache)]
+```
 
 ### System Architecture
 
-<Mermaid code={`graph TB
+```mermaid
+graph TB
     subgraph Frontend
         UI[React UI]
         State[State Management]
@@ -68,13 +96,15 @@ Use template literals (backticks) for multi-line diagram code. This preserves ne
     API --> Queue
     Queue --> DB
     API --> Redis
-    API --> S3`} />
+    API --> S3
+```
 
 ## Sequence Diagrams
 
 Perfect for visualizing API interactions and processes:
 
-<Mermaid code={`sequenceDiagram
+```mermaid
+sequenceDiagram
     participant U as User
     participant C as Client
     participant S as Server
@@ -91,11 +121,13 @@ Perfect for visualizing API interactions and processes:
     else Invalid credentials
         S-->>C: 401 Unauthorized
         C-->>U: Show error
-    end`} />
+    end
+```
 
 ### Authentication Flow
 
-<Mermaid code={`sequenceDiagram
+```mermaid
+sequenceDiagram
     participant App
     participant Auth as Auth Service
     participant OAuth as OAuth Provider
@@ -108,13 +140,15 @@ Perfect for visualizing API interactions and processes:
     OAuth-->>Auth: Access token
     Auth->>DB: Create/Update user
     DB-->>Auth: User record
-    Auth-->>App: Session token`} />
+    Auth-->>App: Session token
+```
 
 ## Class Diagrams
 
 Useful for object-oriented design documentation:
 
-<Mermaid code={`classDiagram
+```mermaid
+classDiagram
     class Note {
         +String id
         +String title
@@ -137,13 +171,15 @@ Useful for object-oriented design documentation:
     }
     
     Note "1" -- "*" Tag : has
-    Graph "1" -- "*" Note : contains`} />
+    Graph "1" -- "*" Note : contains
+```
 
 ## State Diagrams
 
 Model state machines and workflows:
 
-<Mermaid code={`stateDiagram-v2
+```mermaid
+stateDiagram-v2
     [*] --> Draft
     Draft --> InReview : Submit
     InReview --> Approved : Approve
@@ -152,13 +188,15 @@ Model state machines and workflows:
     Rejected --> Draft : Resubmit
     Approved --> Published : Publish
     Published --> Archived : Archive
-    Archived --> Draft : Restore`} />
+    Archived --> Draft : Restore
+```
 
 ## Entity Relationship Diagrams
 
 Document database schemas:
 
-<Mermaid code={`erDiagram
+```mermaid
+erDiagram
     USER ||--o{ NOTE : creates
     USER {
         string id PK
@@ -183,24 +221,28 @@ Document database schemas:
     NOTE_TAG {
         string note_id FK
         string tag_id FK
-    }`} />
+    }
+```
 
 ## Pie Charts
 
 Show proportional data:
 
-<Mermaid code={`pie showData
+```mermaid
+pie showData
     title Note Distribution by Type
     "Notes" : 45
     "Articles" : 12
     "Books" : 8
-    "Papers" : 5`} />
+    "Papers" : 5
+```
 
 ## Git Graphs
 
 Visualize branching and merge history:
 
-<Mermaid code={`gitGraph
+```mermaid
+gitGraph
     commit id: "Initial"
     commit id: "Add base features"
     branch develop
@@ -216,13 +258,15 @@ Visualize branching and merge history:
     merge feature
     commit id: "Polish UI"
     checkout main
-    merge develop id: "v2.0" tag: "v2.0.0"`} />
+    merge develop id: "v2.0" tag: "v2.0.0"
+```
 
 ## Mindmaps
 
 Organize hierarchical concepts:
 
-<Mermaid code={`mindmap
+```mermaid
+mindmap
     root((Knowledge Management))
         Capture
             Quick notes
@@ -241,7 +285,8 @@ Organize hierarchical concepts:
         Express
             Articles
             Presentations
-            Projects`} />
+            Projects
+```
 
 ## Diagram Syntax Reference
 

@@ -1,6 +1,6 @@
 import type { MDXComponents } from "mdx/types";
 import { classifyLink } from "@/lib/content/link-utils";
-import { MermaidLazy } from "./MermaidLazy";
+import { Mermaid } from "./Mermaid";
 import { Callout } from "./Callout";
 import { PDFViewerLazy } from "./PDFViewerLazy";
 
@@ -27,7 +27,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
         <table>{children}</table>
       </div>
     ),
-    Mermaid: MermaidLazy,
+    Mermaid,
     Callout,
     PDFViewer: PDFViewerLazy,
     ...components,

@@ -12,31 +12,31 @@ const loadManifest = createCachedFetcher<Manifest>("/generated/manifest/manifest
 const loadBacklinks = createCachedFetcher<BacklinksIndex>("/generated/backlinks/backlinks.json");
 
 const CloseIcon = (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
 
 const TocIcon = (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
   </svg>
 );
 
 const DuplicateIcon = (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
   </svg>
 );
 
 const BacklinksIcon = (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
   </svg>
 );
 
 const OpenFullIcon = (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
   </svg>
 );
@@ -84,7 +84,7 @@ function SplitPaneTocDropdown({ headings, paneRef, isOpen, onClose }: SplitPaneT
   return (
     <div
       ref={dropdownRef}
-      className="absolute right-0 top-full mt-1 w-64 max-h-80 overflow-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+      className="absolute right-0 top-full mt-1 w-64 max-h-80 overflow-auto overscroll-contain bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
     >
       <div className="p-2 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
@@ -100,7 +100,7 @@ function SplitPaneTocDropdown({ headings, paneRef, isOpen, onClose }: SplitPaneT
             <a
               href={`#${heading.id}`}
               onClick={(e) => handleClick(e, heading.id)}
-              className="text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 block py-1.5 px-2 cursor-pointer"
+              className="text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 block py-1.5 px-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset"
             >
               {heading.text}
             </a>
@@ -144,7 +144,7 @@ function SplitPaneBacklinksDropdown({ backlinks, manifest, isOpen, onClose, onOp
   return (
     <div
       ref={dropdownRef}
-      className="absolute right-0 top-full mt-1 w-64 max-h-80 overflow-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+      className="absolute right-0 top-full mt-1 w-64 max-h-80 overflow-auto overscroll-contain bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
     >
       <div className="p-2 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
@@ -159,7 +159,7 @@ function SplitPaneBacklinksDropdown({ backlinks, manifest, isOpen, onClose, onOp
                 onOpenPane(entry.slug);
                 onClose();
               }}
-              className="w-full text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 block py-1.5 px-2"
+              className="w-full text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 block py-1.5 px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset"
             >
               <span className="text-xs text-gray-500 dark:text-gray-400 uppercase mr-1">
                 {entry.type}
@@ -274,7 +274,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
           <span className="text-sm text-gray-500 dark:text-gray-400">Not Found</span>
           <button
             onClick={handleClose}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Close"
           >
             {CloseIcon}
@@ -305,7 +305,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
             <>
               <button
                 onClick={() => setShowToc(!showToc)}
-                className={`p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded ${showToc ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
+                className={`p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${showToc ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
                 aria-label="Table of contents"
                 title="Table of contents"
               >
@@ -321,7 +321,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
           )}
           <button
             onClick={handleDuplicate}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Duplicate pane"
             title="Duplicate pane"
           >
@@ -331,7 +331,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
             <>
               <button
                 onClick={() => setShowBacklinks(!showBacklinks)}
-                className={`p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded ${showBacklinks ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
+                className={`p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${showBacklinks ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
                 aria-label="Backlinks"
                 title="Backlinks"
               >
@@ -348,7 +348,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
           )}
           <button
             onClick={handleOpenFull}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Open full page"
             title="Open full page"
           >
@@ -356,7 +356,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
           </button>
           <button
             onClick={handleClose}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Close"
             title="Close"
           >
@@ -364,7 +364,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
           </button>
         </div>
       </div>
-      <div ref={contentRef} className="flex-1 overflow-auto">
+      <div ref={contentRef} className="flex-1 overflow-auto overscroll-contain">
         <PaneSearchParamsProvider searchParams={pane.searchParams}>
           <div className="p-4">
             <div className="mb-4">

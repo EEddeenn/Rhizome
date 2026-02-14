@@ -9,7 +9,7 @@ export function SplitViewContainer() {
   if (panes.length === 0) return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex">
+    <div className="fixed inset-0 z-40 flex overscroll-contain">
       {panes.length === 1 && <div className="w-1/2 bg-black/50" />}
       {panes.map((pane, index) => (
         <SplitPane key={getPaneKey(pane)} pane={pane} index={index} />

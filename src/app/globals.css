@@ -7,6 +7,7 @@
   --foreground: #171717;
   --muted: #737373;
   --border: #e5e5e5;
+  color-scheme: light;
 }
 
 .dark {
@@ -14,6 +15,7 @@
   --foreground: #ededed;
   --muted: #a3a3a3;
   --border: #262626;
+  color-scheme: dark;
 }
 
 body {
@@ -22,6 +24,19 @@ body {
 
 .prose {
   @apply text-foreground;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  scroll-margin-top: 5rem;
+}
+
+.prose *[id] {
+  scroll-margin-top: 5rem;
 }
 
 .prose h1 {
@@ -119,6 +134,28 @@ body {
 
 .prose mark {
   @apply bg-yellow-200 dark:bg-yellow-800 px-1 rounded;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .hljs {

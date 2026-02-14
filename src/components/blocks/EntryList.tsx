@@ -17,7 +17,7 @@ export function EntryList({ entries, showDate = true, showSummary = true }: Entr
     <ul className="space-y-4 sm:space-y-6">
       {entries.map((entry) => (
         <li key={entry.slug} className="border-b border-border pb-4 sm:pb-6 last:border-0">
-          <Link href={entry.route} className="group">
+          <Link href={entry.route} className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded -m-1 p-1 block">
             <h3 className="text-base sm:text-lg font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {entry.title}
             </h3>

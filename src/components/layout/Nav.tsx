@@ -27,7 +27,7 @@ export function Nav() {
     <nav className="border-b border-border bg-background">
       <div className="max-w-5xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="text-xl font-bold">
+          <Link href="/" className="text-xl font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
             Rhizome
           </Link>
 
@@ -37,7 +37,7 @@ export function Nav() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-muted hover:text-foreground transition-colors"
+                className="text-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1"
               >
                 {link.label}
               </Link>
@@ -47,10 +47,12 @@ export function Nav() {
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-muted hover:text-foreground"
+            className="md:hidden p-2 text-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             aria-label="Toggle menu"
+            aria-expanded={isOpen}
           >
             <svg
+              aria-hidden="true"
               className="w-6 h-6"
               fill="none"
               stroke="currentColor"
@@ -71,7 +73,7 @@ export function Nav() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-muted hover:text-foreground transition-colors py-2"
+                  className="text-muted hover:text-foreground transition-colors py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded px-1"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.label}

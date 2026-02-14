@@ -1,4 +1,5 @@
 import { sharedRemarkPlugins, sharedRehypePlugins, rehypeSlug } from "@/lib/mdx/plugins";
+import { remarkMermaid } from "./remark-mermaid";
 import { remarkWikiLinks } from "./remark-wiki-links";
 import { remarkObsidianCallouts } from "./remark-obsidian-callouts";
 import { rehypeBlockIds } from "./rehype-block-ids";
@@ -11,6 +12,7 @@ export function getMdxPlugins() {
   return {
     remarkPlugins: [
       ...sharedRemarkPlugins,
+      remarkMermaid,
       remarkObsidianCallouts,
       [remarkWikiLinks, { 
         resolve: getWikiLinkResolver(),

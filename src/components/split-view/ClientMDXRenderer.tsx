@@ -4,12 +4,13 @@ import { useState, useEffect, useMemo } from "react";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import { sharedRemarkPlugins, sharedRehypePlugins, rehypeSlug } from "@/lib/mdx/plugins";
+import { remarkMermaid } from "@/lib/content/remark-mermaid";
 import { remarkWikiLinks } from "@/lib/content/remark-wiki-links";
 import { remarkObsidianCallouts } from "@/lib/content/remark-obsidian-callouts";
 import { rehypeBlockIds } from "@/lib/content/rehype-block-ids";
 import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
 import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
-import { MermaidLazy } from "@/components/mdx/MermaidLazy";
+import { Mermaid } from "@/components/mdx/Mermaid";
 import { Callout } from "@/components/mdx/Callout";
 import { PDFViewerLazy } from "@/components/mdx/PDFViewerLazy";
 import { NoteEmbedClient, EmbedProvider } from "@/components/mdx/NoteEmbedClient";
@@ -51,6 +52,7 @@ export function ClientMDXRenderer({ slug, onReady }: ClientMDXRendererProps) {
           mdxOptions: {
             remarkPlugins: [
               ...sharedRemarkPlugins,
+              remarkMermaid,
               remarkObsidianCallouts,
               [remarkWikiLinks, { resolve: linkResolver, resolveEmbed: embedResolver }],
             ],
@@ -79,7 +81,7 @@ export function ClientMDXRenderer({ slug, onReady }: ClientMDXRendererProps) {
         <table>{children}</table>
       </div>
     ),
-    Mermaid: MermaidLazy,
+    Mermaid,
     Callout,
     PDFViewer: PDFViewerLazy,
     NoteEmbed: NoteEmbedClient,

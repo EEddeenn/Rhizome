@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 const SearchIcon = (
   <svg
+    aria-hidden="true"
     className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
     fill="none"
     stroke="currentColor"
@@ -34,13 +35,19 @@ export function SearchBar({ fullWidth = false, onSearch }: SearchBarProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative">
+    <form onSubmit={handleSubmit} className="relative" role="search">
+      <label htmlFor="search-input" className="sr-only">
+        Search notes and articles
+      </label>
       <input
-        type="text"
+        id="search-input"
+        type="search"
+        name="q"
+        autoComplete="off"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search..."
-        className={`px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+        placeholder="Search…"
+        className={`px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent ${
           fullWidth ? "w-full" : "w-32 sm:w-40 lg:w-48"
         }`}
       />

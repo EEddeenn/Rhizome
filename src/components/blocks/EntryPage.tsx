@@ -8,7 +8,7 @@ import { BacklinksPanel } from "@/components/blocks/BacklinksPanel";
 import { TableOfContents } from "@/components/blocks/TableOfContents";
 import { EntryMetadata } from "@/components/blocks/EntryMetadata";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
-import { MermaidLazy } from "@/components/mdx/MermaidLazy";
+import { Mermaid } from "@/components/mdx/Mermaid";
 import { Callout } from "@/components/mdx/Callout";
 import { PDFViewerLazy } from "@/components/mdx/PDFViewerLazy";
 import { useMDXComponents } from "@/components/mdx/MDXComponents";
@@ -63,7 +63,7 @@ export function EntryPage({ entry, categoryLabel, categoryHref }: EntryPageProps
       <div className="prose max-w-none">
         <MDXRemote 
           source={source} 
-          components={{ ...mdxComponents, ...embedComponents, Mermaid: MermaidLazy, Callout, PDFViewer: PDFViewerLazy }}
+          components={{ ...mdxComponents, ...embedComponents, Mermaid, Callout, PDFViewer: PDFViewerLazy }}
           options={{
             mdxOptions: {
               remarkPlugins,
