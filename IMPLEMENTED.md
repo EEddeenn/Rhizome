@@ -215,6 +215,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] URL encoding preserves params: `?split=slug?pdfPage=5`
 - [x] `routeToSlug()` strips query params to prevent false dangling link warnings
 - [x] Table of contents dropdown in split pane header
+- [x] Duplicate pane button (copies current pane including search params)
 - [x] Added `rehype-slug` to `ClientMDXRenderer` for heading IDs
 
 ### Documentation

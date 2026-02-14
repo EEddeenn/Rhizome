@@ -14,7 +14,7 @@ export function getPaneKey(pane: PaneData): string {
 
 interface SplitViewContextValue {
   panes: PaneData[];
-  openPane: (slug: string, searchParams?: Record<string, string>) => void;
+  openPane: (slug: string, searchParams?: Record<string, string>, force?: boolean) => void;
   closePane: (index: number) => void;
   closeAll: () => void;
   isMobile: boolean;
@@ -115,7 +115,7 @@ export function SplitViewProvider({ children }: SplitViewProviderProps) {
     }
   }, [panes, initialized, isMobile, syncUrl]);
 
-  const openPane = useCallback((slug: string, searchParams?: Record<string, string>) => {
+  const openPane = useCallback((slug: string, searchParams?: Record<string, string>, force?: boolean) => {
     if (isMobile) {
       const url = searchParams
         ? `/${slug}?${new URLSearchParams(searchParams).toString()}`
@@ -133,21 +133,23 @@ export function SplitViewProvider({ children }: SplitViewProviderProps) {
         newPane.searchParams = searchParams;
       }
       
-      const newParams = newPane.searchParams || {};
-      const newKeys = Object.keys(newParams).sort().join(",");
-      const newValues = Object.keys(newParams).sort().map(k => newParams[k]).join(",");
-      const newSignature = `${newKeys}:${newValues}`;
-      
-      const exactMatch = prev.find((p) => {
-        if (p.slug !== slug) return false;
-        const pParams = p.searchParams || {};
-        const pKeys = Object.keys(pParams).sort().join(",");
-        const pValues = Object.keys(pParams).sort().map(k => pParams[k]).join(",");
-        return `${pKeys}:${pValues}` === newSignature;
-      });
-      
-      if (exactMatch) {
-        return prev;
+      if (!force) {
+        const newParams = newPane.searchParams || {};
+        const newKeys = Object.keys(newParams).sort().join(",");
+        const newValues = Object.keys(newParams).sort().map(k => newParams[k]).join(",");
+        const newSignature = `${newKeys}:${newValues}`;
+        
+        const exactMatch = prev.find((p) => {
+          if (p.slug !== slug) return false;
+          const pParams = p.searchParams || {};
+          const pKeys = Object.keys(pParams).sort().join(",");
+          const pValues = Object.keys(pParams).sort().map(k => pParams[k]).join(",");
+          return `${pKeys}:${pValues}` === newSignature;
+        });
+        
+        if (exactMatch) {
+          return prev;
+        }
       }
       
       return [...prev, newPane].slice(-2);

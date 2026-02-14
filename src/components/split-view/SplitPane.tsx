@@ -104,7 +104,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
   const [loading, setLoading] = useState(true);
   const [showToc, setShowToc] = useState(false);
   const paneRef = useRef<HTMLDivElement>(null);
-  const { closePane } = useSplitView();
+  const { closePane, openPane } = useSplitView();
 
   useEffect(() => {
     setLoading(true);
@@ -128,6 +128,10 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
     window.location.href = `/${pane.slug}`;
   };
 
+  const handleDuplicate = () => {
+    openPane(pane.slug, pane.searchParams, true);
+  };
+
   const hasHeadings = entry?.headings && entry.headings.filter((h) => h.depth >= 2 && h.depth <= 4).length > 0;
 
   if (loading) {
@@ -136,6 +140,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
         <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
           <div className="animate-pulse h-4 bg-gray-200 dark:bg-gray-700 rounded w-32" />
           <div className="flex gap-1">
+            <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
             <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
             <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
           </div>
@@ -205,6 +210,16 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
               />
             </>
           )}
+          <button
+            onClick={handleDuplicate}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400"
+            aria-label="Duplicate pane"
+            title="Duplicate pane"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
           <button
             onClick={handleOpenFull}
             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400"
