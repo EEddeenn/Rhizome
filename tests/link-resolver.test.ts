@@ -94,17 +94,18 @@ describe("link resolver utilities", () => {
         { title: "Note One", slug: "notes/note-one" },
         { title: "Note Two", slug: "notes/note-two" },
       ];
-      const index = buildTitleIndex(entries);
+      const { index, duplicates } = buildTitleIndex(entries);
       const links = [{ raw: "[[note one]]", title: "Note One" }];
 
       const result = resolveWikiLinksToSlugs(links, index);
       assert.deepStrictEqual(result.slugs, ["notes/note-one"]);
       assert.strictEqual(result.unresolved.length, 0);
+      assert.strictEqual(duplicates.length, 0);
     });
 
     it("reports unresolved links", () => {
       const entries = [{ title: "Note One", slug: "notes/note-one" }];
-      const index = buildTitleIndex(entries);
+      const { index } = buildTitleIndex(entries);
       const links = [{ raw: "[[Unknown Note]]", title: "Unknown Note" }];
 
       const result = resolveWikiLinksToSlugs(links, index);
@@ -114,11 +115,26 @@ describe("link resolver utilities", () => {
 
     it("normalizes case for matching", () => {
       const entries = [{ title: "Note One", slug: "notes/note-one" }];
-      const index = buildTitleIndex(entries);
+      const { index } = buildTitleIndex(entries);
       const links = [{ raw: "[[NOTE ONE]]", title: "NOTE ONE" }];
 
       const result = resolveWikiLinksToSlugs(links, index);
       assert.deepStrictEqual(result.slugs, ["notes/note-one"]);
+    });
+
+    it("reports duplicate titles", () => {
+      const entries = [
+        { title: "Same Title", slug: "notes/first" },
+        { title: "Same Title", slug: "notes/second" },
+        { title: "Same Title", slug: "notes/third" },
+      ];
+      const { index, duplicates } = buildTitleIndex(entries);
+      
+      assert.strictEqual(duplicates.length, 1);
+      assert.strictEqual(duplicates[0].title, "same title");
+      assert.deepStrictEqual(duplicates[0].slugs, ["notes/first", "notes/second", "notes/third"]);
+      assert.strictEqual(index.size, 1);
+      assert.strictEqual(index.get("same title"), "notes/first");
     });
   });
 

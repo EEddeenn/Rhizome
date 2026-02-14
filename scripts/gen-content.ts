@@ -17,7 +17,7 @@ import {
   buildTitleIndex,
   extractContent,
 } from "../src/lib/content/link-resolver";
-import type { Entry, WikiLink } from "../src/lib/content/types";
+import type { Entry, WikiLink, EntryType } from "../src/lib/content/types";
 import { runPipeline } from "./pipeline/runner";
 import type { RawEntry } from "./pipeline/types";
 import { CONTENT_DIR, PUBLIC_DIR } from "./pipeline/constants";
@@ -35,6 +35,15 @@ import {
 
 const SITE_URL = process.env.SITE_URL || "https://example.com";
 const SITE_TITLE = process.env.SITE_TITLE || "Rhizome";
+
+const VALID_ENTRY_TYPES: EntryType[] = ["note", "article", "book", "paper"];
+
+function validateEntryType(type: unknown): EntryType {
+  if (typeof type === "string" && VALID_ENTRY_TYPES.includes(type as EntryType)) {
+    return type as EntryType;
+  }
+  return "note";
+}
 
 async function discoverContentFiles(): Promise<string[]> {
   return fg.glob(`${CONTENT_DIR}/**/*.mdx`);
@@ -54,7 +63,7 @@ async function buildRawEntry(filePath: string, src: string): Promise<RawEntry | 
 
   const slug = slugFromPath(filePath);
   const route = routeFromSlug(slug);
-  const type = (data.type as Entry["type"]) || getEntryTypeFromSlug(slug);
+  const type = validateEntryType(data.type) || getEntryTypeFromSlug(slug);
   const title = (data.title as string) || deriveTitleFromSlug(slug);
   const tags = normalizeTags(data.tags);
   const { headings, plainText: searchText } = extractContent(content);
@@ -165,8 +174,15 @@ async function main(): Promise<void> {
   console.log(`   Parsed ${rawEntries.length} entries`);
 
   console.log("\n3. Building title index...");
-  const titleIndex = buildTitleIndex(rawEntries);
+  const { index: titleIndex, duplicates } = buildTitleIndex(rawEntries);
   console.log(`   Indexed ${titleIndex.size} unique titles`);
+  
+  if (duplicates.length > 0) {
+    console.log(`   Warning: Found ${duplicates.length} duplicate title(s):`);
+    for (const dup of duplicates) {
+      console.log(`     - "${dup.title}" maps to: ${dup.slugs.join(", ")}`);
+    }
+  }
 
   console.log("\n4. Resolving links...");
   const manifest = resolveLinks(rawEntries, titleIndex);

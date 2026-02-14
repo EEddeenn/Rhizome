@@ -35,6 +35,7 @@ export default function GraphPage() {
   const edgesRef = useRef<Edge[]>([]);
   const animationRef = useRef<number | null>(null);
   const frameRef = useRef(0);
+  const prevCanvasSizeRef = useRef({ width: 800, height: 600 });
 
   const [graph, setGraph] = useState<Graph | null>(null);
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
@@ -77,24 +78,49 @@ export default function GraphPage() {
       .then((res) => res.json())
       .then((data: Graph) => {
         setGraph(data);
+
         const { width, height } = canvasSize;
         const centerX = width / 2;
         const centerY = height / 2;
-        const radius = Math.min(width, height) / 3;
+        const radiusX = width / 4;
+        const radiusY = height / 4;
 
-        nodesRef.current = data.nodes.map((n, i) => ({
-          ...n,
-          x: Math.cos((i / data.nodes.length) * 2 * Math.PI) * radius + centerX,
-          y: Math.sin((i / data.nodes.length) * 2 * Math.PI) * radius + centerY,
-          vx: 0,
-          vy: 0,
-        }));
+        nodesRef.current = data.nodes.map((n, i) => {
+          const angle = (i / data.nodes.length) * 2 * Math.PI;
+          return {
+            ...n,
+            x: Math.cos(angle) * radiusX + centerX,
+            y: Math.sin(angle) * radiusY + centerY,
+            vx: 0,
+            vy: 0,
+          };
+        });
         
         nodeMapRef.current = new Map(nodesRef.current.map(n => [n.id, n]));
         edgesRef.current = data.edges;
+        prevCanvasSizeRef.current = { width, height };
         setLoading(false);
       });
-  }, [canvasSize]);
+  }, []);
+
+  useEffect(() => {
+    if (loading || nodesRef.current.length === 0) return;
+    
+    const { width, height } = canvasSize;
+    const prevSize = prevCanvasSizeRef.current;
+    
+    if (prevSize.width !== width || prevSize.height !== height) {
+      const scaleX = width / prevSize.width;
+      const scaleY = height / prevSize.height;
+      
+      for (const node of nodesRef.current) {
+        node.x *= scaleX;
+        node.y *= scaleY;
+      }
+      
+      prevCanvasSizeRef.current = { width, height };
+    }
+  }, [canvasSize, loading]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -164,6 +190,7 @@ export default function GraphPage() {
     const stabilityFrames = 10;
 
     let stableCount = 0;
+    frameRef.current = 0;
 
     const simulate = () => {
       const nodes = nodesRef.current;

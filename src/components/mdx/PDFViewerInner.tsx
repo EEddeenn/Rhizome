@@ -142,7 +142,12 @@ export function PDFViewerInner({
           <input
             type="number"
             value={pageNumber}
-            onChange={(e) => goToPage(parseInt(e.target.value, 10))}
+            onChange={(e) => {
+              const page = parseInt(e.target.value, 10);
+              if (!isNaN(page)) {
+                goToPage(page);
+              }
+            }}
             min={1}
             max={numPages}
             className="w-10 sm:w-12 px-1 py-1 sm:py-0.5 text-sm text-center border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800"

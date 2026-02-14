@@ -12,25 +12,35 @@ const cachedParser = unified().use(remarkParse);
 
 export function extractWikiLinks(raw: string): WikiLink[] {
   const links: WikiLink[] = [];
-  let match: RegExpExecArray | null;
-  WIKI_LINK_PATTERN.lastIndex = 0;
-
-  while ((match = WIKI_LINK_PATTERN.exec(raw)) !== null) {
-    const content = match[1];
-    const pipeIndex = content.indexOf("|");
-    if (pipeIndex !== -1) {
-      links.push({
-        raw: match[0],
-        title: content.slice(0, pipeIndex).trim(),
-        alias: content.slice(pipeIndex + 1).trim(),
-      });
-    } else {
-      links.push({
-        raw: match[0],
-        title: content.trim(),
-      });
+  const tree = cachedParser.parse(raw);
+  
+  visit(tree, "text", (node: MdastNode, _, parent: MdastNode | undefined) => {
+    if (!node.value || !parent) return;
+    
+    const parentType = parent.type;
+    if (parentType === "inlineCode" || parentType === "code") return;
+    
+    const text = node.value;
+    let match: RegExpExecArray | null;
+    WIKI_LINK_PATTERN.lastIndex = 0;
+    
+    while ((match = WIKI_LINK_PATTERN.exec(text)) !== null) {
+      const content = match[1];
+      const pipeIndex = content.indexOf("|");
+      if (pipeIndex !== -1) {
+        links.push({
+          raw: match[0],
+          title: content.slice(0, pipeIndex).trim(),
+          alias: content.slice(pipeIndex + 1).trim(),
+        });
+      } else {
+        links.push({
+          raw: match[0],
+          title: content.trim(),
+        });
+      }
     }
-  }
+  });
 
   return links;
 }
@@ -80,15 +90,28 @@ export function resolveWikiLinksToSlugs(
 
 export function buildTitleIndex(
   entries: Array<{ title: string; slug: string }>
-): Map<string, string> {
+): { index: Map<string, string>; duplicates: Array<{ title: string; slugs: string[] }> } {
   const index = new Map<string, string>();
+  const duplicateMap = new Map<string, string[]>();
+  
   for (const entry of entries) {
     const normalized = normalizeTitle(entry.title);
     if (!index.has(normalized)) {
       index.set(normalized, entry.slug);
+    } else {
+      if (!duplicateMap.has(normalized)) {
+        duplicateMap.set(normalized, [index.get(normalized)!]);
+      }
+      duplicateMap.get(normalized)!.push(entry.slug);
     }
   }
-  return index;
+  
+  const duplicates = Array.from(duplicateMap.entries()).map(([title, slugs]) => ({
+    title,
+    slugs,
+  }));
+  
+  return { index, duplicates };
 }
 
 type MdastNode = {
@@ -126,15 +149,21 @@ export function extractContent(mdxSource: string): ExtractedContent {
 }
 
 function extractTextFromNodes(nodes: MdastNode[]): string {
-  let text = "";
-  for (const node of nodes) {
+  const stack: MdastNode[] = [...nodes].reverse();
+  const textParts: string[] = [];
+  
+  while (stack.length > 0) {
+    const node = stack.pop()!;
     if (node.type === "text" && node.value) {
-      text += node.value;
+      textParts.push(node.value);
     } else if (node.children) {
-      text += extractTextFromNodes(node.children);
+      for (let i = node.children.length - 1; i >= 0; i--) {
+        stack.push(node.children[i]);
+      }
     }
   }
-  return text;
+  
+  return textParts.join("");
 }
 
 export function extractHeadings(mdxSource: string): Heading[] {

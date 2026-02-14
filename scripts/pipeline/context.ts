@@ -17,8 +17,19 @@ export function hashContent(content: string): string {
   return crypto.createHash("sha256").update(content).digest("hex").slice(0, 16);
 }
 
+const hashCache = new WeakMap<object, string>();
+
 export function hashObject(obj: unknown): string {
-  return hashContent(JSON.stringify(obj, Object.keys(obj as object).sort()));
+  if (typeof obj !== "object" || obj === null) {
+    return hashContent(String(obj));
+  }
+  
+  const cached = hashCache.get(obj as object);
+  if (cached) return cached;
+  
+  const hash = hashContent(JSON.stringify(obj, Object.keys(obj as object).sort()));
+  hashCache.set(obj as object, hash);
+  return hash;
 }
 
 export function createStepContext(

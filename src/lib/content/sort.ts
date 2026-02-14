@@ -1,8 +1,14 @@
 import type { Entry } from "./types";
 
+function parseDate(dateStr: string | undefined): number {
+  if (!dateStr) return 0;
+  const timestamp = new Date(dateStr).getTime();
+  return isNaN(timestamp) ? 0 : timestamp;
+}
+
 function sortByDateDesc(a: Entry, b: Entry): number {
-  const dateA = a.date ? new Date(a.date).getTime() : 0;
-  const dateB = b.date ? new Date(b.date).getTime() : 0;
+  const dateA = parseDate(a.date);
+  const dateB = parseDate(b.date);
   return dateB - dateA;
 }
 

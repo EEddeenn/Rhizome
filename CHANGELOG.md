@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] - 2026-02-14
+
+### Added
+
+#### Build-Time Validation
+- Type validation for frontmatter `type` field - invalid types fallback to `note` instead of being silently accepted
+- Duplicate title detection with build warnings showing conflicting slugs
+- Dangling backlinks reporting - warns when entries link to non-existent slugs
+
+### Changed
+
+#### Performance Optimizations
+- `scripts/pipeline/context.ts` — `hashObject()` now uses WeakMap caching to avoid recomputing hashes
+- `src/lib/content/stop-words.ts` — Single-pass stop word removal instead of split/filter/join
+- `src/lib/content/link-resolver.ts` — Iterative stack-based text extraction instead of recursion
+
+#### Graph Visualization
+- Graph now properly re-centers on canvas resize with proportional node position scaling
+- Simulation resets frame counter on resize to allow re-convergence
+- Initial node positions calculated from actual canvas dimensions
+
+#### MDX Processing
+- `src/lib/content/mdx-config.ts` — Removed singleton caching to ensure fresh resolver on each call
+- `src/lib/content/remark-wiki-links.ts` — Regex now created inside plugin function to avoid global state issues
+
+### Fixed
+
+#### URL Handling
+- Tag URLs now properly encoded with `encodeURIComponent()` - fixes broken links for tags with spaces or special characters
+- Tag page decodes URL parameter and generates static params with encoding
+
+#### Input Validation
+- PDF viewer page input now validates `parseInt()` result to prevent NaN from breaking UI
+
+#### Date Parsing
+- `src/lib/content/sort.ts` — Invalid date strings now return 0 instead of NaN, preventing sort breakage
+
+#### Link Extraction
+- `extractWikiLinks()` now parses AST and skips wiki links inside code blocks - fixes false "broken links" warnings for documentation examples
+
+---
+
 ## [0.10.0] - 2026-02-14
 
 ### Added

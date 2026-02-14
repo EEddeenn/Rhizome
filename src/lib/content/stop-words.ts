@@ -1,4 +1,4 @@
-export const STOP_WORDS = new Set([
+const STOP_WORDS = new Set([
   "a", "about", "above", "after", "again", "against", "all", "am", "an", "and",
   "any", "are", "aren't", "as", "at", "be", "because", "been", "before",
   "being", "below", "between", "both", "but", "by", "can't", "cannot", "could",
@@ -22,10 +22,29 @@ export const STOP_WORDS = new Set([
 ]);
 
 export function removeStopWords(text: string): string {
-  const words = text.split(/\s+/);
-  const filtered = words.filter(word => {
-    const lower = word.toLowerCase();
-    return lower.length > 1 && !STOP_WORDS.has(lower);
-  });
-  return filtered.join(" ");
+  const len = text.length;
+  const result: string[] = [];
+  let wordStart = 0;
+  let inWord = false;
+
+  for (let i = 0; i <= len; i++) {
+    const char = text[i];
+    const isSpace = char === " " || char === "\t" || char === "\n" || char === "\r" || i === len;
+    
+    if (isSpace && inWord) {
+      if (i - wordStart > 1) {
+        const word = text.slice(wordStart, i);
+        const lower = word.toLowerCase();
+        if (!STOP_WORDS.has(lower)) {
+          result.push(word);
+        }
+      }
+      inWord = false;
+    } else if (!isSpace && !inWord) {
+      wordStart = i;
+      inWord = true;
+    }
+  }
+
+  return result.join(" ");
 }

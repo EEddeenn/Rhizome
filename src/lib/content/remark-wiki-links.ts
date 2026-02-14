@@ -2,8 +2,6 @@ import { visit } from "unist-util-visit";
 import type { Plugin } from "unified";
 import type { Root, Text, Link, Parent } from "mdast";
 
-const WIKI_LINK_REGEX = /\[\[([^\]]+)\]\]/g;
-
 interface WikiLinkOptions {
   resolve?: (title: string) => string;
 }
@@ -12,11 +10,13 @@ export const remarkWikiLinks: Plugin<[WikiLinkOptions?], Root> = (options = {}) 
   const resolver = options.resolve || ((title: string) => `/notes/${title.toLowerCase().replace(/\s+/g, "-")}`);
 
   return (tree: Root) => {
+    const wikiLinkRegex = /\[\[([^\]]+)\]\]/g;
+    
     visit(tree, "text", (node: Text, index, parent: Parent | undefined) => {
       if (typeof index !== "number" || !parent) return;
 
       const value = node.value;
-      const matches = [...value.matchAll(WIKI_LINK_REGEX)];
+      const matches = [...value.matchAll(wikiLinkRegex)];
 
       if (matches.length === 0) return;
 
