@@ -4,6 +4,13 @@ import { useEffect } from "react";
 import { useSplitView } from "@/lib/context/SplitViewContext";
 import { classifyLink, parseSlugFromHref } from "@/lib/content/link-utils";
 
+function scrollInContainer(container: Element, element: Element) {
+  const elementRect = element.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  const scrollTop = container.scrollTop + (elementRect.top - containerRect.top) - 20;
+  container.scrollTo({ top: scrollTop, behavior: "smooth" });
+}
+
 export function LinkInterceptor() {
   const { openPane, isMobile, panes } = useSplitView();
 
@@ -25,24 +32,32 @@ export function LinkInterceptor() {
       const isAnchorOnly = !href.startsWith("/") && href.startsWith("#");
       const { slug, searchParams, anchor: urlAnchor } = parseSlugFromHref(href);
 
+      const paneEl = anchor.closest("[data-pane-index]");
+      const paneIndex = paneEl ? parseInt(paneEl.getAttribute("data-pane-index") || "0", 10) : -1;
+      const paneContainer = paneEl?.querySelector("[data-pane-content]");
+
       if (isAnchorOnly && urlAnchor) {
         e.preventDefault();
-        const element = document.getElementById(urlAnchor);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (paneContainer) {
+          const element = paneContainer.querySelector(`#${CSS.escape(urlAnchor)}`);
+          if (element) {
+            scrollInContainer(paneContainer, element);
+          }
         }
         return;
       }
 
       if (isInternalNote) {
-        const currentPaneSlug = panes.length > 0 ? panes[panes.length - 1]?.slug : null;
+        const currentPaneSlug = paneIndex >= 0 && paneIndex < panes.length ? panes[paneIndex]?.slug : null;
         const isSamePane = currentPaneSlug === slug;
 
         if (isSamePane && urlAnchor) {
           e.preventDefault();
-          const element = document.getElementById(urlAnchor);
-          if (element) {
-            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          if (paneContainer) {
+            const element = paneContainer.querySelector(`#${CSS.escape(urlAnchor)}`);
+            if (element) {
+              scrollInContainer(paneContainer, element);
+            }
           }
           return;
         }

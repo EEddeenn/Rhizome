@@ -74,9 +74,13 @@ function SplitPaneTocDropdown({ headings, paneRef, isOpen, onClose }: SplitPaneT
     const pane = paneRef.current;
     if (!pane) return;
     
+    const contentContainer = pane.querySelector("[data-pane-content]");
     const target = pane.querySelector(`#${CSS.escape(id)}`);
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (target && contentContainer) {
+      const elementRect = target.getBoundingClientRect();
+      const containerRect = contentContainer.getBoundingClientRect();
+      const scrollTop = contentContainer.scrollTop + (elementRect.top - containerRect.top) - 20;
+      contentContainer.scrollTo({ top: scrollTop, behavior: "smooth" });
     }
     onClose();
   };
@@ -223,7 +227,10 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
       
       const element = container.querySelector(`#${CSS.escape(pane.anchor!)}`);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
+        const elementRect = element.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const scrollTop = container.scrollTop + (elementRect.top - containerRect.top) - 20;
+        container.scrollTo({ top: scrollTop, behavior: "smooth" });
         scrolledRef.current = scrollKey;
       } else if (attempts > 1) {
         setTimeout(() => tryScroll(attempts - 1), 150);
@@ -290,7 +297,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
   }
 
   return (
-    <div ref={paneRef} className="h-full w-1/2 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 last:border-r-0">
+    <div ref={paneRef} data-pane-index={index} className="h-full w-1/2 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 last:border-r-0">
       <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-xs text-gray-500 dark:text-gray-400 uppercase shrink-0">
@@ -364,7 +371,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
           </button>
         </div>
       </div>
-      <div ref={contentRef} className="flex-1 overflow-auto overscroll-contain">
+      <div ref={contentRef} data-pane-content className="flex-1 overflow-auto overscroll-contain">
         <PaneSearchParamsProvider searchParams={pane.searchParams}>
           <div className="p-4">
             <div className="mb-4">

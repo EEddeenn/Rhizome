@@ -8,6 +8,14 @@ interface InternalLinkProps {
   children?: React.ReactNode;
 }
 
+function scrollInContainer(container: Element | null, element: Element) {
+  if (!container) return;
+  const elementRect = element.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  const scrollTop = container.scrollTop + (elementRect.top - containerRect.top) - 20;
+  container.scrollTo({ top: scrollTop, behavior: "smooth" });
+}
+
 export function InternalLink({ href, children }: InternalLinkProps) {
   const { openPane, isMobile, panes } = useSplitView();
 
@@ -31,25 +39,33 @@ export function InternalLink({ href, children }: InternalLinkProps) {
 
     if (!isInternalNote) return;
 
+    const paneEl = (e.target as HTMLElement).closest("[data-pane-index]");
+    const paneIndex = paneEl ? parseInt(paneEl.getAttribute("data-pane-index") || "0", 10) : -1;
+    const paneContainer = paneEl?.querySelector("[data-pane-content]");
+
     const isAnchorOnly = !href.startsWith("/") && href.startsWith("#");
     
     if (isAnchorOnly && anchor) {
       e.preventDefault();
-      const element = document.getElementById(anchor);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (paneContainer) {
+        const element = paneContainer.querySelector(`#${CSS.escape(anchor)}`);
+        if (element) {
+          scrollInContainer(paneContainer, element);
+        }
       }
       return;
     }
 
-    const currentPaneSlug = panes.length > 0 ? panes[panes.length - 1]?.slug : null;
+    const currentPaneSlug = paneIndex >= 0 && paneIndex < panes.length ? panes[paneIndex]?.slug : null;
     const isSamePane = currentPaneSlug === slug;
 
     if (isSamePane && anchor) {
       e.preventDefault();
-      const element = document.getElementById(anchor);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (paneContainer) {
+        const element = paneContainer.querySelector(`#${CSS.escape(anchor)}`);
+        if (element) {
+          scrollInContainer(paneContainer, element);
+        }
       }
       return;
     }
