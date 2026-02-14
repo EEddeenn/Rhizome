@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import MiniSearch from "minisearch";
 import { SearchDoc } from "@/lib/content/types";
 
 const miniSearchOptions = {
@@ -32,7 +31,7 @@ function SearchContent() {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("");
   const [tagFilter, setTagFilter] = useState<string>("");
-  const [miniSearch, setMiniSearch] = useState<MiniSearch<SearchDoc> | null>(null);
+  const [miniSearch, setMiniSearch] = useState<{ search: (q: string) => unknown[] } | null>(null);
   const [allTags, setAllTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -47,15 +46,17 @@ function SearchContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    fetch("/generated/search/search-index.json")
-      .then((res) => res.json())
-      .then((docs: SearchDoc[]) => {
+    Promise.all([
+      import("minisearch").then((m) => m.default),
+      fetch("/generated/search/search-index.json").then((res) => res.json()),
+    ])
+      .then(([MiniSearch, docs]) => {
         const ms = new MiniSearch(miniSearchOptions);
-        ms.addAll(docs);
+        ms.addAll(docs as SearchDoc[]);
         setMiniSearch(ms);
 
         const tags = new Set<string>();
-        docs.forEach((doc) => doc.tags?.forEach((t) => tags.add(t)));
+        (docs as SearchDoc[]).forEach((doc) => doc.tags?.forEach((t) => tags.add(t)));
         setAllTags(Array.from(tags).sort());
 
         setLoading(false);

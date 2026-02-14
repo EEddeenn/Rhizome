@@ -11,6 +11,36 @@ import type { Entry, Manifest, Heading, BacklinksIndex, BacklinkInfo } from "@/l
 const loadManifest = createCachedFetcher<Manifest>("/generated/manifest/manifest.json");
 const loadBacklinks = createCachedFetcher<BacklinksIndex>("/generated/backlinks/backlinks.json");
 
+const CloseIcon = (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+const TocIcon = (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+  </svg>
+);
+
+const DuplicateIcon = (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+  </svg>
+);
+
+const BacklinksIcon = (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+  </svg>
+);
+
+const OpenFullIcon = (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+  </svg>
+);
+
 interface SplitPaneTocDropdownProps {
   headings: Heading[];
   paneRef: React.RefObject<HTMLDivElement | null>;
@@ -247,9 +277,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400"
             aria-label="Close"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            {CloseIcon}
           </button>
         </div>
         <div className="flex-1 flex items-center justify-center p-4">
@@ -281,9 +309,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
                 aria-label="Table of contents"
                 title="Table of contents"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
+                {TocIcon}
               </button>
               <SplitPaneTocDropdown
                 headings={entry.headings || []}
@@ -299,9 +325,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
             aria-label="Duplicate pane"
             title="Duplicate pane"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
+            {DuplicateIcon}
           </button>
           {backlinks.length > 0 && manifest && (
             <>
@@ -311,9 +335,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
                 aria-label="Backlinks"
                 title="Backlinks"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                </svg>
+                {BacklinksIcon}
               </button>
               <SplitPaneBacklinksDropdown
                 backlinks={backlinks}
@@ -330,9 +352,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
             aria-label="Open full page"
             title="Open full page"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
+            {OpenFullIcon}
           </button>
           <button
             onClick={handleClose}
@@ -340,9 +360,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
             aria-label="Close"
             title="Close"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            {CloseIcon}
           </button>
         </div>
       </div>

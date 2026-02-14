@@ -36,22 +36,28 @@ export const vendorStep: Step = {
     await Promise.all(fontCopyPromises);
     const fontsCopied = fontCopyPromises.length;
 
-    const pdfWorkerSrc = path.join(
-      "node_modules",
-      "react-pdf",
-      "node_modules",
-      "pdfjs-dist",
-      "build",
-      "pdf.worker.min.js"
-    );
     const pdfWorkerDest = path.join(vendorDir, "pdf.worker.min.js");
-    try {
-      await fs.copyFile(pdfWorkerSrc, pdfWorkerDest);
-      artifacts.push({ path: pdfWorkerDest, isPublic: true });
-    } catch {
-      const altSrc = path.join("node_modules", "pdfjs-dist", "build", "pdf.worker.min.js");
-      await fs.copyFile(altSrc, pdfWorkerDest);
-      artifacts.push({ path: pdfWorkerDest, isPublic: true });
+    const pdfWorkerSources = [
+      path.join("node_modules", "react-pdf", "node_modules", "pdfjs-dist", "build", "pdf.worker.min.mjs"),
+      path.join("node_modules", "react-pdf", "node_modules", "pdfjs-dist", "build", "pdf.worker.min.js"),
+      path.join("node_modules", "pdfjs-dist", "build", "pdf.worker.min.mjs"),
+      path.join("node_modules", "pdfjs-dist", "build", "pdf.worker.min.js"),
+    ];
+    
+    let pdfWorkerCopied = false;
+    for (const src of pdfWorkerSources) {
+      try {
+        await fs.copyFile(src, pdfWorkerDest);
+        artifacts.push({ path: pdfWorkerDest, isPublic: true });
+        pdfWorkerCopied = true;
+        break;
+      } catch {
+        continue;
+      }
+    }
+    
+    if (!pdfWorkerCopied) {
+      throw new Error("Could not find pdf.worker.min.js or pdf.worker.min.mjs in node_modules");
     }
 
     const faviconSrc = path.join(CONTENT_DIR, "assets", "favicon.ico");

@@ -291,18 +291,10 @@ export default function GraphPage() {
   }, [loading, canvasSize]);
 
   useEffect(() => {
-    draw();
-  }, [draw]);
-
-  useEffect(() => {
     hoveredNodeRef.current = hoveredNode;
-    draw();
-  }, [hoveredNode, draw]);
-
-  useEffect(() => {
     isDarkRef.current = isDark;
     draw();
-  }, [isDark, draw]);
+  }, [hoveredNode, isDark, draw]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;

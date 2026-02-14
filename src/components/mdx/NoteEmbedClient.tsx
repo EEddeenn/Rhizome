@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext, ReactNode } from "react";
+import { useState, useEffect, createContext, useContext, ReactNode, useMemo } from "react";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
@@ -33,12 +33,14 @@ interface NoteEmbedClientProps {
 
 export function NoteEmbedClient({ slug, anchor, blockId }: NoteEmbedClientProps) {
   const parentPath = useEmbedPath();
+  const parentPathKey = useMemo(() => parentPath.join(","), [parentPath]);
   const [compiled, setCompiled] = useState<MDXRemoteSerializeResult | null>(null);
   const [error, setError] = useState<{ target: string; reason: "not_found" | "section_not_found" | "block_not_found" | "cycle_detected" } | null>(null);
   const [entry, setEntry] = useState<{ title: string; route: string } | null>(null);
 
   useEffect(() => {
-    if (parentPath.includes(slug)) {
+    const pathArray = parentPathKey ? parentPathKey.split(",") : [];
+    if (pathArray.includes(slug)) {
       setError({ target: slug, reason: "cycle_detected" });
       return;
     }
@@ -96,7 +98,7 @@ export function NoteEmbedClient({ slug, anchor, blockId }: NoteEmbedClientProps)
         console.error("NoteEmbedClient error:", err);
         setError({ target: slug, reason: "not_found" });
       });
-  }, [slug, anchor, blockId, parentPath]);
+  }, [slug, anchor, blockId, parentPathKey]);
 
   if (error) {
     return <EmbedError target={error.target} reason={error.reason} />;

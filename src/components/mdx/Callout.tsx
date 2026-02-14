@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, memo } from "react";
+
 type CalloutType = "note" | "tip" | "warning" | "danger" | "info";
 type FoldState = "open" | "closed";
 
@@ -38,9 +40,7 @@ const styles: Record<CalloutType, { border: string; bg: string; icon: string }> 
   },
 };
 
-import { useState } from "react";
-
-export function Callout({ type = "note", title, fold, children }: CalloutProps) {
+export const Callout = memo(function Callout({ type = "note", title, fold, children }: CalloutProps) {
   const style = styles[type];
   const isFoldable = fold !== undefined;
   const [isExpanded, setIsExpanded] = useState(fold !== "closed");
@@ -70,4 +70,4 @@ export function Callout({ type = "note", title, fold, children }: CalloutProps) 
       </div>
     </div>
   );
-}
+});

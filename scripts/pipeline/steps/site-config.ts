@@ -17,13 +17,6 @@ Allow: /
 Sitemap: ${ctx.siteUrl}/sitemap.xml
 `;
 
-    const robotsPath = await ctx.writeText("site-config", "robots.txt", robotsTxt, true);
-    artifacts.push({ path: robotsPath, isPublic: true });
-
-    const robotsRootPath = path.join(PUBLIC_DIR, "robots.txt");
-    await fs.writeFile(robotsRootPath, robotsTxt);
-    artifacts.push({ path: robotsRootPath, isPublic: true });
-
     const headers = `/*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
@@ -68,11 +61,16 @@ Sitemap: ${ctx.siteUrl}/sitemap.xml
   Cache-Control: public, max-age=31536000, immutable
 `;
 
-    const headersPath = await ctx.writeText("site-config", "_headers", headers, true);
-    artifacts.push({ path: headersPath, isPublic: true });
+    const [robotsPath, robotsRootPath, headersPath, headersRootPath] = await Promise.all([
+      ctx.writeText("site-config", "robots.txt", robotsTxt, true),
+      fs.writeFile(path.join(PUBLIC_DIR, "robots.txt"), robotsTxt).then(() => path.join(PUBLIC_DIR, "robots.txt")),
+      ctx.writeText("site-config", "_headers", headers, true),
+      fs.writeFile(path.join(PUBLIC_DIR, "_headers"), headers).then(() => path.join(PUBLIC_DIR, "_headers")),
+    ]);
 
-    const headersRootPath = path.join(PUBLIC_DIR, "_headers");
-    await fs.writeFile(headersRootPath, headers);
+    artifacts.push({ path: robotsPath, isPublic: true });
+    artifacts.push({ path: robotsRootPath, isPublic: true });
+    artifacts.push({ path: headersPath, isPublic: true });
     artifacts.push({ path: headersRootPath, isPublic: true });
 
     return {

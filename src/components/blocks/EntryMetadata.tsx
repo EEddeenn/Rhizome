@@ -24,10 +24,10 @@ export function EntryMetadata({ date, updated, status, readingTimeMin, wordCount
       {updated && updated !== date && (
         <span>(updated: {updated})</span>
       )}
-      {readingTimeMin && (
+      {readingTimeMin != null && readingTimeMin > 0 && (
         <span>· {readingTimeMin} min read</span>
       )}
-      {wordCount && (
+      {wordCount != null && wordCount > 0 && (
         <span>· {wordCount} words</span>
       )}
       {status && statusStyles[status] && (
