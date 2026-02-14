@@ -19,14 +19,10 @@ import type { Manifest } from "@/lib/content/types";
 const loadContent = createCachedFetcher<Record<string, string>>("/generated/content/content.json");
 const loadManifest = createCachedFetcher<Manifest>("/generated/manifest/manifest.json");
 
-interface EmbedContextValue {
-  embedStack: Set<string>;
-}
+const EmbedPathContext = createContext<string[]>([]);
 
-const EmbedContext = createContext<EmbedContextValue>({ embedStack: new Set() });
-
-function useEmbedContext() {
-  return useContext(EmbedContext);
+function useEmbedPath() {
+  return useContext(EmbedPathContext);
 }
 
 interface NoteEmbedClientProps {
@@ -36,18 +32,16 @@ interface NoteEmbedClientProps {
 }
 
 export function NoteEmbedClient({ slug, anchor, blockId }: NoteEmbedClientProps) {
-  const { embedStack } = useEmbedContext();
+  const parentPath = useEmbedPath();
   const [compiled, setCompiled] = useState<MDXRemoteSerializeResult | null>(null);
   const [error, setError] = useState<{ target: string; reason: "not_found" | "section_not_found" | "block_not_found" | "cycle_detected" } | null>(null);
   const [entry, setEntry] = useState<{ title: string; route: string } | null>(null);
 
   useEffect(() => {
-    if (embedStack.has(slug)) {
+    if (parentPath.includes(slug)) {
       setError({ target: slug, reason: "cycle_detected" });
       return;
     }
-
-    embedStack.add(slug);
 
     Promise.all([loadContent(), loadManifest()])
       .then(([contentIndex, manifest]) => {
@@ -102,11 +96,7 @@ export function NoteEmbedClient({ slug, anchor, blockId }: NoteEmbedClientProps)
         console.error("NoteEmbedClient error:", err);
         setError({ target: slug, reason: "not_found" });
       });
-
-    return () => {
-      embedStack.delete(slug);
-    };
-  }, [slug, anchor, blockId, embedStack]);
+  }, [slug, anchor, blockId, parentPath]);
 
   if (error) {
     return <EmbedError target={error.target} reason={error.reason} />;
@@ -124,21 +114,25 @@ export function NoteEmbedClient({ slug, anchor, blockId }: NoteEmbedClientProps)
     );
   }
 
+  const currentPath = [...parentPath, slug];
+
   return (
-    <div className="my-4 border-l-4 border-blue-200 dark:border-blue-800 bg-gray-50 dark:bg-gray-900/50 rounded-r-lg">
-      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-800/50 rounded-tr-lg">
-        <a
-          href={anchor ? `${entry.route}#${anchor}` : entry.route}
-          className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
-        >
-          ↗ {entry.title}
-          {anchor && <span className="text-gray-500 dark:text-gray-400">#{anchor}</span>}
-        </a>
+    <EmbedPathContext.Provider value={currentPath}>
+      <div className="my-4 border-l-4 border-blue-200 dark:border-blue-800 bg-gray-50 dark:bg-gray-900/50 rounded-r-lg">
+        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-800/50 rounded-tr-lg">
+          <a
+            href={anchor ? `${entry.route}#${anchor}` : entry.route}
+            className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            ↗ {entry.title}
+            {anchor && <span className="text-gray-500 dark:text-gray-400">#{anchor}</span>}
+          </a>
+        </div>
+        <div className="px-4 py-3 prose prose-sm max-w-none dark:prose-invert">
+          <MDXRemote {...compiled} />
+        </div>
       </div>
-      <div className="px-4 py-3 prose prose-sm max-w-none dark:prose-invert">
-        <MDXRemote {...compiled} />
-      </div>
-    </div>
+    </EmbedPathContext.Provider>
   );
 }
 
@@ -148,8 +142,8 @@ interface EmbedProviderProps {
 
 export function EmbedProvider({ children }: EmbedProviderProps) {
   return (
-    <EmbedContext.Provider value={{ embedStack: new Set() }}>
+    <EmbedPathContext.Provider value={[]}>
       {children}
-    </EmbedContext.Provider>
+    </EmbedPathContext.Provider>
   );
 }
