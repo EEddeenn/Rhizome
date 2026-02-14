@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ClientMDXRenderer } from "./ClientMDXRenderer";
 import { useSplitView, type PaneData } from "@/lib/context/SplitViewContext";
 import { PaneSearchParamsProvider } from "@/lib/context/PaneSearchParamsContext";
 import { TagPills } from "@/components/blocks/TagPills";
-import type { Entry, Manifest } from "@/lib/content/types";
+import type { Entry, Manifest, Heading } from "@/lib/content/types";
 
 let manifestCache: Manifest | null = null;
 let manifestPromise: Promise<Manifest> | null = null;
@@ -24,6 +24,53 @@ async function loadManifest(): Promise<Manifest> {
   return manifestPromise;
 }
 
+interface SplitPaneTocProps {
+  headings: Heading[];
+  paneRef: React.RefObject<HTMLDivElement | null>;
+}
+
+function SplitPaneToc({ headings, paneRef }: SplitPaneTocProps) {
+  if (!headings || headings.length === 0) return null;
+
+  const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
+  if (filteredHeadings.length === 0) return null;
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const pane = paneRef.current;
+    if (!pane) return;
+    
+    const target = pane.querySelector(`#${CSS.escape(id)}`);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  return (
+    <nav className="mb-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+      <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
+        Table of Contents
+      </h2>
+      <ul className="space-y-1">
+        {filteredHeadings.map((heading) => (
+          <li
+            key={heading.id}
+            style={{ paddingLeft: `${(heading.depth - 2) * 12}px` }}
+          >
+            <a
+              href={`#${heading.id}`}
+              onClick={(e) => handleClick(e, heading.id)}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline block py-0.5 cursor-pointer"
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
 interface SplitPaneProps {
   pane: PaneData;
   index: number;
@@ -32,6 +79,8 @@ interface SplitPaneProps {
 export function SplitPane({ pane, index }: SplitPaneProps) {
   const [entry, setEntry] = useState<Entry | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showToc, setShowToc] = useState(false);
+  const paneRef = useRef<HTMLDivElement>(null);
   const { closePane } = useSplitView();
 
   useEffect(() => {
@@ -55,6 +104,8 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
   const handleOpenFull = () => {
     window.location.href = `/${pane.slug}`;
   };
+
+  const hasHeadings = entry?.headings && entry.headings.filter((h) => h.depth >= 2 && h.depth <= 4).length > 0;
 
   if (loading) {
     return (
@@ -100,7 +151,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
   }
 
   return (
-    <div className="h-full w-1/2 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 last:border-r-0">
+    <div ref={paneRef} className="h-full w-1/2 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 last:border-r-0">
       <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-xs text-gray-500 dark:text-gray-400 uppercase shrink-0">
@@ -111,6 +162,18 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
           </span>
         </div>
         <div className="flex gap-1 shrink-0">
+          {hasHeadings && (
+            <button
+              onClick={() => setShowToc(!showToc)}
+              className={`p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded ${showToc ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}
+              aria-label="Table of contents"
+              title="Table of contents"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+            </button>
+          )}
           <button
             onClick={handleOpenFull}
             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400"
@@ -150,6 +213,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
                 </p>
               )}
             </div>
+            {showToc && <SplitPaneToc headings={entry.headings || []} paneRef={paneRef} />}
             <ClientMDXRenderer slug={pane.slug} />
           </div>
         </PaneSearchParamsProvider>

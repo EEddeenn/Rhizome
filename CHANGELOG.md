@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - PDF deep links in split view open a new pane with the PDF navigated to the correct page
 - URL encoding format: `?split=notes/foo?pdfPage=5,notes/bar` preserves params per pane
 - Each pane has a unique `id` for proper React reconciliation
+- Table of contents toggle button in split pane header (left of "Open full page" button)
 
 ### Changed
 
