@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, Component, type ReactNode } from "react";
+import { useState, useEffect, useMemo, Component, useCallback, useRef, type ReactNode } from "react";
 import { useEditor } from "./EditorContext";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
@@ -11,6 +11,7 @@ import { getManifest } from "@/lib/generated/load-manifest";
 import { Callout } from "@/components/mdx/Callout";
 import { FrontmatterDisplay } from "./FrontmatterDisplay";
 import { PreviewMermaid, PreviewPDFViewer, PreviewNoteEmbed, PreviewEmbedError } from "./PreviewPlaceholders";
+import { scrollElementIntoContainer } from "@/components/navigation";
 import matter from "gray-matter";
 
 function stripFrontmatter(content: string): string {
@@ -58,11 +59,25 @@ class PreviewErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 }
 
-function PreviewContent({ compiled }: { compiled: MDXRemoteSerializeResult }) {
+function PreviewContent({ 
+  compiled, 
+  onInternalLinkClick 
+}: { 
+  compiled: MDXRemoteSerializeResult;
+  onInternalLinkClick: (href: string) => boolean;
+}) {
   const mdxComponents = useMemo(
     () => ({
       a: ({ href, children }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-        <a href={href} className="text-blue-600 dark:text-blue-400 hover:underline">
+        <a 
+          href={href} 
+          className="text-blue-600 dark:text-blue-400 hover:underline"
+          onClick={(e) => {
+            if (href && onInternalLinkClick(href)) {
+              e.preventDefault();
+            }
+          }}
+        >
           {children}
         </a>
       ),
@@ -77,7 +92,7 @@ function PreviewContent({ compiled }: { compiled: MDXRemoteSerializeResult }) {
       NoteEmbed: PreviewNoteEmbed,
       EmbedError: PreviewEmbedError,
     }),
-    []
+    [onInternalLinkClick]
   );
 
   return (
@@ -88,11 +103,13 @@ function PreviewContent({ compiled }: { compiled: MDXRemoteSerializeResult }) {
 }
 
 export function PreviewPane() {
-  const { currentContent, currentNote } = useEditor();
+  const { currentContent, currentNote, mergedEntries, openNote } = useEditor();
   const [compiled, setCompiled] = useState<MDXRemoteSerializeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [debouncedContent, setDebouncedContent] = useState(currentContent);
   const [frontmatter, setFrontmatter] = useState<Record<string, unknown> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pendingAnchorRef = useRef<string | null>(null);
 
   const resolvers = useMemo(() => {
     const manifest = getManifest();
@@ -101,6 +118,55 @@ export function PreviewPane() {
       resolveEmbed: createEmbedResolver(manifest),
     };
   }, []);
+
+  const handleInternalLinkClick = useCallback((href: string): boolean => {
+    if (!href.startsWith("/notes/") && !href.startsWith("/articles/")) {
+      return false;
+    }
+
+    const [path, anchor] = href.split("#");
+    const slug = path.slice(1);
+    const entry = mergedEntries.find((e) => e.slug === slug);
+
+    if (!entry) {
+      return false;
+    }
+
+    if (entry.path === currentNote?.path) {
+      if (anchor && containerRef.current) {
+        const element = containerRef.current.querySelector(`#${CSS.escape(anchor)}`);
+        if (element) {
+          scrollElementIntoContainer(containerRef.current, element);
+        }
+      }
+      return true;
+    }
+
+    pendingAnchorRef.current = anchor || null;
+    openNote(entry);
+
+    return true;
+  }, [mergedEntries, currentNote, openNote]);
+
+  useEffect(() => {
+    if (compiled && pendingAnchorRef.current && containerRef.current) {
+      const anchor = pendingAnchorRef.current;
+      pendingAnchorRef.current = null;
+      
+      setTimeout(() => {
+        const element = containerRef.current?.querySelector(`#${CSS.escape(anchor)}`);
+        if (element && containerRef.current) {
+          scrollElementIntoContainer(containerRef.current, element);
+        }
+      }, 50);
+    }
+  }, [compiled]);
+
+  useEffect(() => {
+    if (currentNote?.path && !pendingAnchorRef.current && containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, [currentNote?.path]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -150,7 +216,7 @@ export function PreviewPane() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-background">
+    <div ref={containerRef} className="flex-1 overflow-y-auto bg-background">
       <div className="p-4">
         {error && (
           <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg mb-4">
@@ -161,7 +227,7 @@ export function PreviewPane() {
         {frontmatter && <FrontmatterDisplay data={frontmatter} />}
         {compiled ? (
           <PreviewErrorBoundary>
-            <PreviewContent compiled={compiled} />
+            <PreviewContent compiled={compiled} onInternalLinkClick={handleInternalLinkClick} />
           </PreviewErrorBoundary>
         ) : debouncedContent ? (
           <div className="animate-pulse space-y-2">
