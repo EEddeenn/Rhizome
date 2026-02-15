@@ -15,8 +15,8 @@ import {
   resolveRoutesToSlugs,
   resolveWikiLinksToSlugs,
   buildTitleIndex,
-  extractContent,
-} from "../src/lib/content/link-resolver";
+} from "../src/lib/content/link-extraction";
+import { extractContent } from "../src/lib/content/content-extraction";
 import type { Entry, WikiLink, EntryType } from "../src/lib/content/types";
 import { runPipeline } from "./pipeline/runner";
 import type { RawEntry } from "./pipeline/types";

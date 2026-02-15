@@ -2,22 +2,9 @@ import { visit } from "unist-util-visit";
 import type { Plugin } from "unified";
 import type { Root, Text, Link, Parent, Paragraph } from "mdast";
 import { slugifyAnchor } from "../slug";
+import type { ResolvedLink, ResolvedEmbed } from "../types";
 
 const WIKI_LINK_PATTERN = /(!?)\[\[([^\]#|]+)(?:#(\^?[^\]|]+))?(?:\|([^\]]+))?\]\]/g;
-
-interface ResolvedLink {
-  route: string;
-  anchor?: string;
-  exists: boolean;
-}
-
-interface ResolvedEmbed {
-  type: "note" | "pdf";
-  slug?: string;
-  path?: string;
-  anchor?: string;
-  page?: number;
-}
 
 interface WikiLinkOptions {
   resolve?: (title: string, anchor?: string) => ResolvedLink;

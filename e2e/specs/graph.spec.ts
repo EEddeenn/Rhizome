@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Graph visualization", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, isMobile }) => {
     await page.goto("/graph");
     await expect(page.getByText("Loading graph")).not.toBeVisible({ timeout: 10000 });
   });
@@ -23,17 +23,21 @@ test.describe("Graph visualization", () => {
     expect(count).toBeGreaterThan(5);
   });
 
-  test("clicking entry in list opens content", async ({ page }) => {
+  test("clicking entry in list opens content", async ({ page, isMobile }) => {
     const allEntriesHeading = page.getByRole("heading", { name: "All Entries" });
     await expect(allEntriesHeading).toBeVisible();
     
     const firstEntry = page.locator("main").locator("a[href^='/notes/'], a[href^='/articles/']").first();
     await firstEntry.click();
     
-    await page.waitForTimeout(1000);
-    const url = page.url();
-    const opened = url.includes("/notes/") || url.includes("/articles/") || url.includes("split=");
-    expect(opened).toBe(true);
+    if (isMobile) {
+      await expect(page).toHaveURL(/\/notes\/|\/articles\//);
+    } else {
+      await page.waitForTimeout(1000);
+      const url = page.url();
+      const opened = url.includes("/notes/") || url.includes("/articles/") || url.includes("split=");
+      expect(opened).toBe(true);
+    }
   });
 
   test("hovering canvas shows cursor change", async ({ page }) => {

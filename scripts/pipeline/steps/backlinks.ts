@@ -1,10 +1,7 @@
 import type { Step, StepContext, StepResult, Artifact } from "../types";
 import type { BacklinksIndex, BacklinkInfo } from "../../../src/lib/content/types";
-import {
-  extractLinksWithContext,
-  extractMarkdownInternalRoutes,
-  routeToSlug,
-} from "../../../src/lib/content/link-resolver";
+import { extractLinksWithContext } from "../../../src/lib/content/link-context";
+import { extractMarkdownInternalRoutes, routeToSlug } from "../../../src/lib/content/link-extraction";
 import { normalizeTitle } from "../../../src/lib/content/normalize";
 
 export const backlinksStep: Step = {

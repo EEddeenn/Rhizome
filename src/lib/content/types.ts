@@ -83,3 +83,30 @@ export type AnchorsEntry = {
 export type AnchorsIndex = Record<string, AnchorsEntry>;
 
 export type Manifest = Entry[];
+
+export interface ResolvedLink {
+  route: string;
+  anchor?: string;
+  exists: boolean;
+}
+
+export interface ResolvedEmbed {
+  type: "note" | "pdf";
+  slug?: string;
+  path?: string;
+  anchor?: string;
+  page?: number;
+}
+
+export interface HeadingWithPosition extends Heading {
+  position: number;
+}
+
+export interface LinkWithContext {
+  raw: string;
+  title: string;
+  alias?: string;
+  position: number;
+  snippet: string;
+  heading?: string;
+}

@@ -2,6 +2,65 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.20.0] - 2026-02-15
+
+### Added
+
+#### Error Handling & Loading States
+- `src/app/(site)/error.tsx` — Error boundary at route group level with "Try again" and "Go home" recovery options
+- `src/app/(site)/loading.tsx` — Loading skeleton for entry pages with animated placeholder content
+
+#### Split-View Refactoring
+- `src/components/split-view/usePaneData.ts` — Custom hook extracting data fetching logic from SplitPane
+- `src/components/split-view/usePaneData.ts` — Returns `{ entry, manifest, backlinks, loading }` for cleaner component
+
+### Changed
+
+#### Code Structure & Maintainability
+- `src/lib/content/link-resolver.ts` — Split 301-line "god file" into focused modules:
+  - `link-extraction.ts` — Wiki link parsing, route extraction, title indexing (97 lines)
+  - `content-extraction.ts` — Headings and plain text extraction (63 lines)
+  - `link-context.ts` — Link context with snippets for backlinks (97 lines)
+  - Original file now re-exports for backward compatibility
+- `src/components/split-view/SplitPane.tsx` — Refactored from 262 to ~180 lines:
+  - Extracted `usePaneData` hook for data fetching
+  - Extracted `useAnchorScrollEffect` hook for scroll logic
+  - Cleaner separation of concerns
+
+#### Type Consolidation
+- `src/lib/content/types.ts` — Centralized shared types:
+  - `ResolvedLink` — Moved from `wiki-link-resolver.ts`
+  - `ResolvedEmbed` — Moved from `wiki-link-resolver.ts`
+  - `HeadingWithPosition` — New shared type for backlinks context
+  - `LinkWithContext` — New shared type for backlinks context
+- `wiki-link-resolver.ts` and `remark-wiki-links.ts` now import from central types
+
+### Fixed
+
+#### E2E Mobile Tests
+- `e2e/specs/theme.spec.ts` — Fixed all 4 failing mobile tests:
+  - Added `openMobileMenuIfNeeded()` helper to open mobile menu before interactions
+  - Added `scrollIntoViewIfNeeded()` for theme toggle at bottom of mobile menu
+  - Extended timeout for mobile menu visibility
+- `e2e/specs/smoke.spec.ts` — Fixed 4 failing mobile navigation tests:
+  - Same mobile menu handling for nav links
+- `e2e/specs/graph.spec.ts` — Fixed mobile test for entry click:
+  - Mobile navigates directly to page (no split-view)
+
+### Removed
+
+#### Cleanup
+- `src/components/graph/` — Removed empty directory
+- `src/components/ui/` — Removed empty directory
+- `src/lib/swr/` — Removed empty directory
+- `src/lib/client-data/` — Removed empty directory
+
+### Tests
+- All 203 unit tests passing
+- All 100 E2E tests passing (6 skipped - split-view desktop-only)
+
+---
+
 ## [0.19.0] - 2026-02-15
 
 ### Added

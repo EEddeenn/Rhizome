@@ -1,18 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { ClientMDXRenderer } from "./ClientMDXRenderer";
 import { useSplitView, type PaneData } from "@/components/context/SplitViewContext";
 import { PaneSearchParamsProvider } from "@/components/context/PaneSearchParamsContext";
 import { TagPills } from "@/components/blocks/TagPills";
-import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
 import { scrollElementIntoContainer } from "@/components/navigation";
 import { TocDropdown } from "./TocDropdown";
 import { BacklinksDropdown } from "./BacklinksDropdown";
-import type { Entry, Manifest, Heading, BacklinksIndex, BacklinkInfo } from "@/lib/content/types";
-
-const loadManifest = createCachedFetcher<Manifest>("/generated/manifest/manifest.json");
-const loadBacklinks = createCachedFetcher<BacklinksIndex>("/generated/backlinks/backlinks.json");
+import { usePaneData } from "./usePaneData";
+import type { Entry, BacklinkInfo } from "@/lib/content/types";
 
 const CloseIcon = (
   <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,10 +47,7 @@ interface SplitPaneProps {
 }
 
 export function SplitPane({ pane, index }: SplitPaneProps) {
-  const [entry, setEntry] = useState<Entry | null>(null);
-  const [manifest, setManifest] = useState<Manifest | null>(null);
-  const [backlinks, setBacklinks] = useState<BacklinkInfo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { entry, manifest, backlinks, loading } = usePaneData(pane.slug, pane.id);
   const [contentReady, setContentReady] = useState(false);
   const [showToc, setShowToc] = useState(false);
   const [showBacklinks, setShowBacklinks] = useState(false);
@@ -62,59 +56,11 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
   const scrolledRef = useRef<string | null>(null);
   const { closePane, openPane } = useSplitView();
 
-  useEffect(() => {
-    setLoading(true);
-    setContentReady(false);
-    scrolledRef.current = null;
-    Promise.all([loadManifest(), loadBacklinks()])
-      .then(([manifestData, backlinksData]) => {
-        setManifest(manifestData);
-        const found = manifestData.find((e) => e.slug === pane.slug);
-        setEntry(found || null);
-        setBacklinks(backlinksData[pane.slug] || []);
-        setLoading(false);
-      })
-      .catch(() => {
-        setEntry(null);
-        setLoading(false);
-      });
-  }, [pane.slug, pane.id]);
+  useAnchorScrollEffect(pane.anchor, pane.slug, loading, contentReady, contentRef, scrolledRef);
 
-  useEffect(() => {
-    if (loading || !pane.anchor || !contentReady) return;
-    
-    const scrollKey = `${pane.slug}#${pane.anchor}`;
-    if (scrolledRef.current === scrollKey) return;
-
-    const container = contentRef.current;
-    if (!container) return;
-
-    const tryScroll = (attempts: number) => {
-      if (attempts <= 0 || scrolledRef.current === scrollKey) return;
-      
-      const element = container.querySelector(`#${CSS.escape(pane.anchor!)}`);
-      if (element) {
-        scrollElementIntoContainer(container, element);
-        scrolledRef.current = scrollKey;
-      } else if (attempts > 1) {
-        setTimeout(() => tryScroll(attempts - 1), 150);
-      }
-    };
-
-    setTimeout(() => tryScroll(10), 50);
-  }, [loading, pane.anchor, pane.slug, contentReady]);
-
-  const handleClose = () => {
-    closePane(index);
-  };
-
-  const handleOpenFull = () => {
-    window.location.href = `/${pane.slug}`;
-  };
-
-  const handleDuplicate = () => {
-    openPane(pane.slug, pane.searchParams, true);
-  };
+  const handleClose = () => closePane(index);
+  const handleOpenFull = () => { window.location.href = `/${pane.slug}`; };
+  const handleDuplicate = () => openPane(pane.slug, pane.searchParams, true);
 
   const hasHeadings = entry?.headings && entry.headings.filter((h) => h.depth >= 2 && h.depth <= 4).length > 0;
 
@@ -258,4 +204,39 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
       </div>
     </div>
   );
+}
+
+import { useEffect } from "react";
+
+function useAnchorScrollEffect(
+  anchor: string | undefined,
+  slug: string,
+  loading: boolean,
+  contentReady: boolean,
+  contentRef: React.RefObject<HTMLDivElement | null>,
+  scrolledRef: React.MutableRefObject<string | null>
+) {
+  useEffect(() => {
+    if (loading || !anchor || !contentReady) return;
+    
+    const scrollKey = `${slug}#${anchor}`;
+    if (scrolledRef.current === scrollKey) return;
+
+    const container = contentRef.current;
+    if (!container) return;
+
+    const tryScroll = (attempts: number) => {
+      if (attempts <= 0 || scrolledRef.current === scrollKey) return;
+      
+      const element = container.querySelector(`#${CSS.escape(anchor)}`);
+      if (element) {
+        scrollElementIntoContainer(container, element);
+        scrolledRef.current = scrollKey;
+      } else if (attempts > 1) {
+        setTimeout(() => tryScroll(attempts - 1), 150);
+      }
+    };
+
+    setTimeout(() => tryScroll(10), 50);
+  }, [loading, anchor, slug, contentReady, contentRef, scrolledRef]);
 }

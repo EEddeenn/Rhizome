@@ -7,9 +7,8 @@ import {
   resolveRoutesToSlugs,
   resolveWikiLinksToSlugs,
   buildTitleIndex,
-  extractHeadings,
-  extractPlainText,
-} from "../src/lib/content/link-resolver";
+} from "../src/lib/content/link-extraction";
+import { extractHeadings, extractPlainText } from "../src/lib/content/content-extraction";
 
 describe("link resolver utilities", () => {
   describe("extractWikiLinks", () => {

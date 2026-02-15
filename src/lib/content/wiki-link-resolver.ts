@@ -1,20 +1,8 @@
 import { normalizeTitle } from "./normalize";
 import { slugifyAnchor } from "./slug";
-import type { Manifest } from "./types";
+import type { Manifest, ResolvedLink, ResolvedEmbed } from "./types";
 
-export interface ResolvedLink {
-  route: string;
-  anchor?: string;
-  exists: boolean;
-}
-
-export interface ResolvedEmbed {
-  type: "note" | "pdf";
-  slug?: string;
-  path?: string;
-  anchor?: string;
-  page?: number;
-}
+export type { ResolvedLink, ResolvedEmbed };
 
 export function createWikiLinkResolver(manifest: Manifest): (title: string, anchor?: string) => ResolvedLink {
   const titleToRoute = new Map<string, string>();

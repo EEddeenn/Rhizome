@@ -5,7 +5,7 @@ import {
   findNearestHeading,
   extractSnippet,
   extractLinksWithContext,
-} from "../src/lib/content/link-resolver";
+} from "../src/lib/content/link-context";
 
 describe("backlink context extraction", () => {
   describe("extractHeadingPositions", () => {

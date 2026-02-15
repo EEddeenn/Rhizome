@@ -1,6 +1,6 @@
 import manifest from "@/generated/manifest/manifest.json";
-import type { Entry, Manifest } from "@/lib/content/types";
-import { createWikiLinkResolver, createEmbedResolver, type ResolvedLink, type ResolvedEmbed } from "@/lib/content/wiki-link-resolver";
+import type { Entry, Manifest, ResolvedLink, ResolvedEmbed } from "@/lib/content/types";
+import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
 
 let entryMap: Map<string, Entry> | null = null;
 let cachedResolver: ((title: string, anchor?: string) => ResolvedLink) | null = null;
