@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useId } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -62,6 +62,7 @@ export function PDFViewerInner({
   const containerRef = useRef<HTMLDivElement>(null);
   const pageContainerRef = useRef<HTMLDivElement>(null);
   const numPagesRef = useRef<number>(0);
+  const pageInputId = useId();
 
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(initialPage);
@@ -173,11 +174,11 @@ export function PDFViewerInner({
             {ChevronLeftIcon}
           </button>
 
-          <label htmlFor="pdf-page-input" className="sr-only">
+          <label htmlFor={pageInputId} className="sr-only">
             Page number
           </label>
           <input
-            id="pdf-page-input"
+            id={pageInputId}
             type="number"
             name="page"
             value={pageNumber}

@@ -220,9 +220,31 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Added `rehype-slug` to `ClientMDXRenderer` for heading IDs
 - [x] Backlinks JSON generated to public folder for client-side access
 
+### Phase 25 — E2E Testing Infrastructure
+- [x] Playwright setup with Chromium desktop and mobile configurations
+- [x] `playwright.config.ts` — Test configuration with web server integration
+- [x] `package.json` — Added `test:e2e`, `test:e2e:ui`, `test:e2e:report` scripts
+- [x] `e2e/specs/smoke.spec.ts` — 6 smoke tests (home, navigation, 404)
+- [x] `e2e/specs/notes.spec.ts` — 7 note page tests (listing, rendering, breadcrumbs, TOC, backlinks)
+- [x] `e2e/specs/search.spec.ts` — 12 search tests (input, filters, keyboard nav, URL params)
+- [x] `e2e/specs/graph.spec.ts` — 8 graph tests (canvas, legend, entries, hover, keyboard)
+- [x] `e2e/specs/tags.spec.ts` — 5 tag tests (index, pages, navigation)
+- [x] `e2e/specs/theme.spec.ts` — 4 theme tests (toggle, persistence)
+- [x] `e2e/specs/split-view.spec.ts` — 6 split-view tests (panes, toolbar, URL sync)
+- [x] `e2e/specs/pdf-viewer.spec.ts` — 5 PDF tests (controls, navigation, unique IDs)
+- [x] Screenshot and video capture on test failures
+- [x] `E2E_REPORT.md` — Comprehensive testing documentation
+
+### Phase 26 — Bug Fixes from E2E Testing
+- [x] Mobile URL construction fixed — params now before anchor in URLs
+- [x] PDF Viewer duplicate IDs fixed — uses React `useId()` for unique IDs
+- [x] All 53 E2E tests passing
+- [x] All 203 unit tests passing
+
 ### Documentation
-- [x] README.md — Updated with all features
-- [x] CHANGELOG.md — Version 0.5.0
+- [x] README.md — Updated with all features including E2E testing
+- [x] CHANGELOG.md — Version 0.19.0
+- [x] E2E_REPORT.md — E2E testing documentation
 - [x] Comprehensive demo content:
   - `welcome.mdx` — Getting started guide
   - `markdown-guide.mdx` — Markdown formatting reference
@@ -256,7 +278,8 @@ None remaining - all features from IMPLEMENTED.md have been completed.
 | Graph View | ✅ Complete |
 | Mermaid/Math | ✅ Complete |
 | SEO (sitemap/RSS) | ✅ Complete |
-| Testing | ✅ Complete |
+| Testing (Unit) | ✅ Complete (203 tests) |
+| Testing (E2E) | ✅ Complete (53 tests) |
 | Responsive Design | ✅ Complete |
 | Callouts | ✅ Complete |
 | Syntax Highlighting | ✅ Complete |

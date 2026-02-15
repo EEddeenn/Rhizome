@@ -2,6 +2,45 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.0] - 2026-02-15
+
+### Added
+
+#### E2E Testing Infrastructure
+- **Playwright** setup with Chromium desktop and mobile project configurations
+- **53 E2E test cases** covering all major features:
+  - Smoke tests (6): Home page, navigation, 404 handling
+  - Notes pages (7): Listing, rendering, breadcrumbs, TOC, backlinks, wiki-links
+  - Search (12): Input, results, type/tag filters, keyboard navigation, URL params
+  - Graph visualization (8): Canvas rendering, legend, entry list, hover, keyboard
+  - Tags (5): Index, tag pages, navigation
+  - Theme toggle (4): Button, switching, persistence
+  - Split-view (6): Pane opening, toolbar, close, navigation, URL sync
+  - PDF Viewer (5): Controls, page navigation, unique IDs
+- **Test scripts**: `npm run test:e2e`, `npm run test:e2e:ui`, `npm run test:e2e:report`
+- Screenshot and video capture on test failures for debugging
+
+### Fixed
+
+#### Mobile URL Construction
+- `src/components/context/SplitViewContext.tsx` — Fixed URL construction on mobile navigation
+- URLs now correctly formatted as `/slug?params#anchor` instead of `/slug#anchor?params`
+- Affected wiki-links with both anchors and query parameters
+
+#### PDF Viewer Duplicate IDs
+- `src/components/mdx/PDFViewer/PDFViewerInner.tsx` — Fixed duplicate DOM IDs
+- Page input now uses React `useId()` for unique IDs per viewer instance
+- Fixes accessibility issues and HTML validation errors when multiple PDFs on page
+
+### Documentation
+
+#### New Files
+- `E2E_REPORT.md` — Comprehensive E2E testing report with bugs found and fixed
+- `playwright.config.ts` — Playwright configuration for desktop/mobile testing
+- `e2e/specs/*.spec.ts` — 8 test spec files with 53 test cases
+
+---
+
 ## [0.18.0] - 2026-02-15
 
 ### Changed

@@ -247,7 +247,10 @@ Local PDFs go in `content/assets/pdfs/` and are referenced by filename. Features
 | `npm run build` | Build for production (runs gen first) |
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Run TypeScript check |
-| `npm run test` | Run tests |
+| `npm run test` | Run unit tests |
+| `npm run test:e2e` | Run E2E tests with Playwright |
+| `npm run test:e2e:ui` | Run E2E tests with interactive UI |
+| `npm run test:e2e:report` | View E2E test report |
 
 ## Deployment
 
@@ -324,6 +327,7 @@ All content is processed at build time:
 | [DESIGN.md](./DESIGN.md) | Architecture, data contracts, and implementation phases |
 | [CHANGELOG.md](./CHANGELOG.md) | Version history and release notes |
 | [IMPLEMENTED.md](./IMPLEMENTED.md) | Implementation status tracker |
+| [E2E_REPORT.md](./E2E_REPORT.md) | E2E testing report and bug fixes |
 
 ## License
 

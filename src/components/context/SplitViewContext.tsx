@@ -125,11 +125,11 @@ export function SplitViewProvider({ children }: SplitViewProviderProps) {
     if (isMobile) {
       let url = `/${slug}`;
       const params = new URLSearchParams(searchParams || {});
-      if (anchor) {
-        url += `#${anchor}`;
-      }
       if (params.toString()) {
         url += `?${params.toString()}`;
+      }
+      if (anchor) {
+        url += `#${anchor}`;
       }
       window.location.href = url;
       return;
