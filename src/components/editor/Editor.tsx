@@ -45,6 +45,18 @@ function EditorLayout() {
     setInitialNoteOpened(true);
   }, [isConnected, mergedEntries, currentNote, openNote, initialNoteOpened]);
 
+  useEffect(() => {
+    if (!initialNoteOpened) return;
+
+    const url = new URL(window.location.href);
+    if (currentNote) {
+      url.searchParams.set("note", currentNote.path);
+    } else {
+      url.searchParams.delete("note");
+    }
+    window.history.replaceState(null, "", url.toString());
+  }, [currentNote, initialNoteOpened]);
+
   const saveNoteListWidth = (width: number) => {
     localStorage.setItem(STORAGE_KEY_NOTE_LIST, String(width));
     setNoteListWidth(width);
