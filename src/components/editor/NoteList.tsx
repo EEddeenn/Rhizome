@@ -43,7 +43,7 @@ export function NoteList() {
   if (isLoadingManifest && mergedEntries.length === 0) {
     const skeletonWidths = ["90%", "85%", "95%", "80%", "88%"];
     return (
-      <div className="w-64 border-r border-border p-4">
+      <div className="w-64 min-w-48 shrink-0 border-r border-border p-4">
         <div className="animate-pulse space-y-2">
           {skeletonWidths.map((width, i) => (
             <div
@@ -58,7 +58,7 @@ export function NoteList() {
   }
 
   return (
-    <div className="w-64 border-r border-border flex flex-col h-full">
+    <div className="w-64 min-w-48 border-r border-border flex flex-col h-full shrink-0">
       <div className="p-3 border-b border-border space-y-2">
         <div className="flex gap-1">
           <input
@@ -66,15 +66,15 @@ export function NoteList() {
             placeholder="Search notes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 px-3 py-1.5 text-sm bg-background border border-border rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex-1 min-w-0 px-3 py-1.5 text-sm bg-background border border-border rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           />
           <button
             onClick={refreshManifest}
             disabled={isLoadingManifest}
-            className="px-2 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg disabled:opacity-50"
+            className="shrink-0 px-2 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg disabled:opacity-50"
             title="Refresh from GitHub"
           >
-            <RefreshIcon className={isLoadingManifest ? "animate-spin" : ""} />
+            <RefreshIcon className={`w-4 h-4 ${isLoadingManifest ? "animate-spin" : ""}`} />
           </button>
         </div>
         <div className="flex gap-1">
