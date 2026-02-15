@@ -71,6 +71,7 @@ The static site will be output to the `out/` directory.
 │   │   ├── blocks/      # Content blocks (EntryList, BacklinksPanel, TOC, etc.)
 │   │   ├── context/     # React contexts (SplitView, ContentReady, MermaidTracker)
 │   │   ├── editor/      # Web editor components (CodeEditor, PreviewPane, etc.)
+│   │   ├── icons/       # Shared SVG icon components
 │   │   ├── layout/      # Layout components (Nav, Footer, Breadcrumbs)
 │   │   ├── mdx/         # MDX components (Mermaid/, Callout/, PDFViewer/, NoteEmbed/)
 │   │   ├── navigation/  # Navigation (LinkInterceptor, InternalLink, scroll-utils)
@@ -79,7 +80,7 @@ The static site will be output to the `out/` directory.
 │   │   └── split-view/  # Split-view (SplitPane, TocDropdown, BacklinksDropdown)
 │   ├── hooks/           # Custom hooks (useContentReady, useMermaidTracker)
 │   ├── lib/
-│   │   ├── content/     # Content utilities (slug, normalize, link-resolver)
+│   │   ├── content/     # Content utilities (slug, normalize, patterns, link-extraction)
 │   │   │   └── plugins/ # MDX plugins (remark-mermaid, remark-wiki-links, etc.)
 │   │   ├── editor/      # Editor utilities (github-adapter, auth-store)
 │   │   └── generated/   # Loaders for generated data

@@ -1,5 +1,6 @@
 import type { BuildManifest } from "./buildManifest";
 import type { RuntimeManifest } from "./runtimeManifest";
+import type { EntryType } from "@/lib/content/types";
 
 export type MergedEntryStatus = "indexed" | "new" | "missing";
 
@@ -8,7 +9,7 @@ export interface MergedEntry {
   title: string;
   tags: string[];
   slug: string;
-  type: "note" | "article" | "book" | "paper";
+  type: EntryType;
   readingStatus?: string;
   date?: string;
   summary?: string;
@@ -107,7 +108,7 @@ function deriveTitleFromPath(path: string): string {
     .join(" ");
 }
 
-function deriveTypeFromPath(path: string): "note" | "article" | "book" | "paper" {
+function deriveTypeFromPath(path: string): EntryType {
   if (path.includes("/articles/")) return "article";
   if (path.includes("/books/")) return "book";
   if (path.includes("/papers/")) return "paper";

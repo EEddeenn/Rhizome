@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 
 interface MermaidTrackerContextValue {
   register: () => void;
@@ -30,8 +30,13 @@ export function MermaidTrackerProvider({ children }: { children: ReactNode }) {
   const hasPending = registeredCount > 0;
   const isAllReady = registeredCount > 0 && readyCount >= registeredCount;
 
+  const value = useMemo(
+    () => ({ register, markReady, isAllReady, hasPending }),
+    [register, markReady, isAllReady, hasPending]
+  );
+
   return (
-    <MermaidTrackerContext.Provider value={{ register, markReady, isAllReady, hasPending }}>
+    <MermaidTrackerContext.Provider value={value}>
       {children}
     </MermaidTrackerContext.Provider>
   );

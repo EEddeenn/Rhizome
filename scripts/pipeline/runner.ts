@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
-import type { Step, StepContext, StepOutput, StepReport, PipelineReport, Manifest, RawEntry } from "./types";
+import type { Step, StepContext, StepOutput, StepReport, PipelineReport, RawEntry } from "./types";
+import type { Entry } from "../../src/lib/content/types";
 import { createLogger, createStepContext, hashObject } from "./context";
 import { PUBLIC_DIR } from "./constants";
 
@@ -48,7 +49,7 @@ export function groupStepsByLevel(steps: Step[]): StepLevel[] {
 
 function computeInputHash(
   step: Step, 
-  manifest: Manifest[], 
+  manifest: Entry[], 
   rawEntries: RawEntry[],
   stepOutputs: Map<string, StepOutput>
 ): string {
@@ -82,7 +83,7 @@ interface StepRunResult {
 async function runStep(
   step: Step,
   ctx: StepContext,
-  manifest: Manifest[],
+  manifest: Entry[],
   rawEntries: RawEntry[],
   stepOutputs: Map<string, StepOutput>,
   force: boolean
@@ -142,7 +143,7 @@ async function runStep(
 
 export async function runPipeline(
   steps: Step[],
-  manifest: Manifest[],
+  manifest: Entry[],
   rawEntries: RawEntry[],
   siteUrl: string,
   siteTitle: string,

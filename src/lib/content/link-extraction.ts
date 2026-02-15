@@ -3,9 +3,7 @@ import remarkParse from "remark-parse";
 import { visit } from "unist-util-visit";
 import type { WikiLink } from "./types";
 import { normalizeTitle } from "./normalize";
-
-const WIKI_LINK_PATTERN = /(!?)\[\[([^\]#|]+)(?:#(\^?[^\]|]+))?(?:\|([^\]]+))?\]\]/g;
-const MD_LINK_PATTERN = /\[[^\]]*\]\(([^)]+)\)/g;
+import { WIKI_LINK_PATTERN, MD_LINK_PATTERN } from "./patterns";
 
 type MdastNode = {
   type: string;

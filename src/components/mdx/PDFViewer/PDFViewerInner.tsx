@@ -2,45 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef, useId } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import { ChevronLeftIcon, ChevronRightIcon, MinusIcon, PlusIcon, CloseIcon, FullscreenIcon } from "@/components/icons";
 
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-
-const ChevronLeftIcon = (
-  <svg aria-hidden="true" className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-  </svg>
-);
-
-const ChevronRightIcon = (
-  <svg aria-hidden="true" className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-  </svg>
-);
-
-const MinusIcon = (
-  <svg aria-hidden="true" className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-  </svg>
-);
-
-const PlusIcon = (
-  <svg aria-hidden="true" className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-  </svg>
-);
-
-const CloseIcon = (
-  <svg aria-hidden="true" className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
-
-const FullscreenIcon = (
-  <svg aria-hidden="true" className="w-5 h-5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4h4M4 16v4h4M20 8V4h-4M20 16v4h-4" />
-  </svg>
-);
 
 interface PDFDocumentInfo {
   numPages: number;
@@ -171,7 +136,7 @@ export function PDFViewerInner({
             className="p-1.5 sm:p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Previous page"
           >
-            {ChevronLeftIcon}
+            <ChevronLeftIcon className="w-5 h-5 sm:w-4 sm:h-4" />
           </button>
 
           <label htmlFor={pageInputId} className="sr-only">
@@ -200,7 +165,7 @@ export function PDFViewerInner({
             className="p-1.5 sm:p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Next page"
           >
-            {ChevronRightIcon}
+            <ChevronRightIcon className="w-5 h-5 sm:w-4 sm:h-4" />
           </button>
 
           <div className="hidden sm:block w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1" />
@@ -211,7 +176,7 @@ export function PDFViewerInner({
             className="p-1.5 sm:p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Zoom out"
           >
-            {MinusIcon}
+            <MinusIcon className="w-5 h-5 sm:w-4 sm:h-4" />
           </button>
 
           <span className="hidden sm:block text-xs text-gray-600 dark:text-gray-400 w-10 text-center">
@@ -224,7 +189,7 @@ export function PDFViewerInner({
             className="p-1.5 sm:p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Zoom in"
           >
-            {PlusIcon}
+            <PlusIcon className="w-5 h-5 sm:w-4 sm:h-4" />
           </button>
 
           <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-0.5 sm:mx-1" />
@@ -234,7 +199,7 @@ export function PDFViewerInner({
             className="p-1.5 sm:p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           >
-            {isFullscreen ? CloseIcon : FullscreenIcon}
+            {isFullscreen ? <CloseIcon className="w-5 h-5 sm:w-4 sm:h-4" /> : <FullscreenIcon className="w-5 h-5 sm:w-4 sm:h-4" />}
           </button>
         </div>
       </div>

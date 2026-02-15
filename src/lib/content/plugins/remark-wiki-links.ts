@@ -3,8 +3,7 @@ import type { Plugin } from "unified";
 import type { Root, Text, Link, Parent, Paragraph } from "mdast";
 import { slugifyAnchor } from "../slug";
 import type { ResolvedLink, ResolvedEmbed } from "../types";
-
-const WIKI_LINK_PATTERN = /(!?)\[\[([^\]#|]+)(?:#(\^?[^\]|]+))?(?:\|([^\]]+))?\]\]/g;
+import { WIKI_LINK_PATTERN } from "../patterns";
 
 interface WikiLinkOptions {
   resolve?: (title: string, anchor?: string) => ResolvedLink;

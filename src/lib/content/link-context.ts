@@ -2,9 +2,7 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import { visit } from "unist-util-visit";
 import type { HeadingWithPosition, LinkWithContext } from "./types";
-
-const WIKI_LINK_PATTERN = /(!?)\[\[([^\]#|]+)(?:#(\^?[^\]|]+))?(?:\|([^\]]+))?\]\]/g;
-const HEADING_PATTERN = /^(#{1,6})\s+(.+)$/gm;
+import { WIKI_LINK_PATTERN, HEADING_PATTERN } from "./patterns";
 
 type MdastNode = {
   type: string;

@@ -1,7 +1,5 @@
 import type { Entry, TagsIndex, BacklinksIndex, Graph, SearchDoc, Heading, WikiLink } from "../../src/lib/content/types";
 
-export type Manifest = Entry;
-
 export interface RawEntry {
   slug: string;
   route: string;
@@ -24,7 +22,7 @@ export interface RawEntry {
 }
 
 export interface StepContext {
-  manifest: Manifest[];
+  manifest: Entry[];
   rawEntries: RawEntry[];
   siteUrl: string;
   siteTitle: string;

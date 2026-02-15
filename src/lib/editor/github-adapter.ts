@@ -4,6 +4,7 @@ import type {
   FileContent,
   WriteParams,
   WriteResult,
+  DeleteParams,
   VaultAdapter,
   GitHubError,
 } from "./types";
@@ -229,5 +230,26 @@ export class GitHubAdapterPAT implements VaultAdapter {
       }
       throw error;
     }
+  }
+
+  async deleteFile(params: DeleteParams): Promise<WriteResult> {
+    const { defaultBranch } = await this.getRepoInfo();
+    const branch = params.branch || defaultBranch;
+
+    const data = await this.fetchGitHub<{
+      commit: { sha: string; html_url: string };
+    }>(`/repos/${this.owner}/${this.repo}/contents/${params.path}`, {
+      method: "DELETE",
+      body: JSON.stringify({
+        message: params.message,
+        sha: params.sha,
+        branch,
+      }),
+    });
+
+    return {
+      commitSha: data.commit.sha,
+      htmlUrl: data.commit.html_url,
+    };
   }
 }

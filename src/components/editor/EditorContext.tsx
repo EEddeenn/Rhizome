@@ -6,6 +6,7 @@ import {
   useState,
   useCallback,
   useEffect,
+  useMemo,
   type ReactNode,
 } from "react";
 import {
@@ -63,11 +64,12 @@ interface EditorContextValue extends EditorState {
   disconnect: () => void;
   validateAndConnect: () => Promise<void>;
   loadManifests: () => Promise<void>;
-  refreshManifest: () => Promise<void>;
+  refreshManifest: () => Promise<MergedEntry[]>;
   openNote: (entry: MergedEntry) => Promise<void>;
   updateContent: (content: string) => void;
   save: () => Promise<void>;
   createNote: (path: string, content: string) => Promise<void>;
+  deleteNote: () => Promise<void>;
   reloadRemote: () => Promise<void>;
   clearSaveError: () => void;
   toggleShowMissing: () => void;
@@ -261,7 +263,7 @@ export function EditorProvider({ children }: EditorProviderProps) {
   }, [adapter]);
 
   const refreshManifest = useCallback(async () => {
-    if (!adapter) return;
+    if (!adapter) return [];
 
     setState((prev) => ({ ...prev, isLoadingManifest: true }));
 
@@ -285,11 +287,15 @@ export function EditorProvider({ children }: EditorProviderProps) {
       );
 
       const merged = reconcile(buildManifest, freshRuntime);
+      const filteredMerged = filterByStatus(merged, state.showMissing);
+      
       setState((prev) => ({
         ...prev,
         mergedEntries: filterByStatus(merged, prev.showMissing),
         isLoadingManifest: false,
       }));
+      
+      return filteredMerged;
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Failed to refresh manifest";
@@ -298,8 +304,9 @@ export function EditorProvider({ children }: EditorProviderProps) {
         isLoadingManifest: false,
         manifestLoadError: message,
       }));
+      return [];
     }
-  }, [adapter, buildManifest]);
+  }, [adapter, buildManifest, state.showMissing]);
 
   const openNote = useCallback(
     async (entry: MergedEntry) => {
@@ -417,20 +424,18 @@ export function EditorProvider({ children }: EditorProviderProps) {
           message: `Create ${path}`,
         });
 
-        await refreshManifest();
+        const updatedEntries = await refreshManifest();
+        const newEntry = updatedEntries.find(e => e.path === path);
 
-        setState((prev) => {
-          const newEntry = prev.mergedEntries.find(e => e.path === path);
-          return {
-            ...prev,
-            isSaving: false,
-            currentNote: newEntry || null,
-            currentContent: content,
-            currentSha: result.newSha || null,
-            isDirty: false,
-            lastSaveUrl: result.htmlUrl || null,
-          };
-        });
+        setState((prev) => ({
+          ...prev,
+          isSaving: false,
+          currentNote: newEntry || null,
+          currentContent: content,
+          currentSha: result.newSha || null,
+          isDirty: false,
+          lastSaveUrl: result.htmlUrl || null,
+        }));
       } catch (error: unknown) {
         const message =
           error instanceof Error ? error.message : "Failed to create note";
@@ -439,6 +444,36 @@ export function EditorProvider({ children }: EditorProviderProps) {
     },
     [adapter, refreshManifest]
   );
+
+  const deleteNote = useCallback(async () => {
+    if (!adapter || !state.currentNote || state.currentSha === null) return;
+
+    setState((prev) => ({ ...prev, isSaving: true, saveError: null }));
+
+    try {
+      await adapter.deleteFile({
+        path: state.currentNote!.path,
+        sha: state.currentSha!,
+        message: `Delete ${state.currentNote!.title}`,
+      });
+
+      await refreshManifest();
+
+      setState((prev) => ({
+        ...prev,
+        isSaving: false,
+        currentNote: null,
+        currentContent: "",
+        currentSha: null,
+        isDirty: false,
+        lastSaveUrl: null,
+      }));
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to delete note";
+      setState((prev) => ({ ...prev, isSaving: false, saveError: message }));
+    }
+  }, [adapter, state.currentNote, state.currentSha, refreshManifest]);
 
   const reloadRemote = useCallback(async () => {
     if (!adapter || !state.currentNote) return;
@@ -507,26 +542,47 @@ export function EditorProvider({ children }: EditorProviderProps) {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [state.isDirty]);
 
+  const value = useMemo(
+    () => ({
+      ...state,
+      adapter,
+      setConfig,
+      setToken,
+      disconnect,
+      validateAndConnect,
+      loadManifests,
+      refreshManifest,
+      openNote,
+      updateContent,
+      save,
+      createNote,
+      deleteNote,
+      reloadRemote,
+      clearSaveError,
+      toggleShowMissing,
+    }),
+    [
+      state,
+      adapter,
+      setConfig,
+      setToken,
+      disconnect,
+      validateAndConnect,
+      loadManifests,
+      refreshManifest,
+      openNote,
+      updateContent,
+      save,
+      createNote,
+      deleteNote,
+      reloadRemote,
+      clearSaveError,
+      toggleShowMissing,
+    ]
+  );
+
   return (
-    <EditorContext.Provider
-      value={{
-        ...state,
-        adapter,
-        setConfig,
-        setToken,
-        disconnect,
-        validateAndConnect,
-        loadManifests,
-        refreshManifest,
-        openNote,
-        updateContent,
-        save,
-        createNote,
-        reloadRemote,
-        clearSaveError,
-        toggleShowMissing,
-      }}
-    >
+    <EditorContext.Provider value={value}>
       {children}
     </EditorContext.Provider>
   );

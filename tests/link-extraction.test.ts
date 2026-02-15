@@ -10,7 +10,7 @@ import {
 } from "../src/lib/content/link-extraction";
 import { extractHeadings, extractPlainText } from "../src/lib/content/content-extraction";
 
-describe("link resolver utilities", () => {
+describe("link extraction utilities", () => {
   describe("extractWikiLinks", () => {
     it("extracts simple wiki links", () => {
       const md = "See [[Some Note]] for more.";

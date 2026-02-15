@@ -30,11 +30,19 @@ export interface WriteParams {
   sha?: string;
 }
 
+export interface DeleteParams {
+  path: string;
+  message: string;
+  sha: string;
+  branch?: string;
+}
+
 export interface VaultAdapter {
   getRepoInfo(): Promise<RepoInfo>;
   listNotes(params?: { root?: string }): Promise<NoteInfo[]>;
   readFile(path: string, ref?: string): Promise<FileContent>;
   writeFile(params: WriteParams): Promise<WriteResult>;
+  deleteFile(params: DeleteParams): Promise<WriteResult>;
   fileExists(path: string, ref?: string): Promise<boolean>;
 }
 

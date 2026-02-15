@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 import { SearchBar } from "./SearchBar";
+import { iconPaths } from "@/components/icons";
 
 const NAV_LINKS = [
   { href: "/notes", label: "Notes" },
@@ -12,14 +13,6 @@ const NAV_LINKS = [
   { href: "/graph", label: "Graph" },
   { href: "/editor", label: "Editor" },
 ];
-
-const CloseIcon = (
-  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-);
-
-const MenuIcon = (
-  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-);
 
 export function Nav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +52,7 @@ export function Nav() {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              {isOpen ? CloseIcon : MenuIcon}
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? iconPaths.close : iconPaths.menu} />
             </svg>
           </button>
         </div>

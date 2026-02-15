@@ -2,6 +2,68 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.0] - 2026-02-16
+
+### Added
+
+#### Shared Icon Module
+- `src/components/icons/index.tsx` — Centralized SVG icon components to eliminate duplication
+  - `createIcon()` factory for consistent icon styling
+  - `CloseIcon`, `MenuIcon`, `ChevronLeftIcon`, `ChevronRightIcon`, `BacklinksIcon`
+  - `PlusIcon`, `MinusIcon`, `DuplicateIcon`, `TocIcon`, `OpenFullIcon`, `FullscreenIcon`
+  - `iconPaths` for components needing custom SVG wrappers
+
+#### Shared Regex Patterns
+- `src/lib/content/patterns.ts` — Centralized regex patterns to eliminate triplication
+  - `WIKI_LINK_PATTERN` — Wiki-link parsing regex
+  - `MD_LINK_PATTERN` — Markdown link pattern
+  - `HEADING_PATTERN` — Heading extraction pattern
+  - `BLOCK_ID_PATTERN` — Block ID pattern
+
+#### Tests
+- `tests/sort.test.ts` — 8 tests for `sortEntries()` covering dates, titles, edge cases
+- `tests/reading-time.test.ts` — 9 tests for `estimateReadingTime()` covering word count, rounding
+- `tests/stop-words.test.ts` — 12 tests for `removeStopWords()` covering filtering, whitespace
+
+#### Editor
+- Delete note functionality — Red "Delete" button next to "New Note" with confirmation modal
+- `src/lib/editor/types.ts` — Added `DeleteParams` interface and `deleteFile` method to `VaultAdapter`
+- `src/lib/editor/github-adapter.ts` — Implemented `deleteFile()` using GitHub DELETE API
+- `src/components/editor/EditorContext.tsx` — Added `deleteNote()` method
+- `src/components/editor/EditorToolbar.tsx` — Added delete button and confirmation modal
+
+### Fixed
+- Note list now automatically updates after creating or deleting a note
+- `refreshManifest()` now returns the updated entries array for immediate use
+
+### Changed
+
+#### Code Structure & Maintainability
+- `src/lib/content/link-resolver.ts` — **Removed** (was unused barrel file re-exporting from other modules)
+- `src/lib/content/link-extraction.ts` — Now imports `WIKI_LINK_PATTERN`, `MD_LINK_PATTERN` from patterns.ts
+- `src/lib/content/link-context.ts` — Now imports `WIKI_LINK_PATTERN`, `HEADING_PATTERN` from patterns.ts
+- `src/lib/content/plugins/remark-wiki-links.ts` — Now imports `WIKI_LINK_PATTERN` from patterns.ts
+- `src/lib/content/block-ids.ts` — Now imports `BLOCK_ID_PATTERN` from patterns.ts
+- `tests/link-resolver.test.ts` — Renamed to `tests/link-extraction.test.ts` to match source file
+
+#### Component Updates (Icon Consolidation)
+- `src/components/split-view/SplitPane.tsx` — Now imports icons from `@/components/icons`
+- `src/components/layout/Nav.tsx` — Now uses `iconPaths` from shared module
+- `src/components/mdx/PDFViewer/PDFViewerInner.tsx` — Now imports icons from `@/components/icons`
+
+#### React Performance
+- `src/components/context/MermaidTrackerContext.tsx` — Added `useMemo` for context value to prevent unnecessary re-renders
+- `src/components/editor/EditorContext.tsx` — Added `useMemo` for context value to prevent unnecessary re-renders
+
+#### Type Consolidation
+- `src/lib/manifest/buildManifest.ts` — Now imports `EntryType` from content types instead of duplicating literal
+- `src/lib/manifest/reconcile.ts` — Now imports `EntryType` from content types instead of duplicating literal
+- `scripts/pipeline/types.ts` — Removed confusing `Manifest = Entry` alias, now uses `Entry[]` directly
+- `scripts/pipeline/runner.ts` — Updated to use `Entry[]` instead of `Manifest[]`
+- `scripts/pipeline/context.ts` — Updated to use `Entry[]` instead of `Manifest[]`
+
+---
+
 ## [0.21.0] - 2026-02-16
 
 ### Added

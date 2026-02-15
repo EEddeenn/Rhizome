@@ -13,7 +13,7 @@
  * - SHA for concurrency (must not be used for saving)
  */
 
-import type { Entry } from "@/lib/content/types";
+import type { Entry, EntryType } from "@/lib/content/types";
 
 /**
  * Build-time manifest entry with normalized fields
@@ -36,7 +36,7 @@ export interface BuildEntry {
   /** Updated date string */
   updated?: string;
   /** Content type */
-  type: "note" | "article" | "book" | "paper";
+  type: EntryType;
   /** Summary from frontmatter */
   summary?: string;
   /** Order key for sorting (derived from build order) */

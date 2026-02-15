@@ -12,6 +12,7 @@ export function EditorToolbar() {
     lastSaveUrl,
     save,
     createNote,
+    deleteNote,
     config,
     setConfig,
   } = useEditor();
@@ -20,6 +21,7 @@ export function EditorToolbar() {
   const [newNoteName, setNewNoteName] = useState("");
   const [newNoteType, setNewNoteType] = useState<"note" | "article">("note");
   const [showSettings, setShowSettings] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleSave = async () => {
     await save();
@@ -49,6 +51,11 @@ Content goes here.
     setNewNoteName("");
   };
 
+  const handleDeleteNote = async () => {
+    await deleteNote();
+    setShowDeleteConfirm(false);
+  };
+
   return (
     <>
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-background">
@@ -59,6 +66,16 @@ Content goes here.
           >
             New Note
           </button>
+
+          {currentNote && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={isSaving}
+              className="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+            >
+              Delete
+            </button>
+          )}
 
           {currentNote && (
             <>
@@ -191,6 +208,33 @@ Content goes here.
                 className="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
                 Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-background border border-border rounded-lg shadow-lg max-w-sm w-full mx-4 p-6">
+            <h3 className="text-lg font-semibold mb-2">Delete Note</h3>
+            <p className="text-sm text-muted mb-4">
+              Are you sure you want to delete <span className="font-medium text-foreground">{currentNote?.title}</span>? This action cannot be undone.
+            </p>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteNote}
+                disabled={isSaving}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+              >
+                {isSaving ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

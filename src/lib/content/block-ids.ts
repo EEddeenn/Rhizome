@@ -1,6 +1,5 @@
 import type { BlockIdInfo, Heading } from "./types";
-
-const BLOCK_ID_PATTERN = /\s\^([a-zA-Z0-9_-]+)\s*$/gm;
+import { BLOCK_ID_PATTERN } from "./patterns";
 
 export function extractBlockIds(content: string): Map<string, BlockIdInfo> {
   const blockIds = new Map<string, BlockIdInfo>();

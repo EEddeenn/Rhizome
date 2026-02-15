@@ -25,7 +25,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Build raw entries with computed slug/route
 
 ### Phase 3 — Extract Headings, Text, Links
-- [x] `src/lib/content/link-resolver.ts`
+- [x] `src/lib/content/link-extraction.ts`, `content-extraction.ts`, `link-context.ts`
 - [x] Extract headings with github-slugger IDs
 - [x] Extract plain text for search
 - [x] Extract wiki-links via regex
@@ -121,8 +121,11 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Node.js built-in test runner
 - [x] `tests/slug.test.ts` — Slug utility tests
 - [x] `tests/normalize.test.ts` — Normalization tests
-- [x] `tests/link-resolver.test.ts` — Link extraction/resolution tests
-- [x] 42 tests passing
+- [x] `tests/link-extraction.test.ts` — Link extraction/resolution tests
+- [x] `tests/sort.test.ts` — Entry sorting tests
+- [x] `tests/reading-time.test.ts` — Reading time estimation tests
+- [x] `tests/stop-words.test.ts` — Stop word filtering tests
+- [x] 258 tests passing
 
 ### Phase 15 — Cloudflare Deployment
 - [x] `output: "export"` in next.config.mjs
@@ -194,11 +197,20 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 
 ### Phase 23 — Performance Optimizations
 - [x] Parallel file reads in `gen-content.ts` with `Promise.all()`
-- [x] Cached unified parser in `link-resolver.ts`
+- [x] Cached unified parser in `link-extraction.ts`, `link-context.ts`
 - [x] Lazy-loaded Mermaid with `MermaidLazy` component
 - [x] Lazy-loaded PDFViewer with `PDFViewerLazy` component
 - [x] Search input debounce (150ms)
 - [x] Search keyboard navigation (↑/↓/Enter/Escape)
+
+### Phase 24 — Code Structure Cleanup
+- [x] Removed unused barrel file `link-resolver.ts`
+- [x] Created `src/lib/content/patterns.ts` for shared regex patterns
+- [x] Created `src/components/icons/` for shared SVG icons
+- [x] Added `useMemo` to `MermaidTrackerContext` and `EditorContext`
+- [x] Fixed `EntryType` duplication in manifest files
+- [x] Removed confusing `Manifest` type alias from pipeline types
+- [x] Added tests for `sort.ts`, `reading-time.ts`, `stop-words.ts`
 - [x] Graph simulation early termination when converged
 
 ### Phase 24 — Split View with Search Params

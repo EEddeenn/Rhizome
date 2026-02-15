@@ -1,7 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
-import type { StepContext, StepCache, StepOutput, Logger, Manifest, RawEntry } from "./types";
+import type { StepContext, StepCache, StepOutput, Logger, RawEntry } from "./types";
+import type { Entry } from "../../src/lib/content/types";
 import { GENERATED_DIR, PUBLIC_DIR, CACHE_DIR } from "./constants";
 
 export function createLogger(prefix = ""): Logger {
@@ -33,7 +34,7 @@ export function hashObject(obj: unknown): string {
 }
 
 export function createStepContext(
-  manifest: Manifest[],
+  manifest: Entry[],
   rawEntries: RawEntry[],
   siteUrl: string,
   siteTitle: string,
