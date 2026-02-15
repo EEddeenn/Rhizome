@@ -1,6 +1,7 @@
 "use client";
 
 import type { MergedEntry } from "@/lib/manifest";
+import { Modal, ModalActions } from "./Modal";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -17,35 +18,32 @@ export function DeleteConfirmModal({
   currentNote, 
   isDeleting 
 }: DeleteConfirmModalProps) {
-  if (!isOpen) return null;
+  const handleConfirm = async () => {
+    await onConfirm();
+    onClose();
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-background border border-border rounded-lg shadow-lg max-w-sm w-full mx-4 p-6">
-        <h3 className="text-lg font-semibold mb-2">Delete Note</h3>
-        <p className="text-sm text-muted mb-4">
-          Are you sure you want to delete <span className="font-medium text-foreground">{currentNote?.title}</span>? This action cannot be undone.
-        </p>
+    <Modal isOpen={isOpen} onClose={onClose} title="Delete Note">
+      <p className="text-sm text-muted">
+        Are you sure you want to delete <span className="font-medium text-foreground">{currentNote?.title}</span>? This action cannot be undone.
+      </p>
 
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={async () => {
-              await onConfirm();
-              onClose();
-            }}
-            disabled={isDeleting}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-          >
-            {isDeleting ? "Deleting..." : "Delete"}
-          </button>
-        </div>
-      </div>
-    </div>
+      <ModalActions>
+        <button
+          onClick={onClose}
+          className="px-4 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleConfirm}
+          disabled={isDeleting}
+          className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+        >
+          {isDeleting ? "Deleting..." : "Delete"}
+        </button>
+      </ModalActions>
+    </Modal>
   );
 }

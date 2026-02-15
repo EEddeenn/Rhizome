@@ -37,8 +37,8 @@ function saveConfigToStorage(config: EditorConfig): void {
 
 function saveTokenToStorage(token: string, remember: boolean): void {
   if (typeof window === "undefined") return;
-  
-  const key = remember ? STORAGE_KEY_LOCAL : STORAGE_KEY_LOCAL;
+
+  const key = remember ? STORAGE_KEY_LOCAL : STORAGE_KEY_SESSION;
   const storage = remember ? localStorage : sessionStorage;
   storage.setItem(key, token);
   
