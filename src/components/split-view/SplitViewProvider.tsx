@@ -1,6 +1,6 @@
 "use client";
 
-import { SplitViewProvider as Provider } from "@/lib/context/SplitViewContext";
+import { SplitViewProvider as Provider } from "@/components/context/SplitViewContext";
 import { SplitViewContainer } from "./SplitViewContainer";
 
 interface SplitViewProviderProps {

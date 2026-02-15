@@ -3,10 +3,10 @@ import { getMdxContent } from "@/lib/generated/load-content";
 import { getEntryBySlug } from "@/lib/generated/load-manifest";
 import { getMdxPlugins } from "@/lib/content/mdx-config";
 import { extractSectionBySlug } from "@/lib/content/section-extractor";
-import { EmbedError } from "./EmbedError";
-import { Mermaid } from "./Mermaid";
-import { Callout } from "./Callout";
-import { PDFViewerLazy } from "./PDFViewerLazy";
+import { EmbedError } from "../EmbedError";
+import { Mermaid } from "../Mermaid";
+import { Callout } from "../Callout";
+import { PDFViewerLazy } from "../PDFViewer";
 
 interface NoteEmbedProps {
   slug: string;

@@ -1,7 +1,7 @@
 import { visit } from "unist-util-visit";
 import type { Plugin } from "unified";
 import type { Root, Text, Link, Parent, Paragraph } from "mdast";
-import { slugifyAnchor } from "./slug";
+import { slugifyAnchor } from "../slug";
 
 const WIKI_LINK_PATTERN = /(!?)\[\[([^\]#|]+)(?:#(\^?[^\]|]+))?(?:\|([^\]]+))?\]\]/g;
 

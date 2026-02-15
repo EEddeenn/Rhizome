@@ -2,7 +2,7 @@ import assert from "node:assert";
 import { describe, it } from "node:test";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
-import { remarkObsidianCallouts } from "../src/lib/content/remark-obsidian-callouts";
+import { remarkObsidianCallouts } from "../src/lib/content/plugins";
 import { visit } from "unist-util-visit";
 
 interface MdxJsxAttribute {

@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { usePaneSearchParams } from "@/lib/context/PaneSearchParamsContext";
+import { usePaneSearchParams } from "@/components/context/PaneSearchParamsContext";
 
 const PDFViewerInner = dynamic(
   () => import("./PDFViewerInner").then((mod) => mod.PDFViewerInner),

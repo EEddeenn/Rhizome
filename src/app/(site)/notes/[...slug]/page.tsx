@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getEntryBySlug, getNotes } from "@/lib/generated/load-manifest";
-import { EntryPage } from "@/components/blocks/EntryPage";
+import { EntryPage } from "@/components/pages";
 
 interface PageProps {
   params: Promise<{ slug: string[] }>;

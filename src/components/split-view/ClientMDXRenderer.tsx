@@ -1,21 +1,20 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import { sharedRemarkPlugins, sharedRehypePlugins, rehypeSlug } from "@/lib/mdx/plugins";
-import { remarkMermaid } from "@/lib/content/remark-mermaid";
-import { remarkWikiLinks } from "@/lib/content/remark-wiki-links";
-import { remarkObsidianCallouts } from "@/lib/content/remark-obsidian-callouts";
-import { rehypeBlockIds } from "@/lib/content/rehype-block-ids";
+import { remarkMermaid, remarkWikiLinks, remarkObsidianCallouts, rehypeBlockIds } from "@/lib/content/plugins";
 import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
 import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
-import { Mermaid } from "@/components/mdx/Mermaid";
+import { TrackedMermaid } from "@/components/mdx/Mermaid";
+import { MermaidTrackerProvider, useMermaidTracker } from "@/components/context/MermaidTrackerContext";
+import { useContentReadyOptional } from "@/components/context/ContentReadyContext";
 import { Callout } from "@/components/mdx/Callout";
-import { PDFViewerLazy } from "@/components/mdx/PDFViewerLazy";
-import { NoteEmbedClient, EmbedProvider } from "@/components/mdx/NoteEmbedClient";
+import { PDFViewerLazy } from "@/components/mdx/PDFViewer";
+import { NoteEmbedClient, EmbedProvider } from "@/components/mdx/NoteEmbed";
 import { EmbedError } from "@/components/mdx/EmbedError";
-import { InternalLink } from "./InternalLink";
+import { InternalLink } from "@/components/navigation";
 import type { Manifest } from "@/lib/content/types";
 
 const loadContent = createCachedFetcher<Record<string, string>>(
@@ -28,9 +27,80 @@ interface ClientMDXRendererProps {
   onReady?: () => void;
 }
 
+function MDXContent({
+  compiled,
+  slug,
+  onReady,
+}: {
+  compiled: MDXRemoteSerializeResult;
+  slug: string;
+  onReady?: () => void;
+}) {
+  const tracker = useMermaidTracker();
+  const contentReadyCtx = useContentReadyOptional();
+  const readyCalledRef = useRef(false);
+
+  const mdxComponents = useMemo(
+    () => ({
+      a: InternalLink,
+      table: ({ children }: React.HTMLAttributes<HTMLTableElement>) => (
+        <div className="overflow-x-auto">
+          <table>{children}</table>
+        </div>
+      ),
+      Mermaid: TrackedMermaid,
+      Callout,
+      PDFViewer: PDFViewerLazy,
+      NoteEmbed: NoteEmbedClient,
+      EmbedError,
+    }),
+    []
+  );
+
+  useEffect(() => {
+    if (readyCalledRef.current) return;
+
+    const triggerReady = () => {
+      readyCalledRef.current = true;
+      onReady?.();
+      if (slug && contentReadyCtx) {
+        contentReadyCtx.markReady(slug);
+      }
+    };
+
+    if (!tracker) {
+      triggerReady();
+      return;
+    }
+
+    if (!tracker.hasPending || tracker.isAllReady) {
+      setTimeout(() => {
+        requestAnimationFrame(triggerReady);
+      }, 100);
+    }
+  }, [tracker, onReady, slug, contentReadyCtx]);
+
+  return (
+    <EmbedProvider>
+      <div className="prose max-w-none dark:prose-invert prose-sm">
+        <MDXRemote {...compiled} components={mdxComponents} />
+      </div>
+    </EmbedProvider>
+  );
+}
+
 export function ClientMDXRenderer({ slug, onReady }: ClientMDXRendererProps) {
   const [compiled, setCompiled] = useState<MDXRemoteSerializeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const contentReadyCtx = useContentReadyOptional();
+  const lastResetSlugRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (contentReadyCtx && slug && lastResetSlugRef.current !== slug) {
+      lastResetSlugRef.current = slug;
+      contentReadyCtx.reset(slug);
+    }
+  }, [slug, contentReadyCtx]);
 
   useEffect(() => {
     setError(null);
@@ -69,24 +139,10 @@ export function ClientMDXRenderer({ slug, onReady }: ClientMDXRendererProps) {
   }, [slug]);
 
   useEffect(() => {
-    if ((compiled || error) && onReady) {
+    if (error && onReady) {
       requestAnimationFrame(() => onReady());
     }
-  }, [compiled, error, onReady]);
-
-  const mdxComponents = useMemo(() => ({
-    a: InternalLink,
-    table: ({ children }: React.HTMLAttributes<HTMLTableElement>) => (
-      <div className="overflow-x-auto">
-        <table>{children}</table>
-      </div>
-    ),
-    Mermaid,
-    Callout,
-    PDFViewer: PDFViewerLazy,
-    NoteEmbed: NoteEmbedClient,
-    EmbedError,
-  }), []);
+  }, [error, onReady]);
 
   if (error) {
     return (
@@ -107,10 +163,8 @@ export function ClientMDXRenderer({ slug, onReady }: ClientMDXRendererProps) {
   }
 
   return (
-    <EmbedProvider>
-      <div className="prose max-w-none dark:prose-invert prose-sm">
-        <MDXRemote {...compiled} components={mdxComponents} />
-      </div>
-    </EmbedProvider>
+    <MermaidTrackerProvider>
+      <MDXContent compiled={compiled} slug={slug} onReady={onReady} />
+    </MermaidTrackerProvider>
   );
 }

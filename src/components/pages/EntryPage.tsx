@@ -7,10 +7,11 @@ import { TagPills } from "@/components/blocks/TagPills";
 import { BacklinksPanel } from "@/components/blocks/BacklinksPanel";
 import { TableOfContents } from "@/components/blocks/TableOfContents";
 import { EntryMetadata } from "@/components/blocks/EntryMetadata";
+import { EntryPageClient } from "./EntryPageClient";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Mermaid } from "@/components/mdx/Mermaid";
 import { Callout } from "@/components/mdx/Callout";
-import { PDFViewerLazy } from "@/components/mdx/PDFViewerLazy";
+import { PDFViewerLazy } from "@/components/mdx/PDFViewer";
 import { useMDXComponents } from "@/components/mdx/MDXComponents";
 import { AnchorScroller } from "@/components/blocks/AnchorScroller";
 
@@ -37,43 +38,45 @@ export function EntryPage({ entry, categoryLabel, categoryHref }: EntryPageProps
   }
 
   return (
-    <article className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
-      <AnchorScroller />
-      <Breadcrumbs items={breadcrumbItems} />
-      
-      <header className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold">{entry.title}</h1>
-        <EntryMetadata
-          date={entry.date}
-          updated={entry.updated}
-          status={entry.status}
-          readingTimeMin={entry.readingTimeMin}
-          wordCount={entry.wordCount}
-        />
-        {entry.summary && (
-          <p className="text-muted mt-3 sm:mt-4 text-base sm:text-lg">{entry.summary}</p>
+    <EntryPageClient entry={entry}>
+      <article className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
+        <AnchorScroller />
+        <Breadcrumbs items={breadcrumbItems} />
+        
+        <header className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold">{entry.title}</h1>
+          <EntryMetadata
+            date={entry.date}
+            updated={entry.updated}
+            status={entry.status}
+            readingTimeMin={entry.readingTimeMin}
+            wordCount={entry.wordCount}
+          />
+          {entry.summary && (
+            <p className="text-muted mt-3 sm:mt-4 text-base sm:text-lg">{entry.summary}</p>
+          )}
+          <TagPills tags={entry.tags} />
+        </header>
+
+        {entry.headings && entry.headings.length > 0 && (
+          <TableOfContents headings={entry.headings} />
         )}
-        <TagPills tags={entry.tags} />
-      </header>
 
-      {entry.headings && entry.headings.length > 0 && (
-        <TableOfContents headings={entry.headings} />
-      )}
+        <div className="prose max-w-none">
+          <MDXRemote 
+            source={source} 
+            components={{ ...mdxComponents, ...embedComponents, Mermaid, Callout, PDFViewer: PDFViewerLazy }}
+            options={{
+              mdxOptions: {
+                remarkPlugins,
+                rehypePlugins,
+              },
+            }}
+          />
+        </div>
 
-      <div className="prose max-w-none">
-        <MDXRemote 
-          source={source} 
-          components={{ ...mdxComponents, ...embedComponents, Mermaid, Callout, PDFViewer: PDFViewerLazy }}
-          options={{
-            mdxOptions: {
-              remarkPlugins,
-              rehypePlugins,
-            },
-          }}
-        />
-      </div>
-
-      <BacklinksPanel backlinks={backlinks} />
-    </article>
+        <BacklinksPanel backlinks={backlinks} />
+      </article>
+    </EntryPageClient>
   );
 }

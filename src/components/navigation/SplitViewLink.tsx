@@ -1,6 +1,6 @@
 "use client";
 
-import { useSplitView } from "@/lib/context/SplitViewContext";
+import { useSplitView } from "@/components/context/SplitViewContext";
 
 interface SplitViewLinkProps {
   href: string;

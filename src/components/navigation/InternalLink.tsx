@@ -1,19 +1,12 @@
 "use client";
 
-import { useSplitView } from "@/lib/context/SplitViewContext";
+import { useSplitView } from "@/components/context/SplitViewContext";
 import { classifyLink, parseSlugFromHref } from "@/lib/content/link-utils";
+import { scrollElementIntoContainer } from "./scroll-utils";
 
 interface InternalLinkProps {
   href?: string;
   children?: React.ReactNode;
-}
-
-function scrollInContainer(container: Element | null, element: Element) {
-  if (!container) return;
-  const elementRect = element.getBoundingClientRect();
-  const containerRect = container.getBoundingClientRect();
-  const scrollTop = container.scrollTop + (elementRect.top - containerRect.top) - 20;
-  container.scrollTo({ top: scrollTop, behavior: "smooth" });
 }
 
 export function InternalLink({ href, children }: InternalLinkProps) {
@@ -50,7 +43,7 @@ export function InternalLink({ href, children }: InternalLinkProps) {
       if (paneContainer) {
         const element = paneContainer.querySelector(`#${CSS.escape(anchor)}`);
         if (element) {
-          scrollInContainer(paneContainer, element);
+          scrollElementIntoContainer(paneContainer, element);
         }
       }
       return;
@@ -64,7 +57,7 @@ export function InternalLink({ href, children }: InternalLinkProps) {
       if (paneContainer) {
         const element = paneContainer.querySelector(`#${CSS.escape(anchor)}`);
         if (element) {
-          scrollInContainer(paneContainer, element);
+          scrollElementIntoContainer(paneContainer, element);
         }
       }
       return;

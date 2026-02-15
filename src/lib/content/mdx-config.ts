@@ -1,8 +1,5 @@
 import { sharedRemarkPlugins, sharedRehypePlugins, rehypeSlug } from "@/lib/mdx/plugins";
-import { remarkMermaid } from "./remark-mermaid";
-import { remarkWikiLinks } from "./remark-wiki-links";
-import { remarkObsidianCallouts } from "./remark-obsidian-callouts";
-import { rehypeBlockIds } from "./rehype-block-ids";
+import { remarkMermaid, remarkWikiLinks, remarkObsidianCallouts, rehypeBlockIds } from "./plugins";
 import { getWikiLinkResolver, getEmbedResolver } from "@/lib/generated/load-manifest";
 import { NoteEmbed } from "@/components/mdx/NoteEmbed";
 import { EmbedError } from "@/components/mdx/EmbedError";

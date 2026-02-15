@@ -2,7 +2,7 @@ import type { MDXComponents } from "mdx/types";
 import { classifyLink } from "@/lib/content/link-utils";
 import { Mermaid } from "./Mermaid";
 import { Callout } from "./Callout";
-import { PDFViewerLazy } from "./PDFViewerLazy";
+import { PDFViewerLazy } from "./PDFViewer";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {

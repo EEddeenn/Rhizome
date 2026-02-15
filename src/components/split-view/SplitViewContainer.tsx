@@ -1,6 +1,6 @@
 "use client";
 
-import { useSplitView, getPaneKey } from "@/lib/context/SplitViewContext";
+import { useSplitView, getPaneKey } from "@/components/context/SplitViewContext";
 import { SplitPane } from "./SplitPane";
 
 export function SplitViewContainer() {

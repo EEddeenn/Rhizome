@@ -4,12 +4,11 @@ import { useState, useEffect, createContext, useContext, ReactNode, useMemo } fr
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import { sharedRemarkPlugins, sharedRehypePlugins, rehypeSlug } from "@/lib/mdx/plugins";
-import { remarkWikiLinks } from "@/lib/content/remark-wiki-links";
-import { remarkObsidianCallouts } from "@/lib/content/remark-obsidian-callouts";
+import { remarkWikiLinks, remarkObsidianCallouts } from "@/lib/content/plugins";
 import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
 import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
 import { extractSectionBySlug } from "@/lib/content/section-extractor";
-import { EmbedError } from "./EmbedError";
+import { EmbedError } from "../EmbedError";
 import type { Manifest } from "@/lib/content/types";
 
 const loadContent = createCachedFetcher<Record<string, string>>("/generated/content/content.json");

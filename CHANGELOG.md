@@ -2,6 +2,92 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.18.0] - 2026-02-15
+
+### Changed
+
+#### Modular Architecture Refactoring
+
+Major reorganization of the codebase into clear module boundaries with consistent import paths.
+
+**Context Consolidation**
+- All React contexts moved to `src/components/context/`
+- `SplitViewContext.tsx`, `ContentReadyContext.tsx`, `PaneSearchParamsContext.tsx`, `MermaidTrackerContext.tsx` now in single location
+- Deleted empty `src/lib/context/` directory
+
+**Navigation Module**
+- New `src/components/navigation/` module for navigation and scroll utilities
+- `LinkInterceptor.tsx` - Document-level link interception
+- `InternalLink.tsx` - MDX internal link handling
+- `SplitViewLink.tsx` - Split-view aware navigation links
+- `scroll-utils.ts` - Shared scroll utilities (moved from `src/lib/`)
+
+**MDX Components Organization**
+- Organized into subdirectories with index exports:
+  - `src/components/mdx/Callout/` - Callout, CalloutBase, CalloutFoldable
+  - `src/components/mdx/Mermaid/` - Mermaid, TrackedMermaid
+  - `src/components/mdx/NoteEmbed/` - NoteEmbed, NoteEmbedClient, EmbedProvider
+  - `src/components/mdx/PDFViewer/` - PDFViewer, PDFViewerLazy, PDFViewerInner
+
+**Split-View Simplification**
+- Extracted `TocDropdown.tsx` from `SplitPane.tsx`
+- Extracted `BacklinksDropdown.tsx` from `SplitPane.tsx`
+- Reduced `SplitPane.tsx` from ~390 to ~260 lines
+
+**Page Components**
+- New `src/components/pages/` for page-level components
+- `EntryPage.tsx` - Full page entry rendering (moved from `blocks/`)
+- `EntryPageClient.tsx` - Client-side content ready tracking (moved from `blocks/`)
+
+**Content Plugins**
+- Grouped remark/rehype plugins into `src/lib/content/plugins/`
+- `remark-mermaid.ts`, `remark-wiki-links.ts`, `remark-obsidian-callouts.ts`, `rehype-block-ids.ts`
+- Clean `index.ts` exports for all plugins
+
+**Hooks**
+- New `src/hooks/` directory for custom hooks
+- `useContentReady.ts` - Re-exports context hooks with stable paths
+- `useMermaidTracker.ts` - Re-exports context hooks with stable paths
+
+### Fixed
+
+#### Scroll Timing
+- Mermaid diagrams now report ready after ResizeObserver confirms layout complete
+- Content ready context waits for all Mermaid diagrams before reporting ready
+- Anchor scrolling waits for content ready with 500ms timeout fallback
+- Scroll offset unified to 80px (matching CSS `scroll-margin-top: 5rem`)
+
+### Developer Experience
+
+#### Import Paths
+All imports now follow consistent patterns:
+```tsx
+// Contexts
+import { useSplitView } from "@/components/context/SplitViewContext";
+import { useContentReady } from "@/components/context/ContentReadyContext";
+
+// Navigation
+import { LinkInterceptor, scrollElementIntoContainer } from "@/components/navigation";
+
+// MDX Components
+import { Mermaid, TrackedMermaid } from "@/components/mdx/Mermaid";
+import { Callout } from "@/components/mdx/Callout";
+import { NoteEmbed, NoteEmbedClient } from "@/components/mdx/NoteEmbed";
+import { PDFViewer, PDFViewerLazy } from "@/components/mdx/PDFViewer";
+
+// Page Components
+import { EntryPage } from "@/components/pages";
+
+// Hooks
+import { useContentReady } from "@/hooks/useContentReady";
+import { useMermaidTracker } from "@/hooks/useMermaidTracker";
+
+// Content Plugins
+import { remarkMermaid, remarkWikiLinks } from "@/lib/content/plugins";
+```
+
+---
+
 ## [0.17.0] - 2026-02-14
 
 ### Added

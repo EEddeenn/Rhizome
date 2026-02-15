@@ -5,14 +5,16 @@ import { useEffect, useRef, useState } from "react";
 interface MermaidProps {
   code: string;
   title?: string;
+  onRender?: () => void;
 }
 
-export function Mermaid({ code, title }: MermaidProps) {
+export function Mermaid({ code, title, onRender }: MermaidProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [svg, setSvg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [rendered, setRendered] = useState(false);
   const idRef = useRef(`mermaid-${Math.random().toString(36).slice(2)}`);
 
   useEffect(() => {
@@ -37,6 +39,7 @@ export function Mermaid({ code, title }: MermaidProps) {
     if (!mounted || !code) return;
 
     let cancelled = false;
+    setRendered(false);
 
     const renderDiagram = async () => {
       try {
@@ -53,6 +56,7 @@ export function Mermaid({ code, title }: MermaidProps) {
         if (!cancelled) {
           setSvg(renderedSvg);
           setError(null);
+          setRendered(true);
         }
       } catch (err) {
         if (!cancelled) {
@@ -60,6 +64,7 @@ export function Mermaid({ code, title }: MermaidProps) {
           console.error("Mermaid render error:", err);
           setError(message);
           setSvg(null);
+          setRendered(true);
         }
       }
     };
@@ -70,6 +75,51 @@ export function Mermaid({ code, title }: MermaidProps) {
       cancelled = true;
     };
   }, [mounted, code, isDark]);
+
+  useEffect(() => {
+    if (!rendered || !onRender) return;
+
+    const container = containerRef.current;
+    if (!container) {
+      onRender();
+      return;
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let observer: ResizeObserver | null = null;
+
+    const notifyReady = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+      onRender();
+    };
+
+    if (container.offsetHeight > 0) {
+      timeoutId = setTimeout(notifyReady, 100);
+    } else {
+      observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.contentRect.height > 0) {
+            if (timeoutId) clearTimeout(timeoutId);
+            timeoutId = setTimeout(notifyReady, 100);
+            break;
+          }
+        }
+      });
+      observer.observe(container);
+    }
+
+    return () => {
+      if (observer) observer.disconnect();
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [rendered, onRender]);
 
   if (!code) {
     return null;

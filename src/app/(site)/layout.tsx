@@ -2,6 +2,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { SplitViewOverlay } from "@/components/split-view/SplitViewOverlay";
+import { ClientProviders } from "@/components/providers/ClientProviders";
 
 const sansFont = Inter({
   subsets: ["latin"],
@@ -41,12 +42,14 @@ export default function SiteLayout({
         <link rel="stylesheet" href="/generated/vendor/katex.min.css" />
       </head>
       <body className={`${sansFont.variable} ${monoFont.variable} font-sans min-h-screen flex flex-col bg-background text-foreground`}>
-        <Nav />
-        <div className="flex-1">
-          {children}
-        </div>
-        <Footer />
-        <SplitViewOverlay />
+        <ClientProviders>
+          <Nav />
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
+          <SplitViewOverlay />
+        </ClientProviders>
       </body>
     </html>
   );
