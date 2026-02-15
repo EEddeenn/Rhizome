@@ -64,7 +64,7 @@ Content goes here.
             <>
               <div className="h-4 w-px bg-border" />
               <span className="text-sm text-muted truncate max-w-[200px]">
-                {currentNote.name}
+                {currentNote.title}
               </span>
               {isDirty && (
                 <span className="text-xs text-yellow-600 dark:text-yellow-400">
