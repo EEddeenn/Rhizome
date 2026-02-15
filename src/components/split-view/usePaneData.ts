@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import type { Entry, Manifest, BacklinksIndex, BacklinkInfo } from "@/lib/content/types";
 import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
 

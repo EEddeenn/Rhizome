@@ -34,6 +34,7 @@ export default function EditorLayout({
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
         <script dangerouslySetInnerHTML={{ __html: initTheme }} />
+        {/* eslint-disable-next-line @next/next/no-css-tags -- KaTeX CSS must be loaded manually for editor route */}
         <link rel="stylesheet" href="/generated/vendor/katex.min.css" />
       </head>
       <body className={`${sansFont.variable} ${monoFont.variable} font-sans bg-background text-foreground`}>

@@ -35,13 +35,6 @@ function saveConfigToStorage(config: EditorConfig): void {
   localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
 }
 
-function getTokenFromStorage(remember: boolean): string | null {
-  if (typeof window === "undefined") return null;
-  const key = remember ? STORAGE_KEY_LOCAL : STORAGE_KEY_SESSION;
-  const storage = remember ? localStorage : sessionStorage;
-  return storage.getItem(key);
-}
-
 function saveTokenToStorage(token: string, remember: boolean): void {
   if (typeof window === "undefined") return;
   

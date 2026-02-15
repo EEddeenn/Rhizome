@@ -10,7 +10,6 @@ import { TocDropdown } from "./TocDropdown";
 import { BacklinksDropdown } from "./BacklinksDropdown";
 import { usePaneData } from "./usePaneData";
 import { CloseIcon, TocIcon, DuplicateIcon, BacklinksIcon, OpenFullIcon } from "@/components/icons";
-import type { Entry, BacklinkInfo } from "@/lib/content/types";
 
 interface SplitPaneProps {
   pane: PaneData;

@@ -165,6 +165,7 @@ export function removeRuntimeEntry(
   manifest: RuntimeManifest,
   path: string
 ): RuntimeManifest {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { [path]: _, ...remaining } = manifest.entries;
   
   return {

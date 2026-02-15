@@ -12,7 +12,6 @@ import {
 import {
   authStore,
   type EditorConfig,
-  type NoteInfo,
   type TokenValidationResult,
   GitHubApiError,
 } from "@/lib/editor";
