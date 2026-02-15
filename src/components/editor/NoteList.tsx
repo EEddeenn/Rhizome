@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useEditor } from "./EditorContext";
 import type { MergedEntry } from "@/lib/manifest";
+import { RefreshIcon } from "@/components/icons";
 
 export function NoteList() {
   const { 
@@ -40,14 +41,15 @@ export function NoteList() {
   }, [filteredEntries]);
 
   if (isLoadingManifest && mergedEntries.length === 0) {
+    const skeletonWidths = ["90%", "85%", "95%", "80%", "88%"];
     return (
       <div className="w-64 border-r border-border p-4">
         <div className="animate-pulse space-y-2">
-          {[...Array(5)].map((_, i) => (
+          {skeletonWidths.map((width, i) => (
             <div
               key={i}
               className="h-4 bg-gray-200 dark:bg-gray-700 rounded"
-              style={{ width: `${80 + Math.random() * 20}%` }}
+              style={{ width }}
             />
           ))}
         </div>
@@ -72,7 +74,7 @@ export function NoteList() {
             className="px-2 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg disabled:opacity-50"
             title="Refresh from GitHub"
           >
-            <RefreshIcon spinning={isLoadingManifest} />
+            <RefreshIcon className={isLoadingManifest ? "animate-spin" : ""} />
           </button>
         </div>
         <div className="flex gap-1">
@@ -165,23 +167,5 @@ function StatusBadge({ status }: { status: "indexed" | "new" | "missing" }) {
     >
       {status === "new" ? "New" : "Missing"}
     </span>
-  );
-}
-
-function RefreshIcon({ spinning }: { spinning: boolean }) {
-  return (
-    <svg
-      className={`w-4 h-4 ${spinning ? "animate-spin" : ""}`}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-      />
-    </svg>
   );
 }
