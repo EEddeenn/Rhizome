@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.0] - 2026-02-16
+
+### Added
+
+#### Static Web Editor
+- `/editor` route — Browser-based MDX editor with direct GitHub commits
+- No backend required — Pure client-side implementation using GitHub REST API
+- Fine-grained PAT authentication with sessionStorage/localStorage options
+- Full edit workflow: browse notes, edit raw MDX, save with direct commit
+
+#### Editor Components
+- `src/components/editor/Editor.tsx` — Main editor layout with split view
+- `src/components/editor/EditorContext.tsx` — React context for editor state management
+- `src/components/editor/ConnectionPanel.tsx` — GitHub PAT connection UI
+- `src/components/editor/NoteList.tsx` — Searchable note sidebar with type filter
+- `src/components/editor/CodeEditor.tsx` — CodeMirror 6 editor with MDX support
+- `src/components/editor/PreviewPane.tsx` — Live MDX preview with error boundary
+- `src/components/editor/EditorToolbar.tsx` — Save, new note, and settings
+- `src/components/editor/ConflictModal.tsx` — SHA mismatch conflict resolution
+
+#### GitHub Integration
+- `src/lib/editor/types.ts` — VaultAdapter interface and GitHubApiError
+- `src/lib/editor/github-adapter.ts` — GitHubAdapterPAT implementation
+- `src/lib/editor/auth-store.ts` — Token and config persistence
+- Direct commits to default branch using GitHub REST v3 API
+- Optimistic concurrency with SHA-based conflict detection
+
+#### Documentation
+- `docs/editor.md` — Complete guide for creating PAT, connecting, and using the editor
+
+#### Dependencies
+- Added CodeMirror 6 packages for editor (`codemirror`, `@codemirror/view`, `@codemirror/state`, `@codemirror/lang-markdown`, `@codemirror/commands`, `@codemirror/theme-one-dark`)
+
+### Changed
+
+#### Navigation
+- `src/components/layout/Nav.tsx` — Added "Editor" link to main navigation
+
+#### Tests
+- `tests/editor-types.test.ts` — Unit tests for GitHubApiError class methods
+
+---
+
 ## [0.20.0] - 2026-02-15
 
 ### Added

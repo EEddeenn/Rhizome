@@ -241,6 +241,31 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] All 53 E2E tests passing
 - [x] All 203 unit tests passing
 
+### Phase 27 — Static Web Editor
+- [x] `src/app/editor/page.tsx` — Standalone editor route (no Nav/Footer)
+- [x] `src/app/editor/layout.tsx` — Editor layout with theme initialization
+- [x] `src/components/editor/Editor.tsx` — Main editor component with split view
+- [x] `src/components/editor/EditorContext.tsx` — React context for editor state
+- [x] `src/components/editor/ConnectionPanel.tsx` — GitHub PAT connection UI
+- [x] `src/components/editor/NoteList.tsx` — Searchable note sidebar
+- [x] `src/components/editor/CodeEditor.tsx` — CodeMirror 6 editor with MDX support
+- [x] `src/components/editor/PreviewPane.tsx` — Live MDX preview with error boundary
+- [x] `src/components/editor/EditorToolbar.tsx` — Save, new note, settings
+- [x] `src/components/editor/ConflictModal.tsx` — SHA mismatch conflict resolution
+- [x] `src/lib/editor/types.ts` — VaultAdapter interface, GitHubApiError
+- [x] `src/lib/editor/github-adapter.ts` — GitHub REST API implementation
+- [x] `src/lib/editor/auth-store.ts` — Token/config persistence (session/local storage)
+- [x] Direct commits to default branch using GitHub REST v3 API
+- [x] Optimistic concurrency with SHA-based conflict detection
+- [x] Fine-grained PAT authentication
+- [x] Live preview with MDX rendering (callouts, wiki-links, math)
+- [x] Create new notes with default frontmatter
+- [x] Unsaved changes warning on page leave
+- [x] CodeMirror 6 with markdown syntax highlighting
+- [x] `docs/editor.md` — Complete editor documentation
+- [x] `tests/editor-types.test.ts` — Unit tests for GitHubApiError
+- [x] Editor link added to main navigation
+
 ### Documentation
 - [x] README.md — Updated with all features including E2E testing
 - [x] CHANGELOG.md — Version 0.19.0
@@ -278,7 +303,7 @@ None remaining - all features from IMPLEMENTED.md have been completed.
 | Graph View | ✅ Complete |
 | Mermaid/Math | ✅ Complete |
 | SEO (sitemap/RSS) | ✅ Complete |
-| Testing (Unit) | ✅ Complete (203 tests) |
+| Testing (Unit) | ✅ Complete (217 tests) |
 | Testing (E2E) | ✅ Complete (53 tests) |
 | Responsive Design | ✅ Complete |
 | Callouts | ✅ Complete |
@@ -295,5 +320,6 @@ None remaining - all features from IMPLEMENTED.md have been completed.
 | Template System | ✅ Complete |
 | Code Cleanup | ✅ Complete |
 | Split View | ✅ Complete |
+| Web Editor | ✅ Complete |
 
 **Status**: ✅ Feature-complete and deployable to Cloudflare Pages.

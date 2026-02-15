@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: "/articles", label: "Articles" },
   { href: "/tags", label: "Tags" },
   { href: "/graph", label: "Graph" },
+  { href: "/editor", label: "Editor" },
 ];
 
 const CloseIcon = (
