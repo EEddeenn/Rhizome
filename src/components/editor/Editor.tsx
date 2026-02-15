@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EditorProvider, useEditor } from "./EditorContext";
 import { ConnectionPanel } from "./ConnectionPanel";
 import { NoteList } from "./NoteList";
@@ -8,11 +8,41 @@ import { CodeEditor } from "./CodeEditor";
 import { PreviewPane } from "./PreviewPane";
 import { EditorToolbar } from "./EditorToolbar";
 import { ConflictModal } from "./ConflictModal";
+import { ResizablePanel } from "./ResizablePanel";
+import { SplitViewResizer } from "./SplitViewResizer";
 import { EyeIcon, EyeSlashIcon } from "@/components/icons";
+
+const STORAGE_KEY_NOTE_LIST = "rhizome_editor_note_list_width";
+const STORAGE_KEY_PREVIEW = "rhizome_editor_preview_width";
+const DEFAULT_NOTE_LIST_WIDTH = 256;
+const DEFAULT_PREVIEW_PERCENT = 40;
+const MIN_NOTE_LIST_WIDTH = 180;
+const MAX_NOTE_LIST_WIDTH = 400;
+const MIN_PREVIEW_PERCENT = 20;
+const MAX_PREVIEW_PERCENT = 60;
 
 function EditorLayout() {
   const { isConnected, mounted } = useEditor();
   const [showPreview, setShowPreview] = useState(true);
+  const [noteListWidth, setNoteListWidth] = useState(DEFAULT_NOTE_LIST_WIDTH);
+  const [previewPercent, setPreviewPercent] = useState(DEFAULT_PREVIEW_PERCENT);
+
+  useEffect(() => {
+    const savedNoteList = localStorage.getItem(STORAGE_KEY_NOTE_LIST);
+    const savedPreview = localStorage.getItem(STORAGE_KEY_PREVIEW);
+    if (savedNoteList) setNoteListWidth(parseInt(savedNoteList, 10));
+    if (savedPreview) setPreviewPercent(parseInt(savedPreview, 10));
+  }, []);
+
+  const saveNoteListWidth = (width: number) => {
+    localStorage.setItem(STORAGE_KEY_NOTE_LIST, String(width));
+    setNoteListWidth(width);
+  };
+
+  const savePreviewPercent = (percent: number) => {
+    localStorage.setItem(STORAGE_KEY_PREVIEW, String(percent));
+    setPreviewPercent(percent);
+  };
 
   if (!mounted) {
     return (
@@ -38,13 +68,32 @@ function EditorLayout() {
       <EditorToolbar />
       
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        <NoteList />
+        <ResizablePanel
+          defaultWidth={DEFAULT_NOTE_LIST_WIDTH}
+          minWidth={MIN_NOTE_LIST_WIDTH}
+          maxWidth={MAX_NOTE_LIST_WIDTH}
+          side="left"
+          savedWidth={noteListWidth}
+          onSaveWidth={saveNoteListWidth}
+        >
+          <NoteList />
+        </ResizablePanel>
         
-        <div className="flex flex-1 min-h-0">
-          <CodeEditor />
-          
-          {showPreview && <PreviewPane />}
-        </div>
+        {showPreview ? (
+          <SplitViewResizer
+            previewPercent={previewPercent}
+            onPreviewPercentChange={savePreviewPercent}
+            minPreviewPercent={MIN_PREVIEW_PERCENT}
+            maxPreviewPercent={MAX_PREVIEW_PERCENT}
+          >
+            <CodeEditor />
+            <PreviewPane />
+          </SplitViewResizer>
+        ) : (
+          <div className="flex-1 min-w-0 h-full">
+            <CodeEditor />
+          </div>
+        )}
       </div>
       
       <button
