@@ -139,7 +139,7 @@ export function CodeEditor() {
 
   if (!currentNote) {
     return (
-      <div className="flex-1 flex items-center justify-center text-muted border-r border-border bg-background">
+      <div className="flex-1 flex items-center justify-center text-muted bg-background">
         <p>Select a note to edit</p>
       </div>
     );
@@ -148,8 +148,7 @@ export function CodeEditor() {
   return (
     <div
       ref={containerRef}
-      className="flex-1 min-h-0 overflow-auto bg-background border-r border-border"
-      style={{ height: "calc(100vh - 120px)" }}
+      className="flex-1 min-h-0 overflow-auto bg-background"
     >
       {!editorLoaded && (
         <div className="p-4 text-muted animate-pulse">Loading editor...</div>

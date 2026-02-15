@@ -13,35 +13,41 @@ import { SplitViewResizer } from "./SplitViewResizer";
 import { EyeIcon, EyeSlashIcon } from "@/components/icons";
 
 const STORAGE_KEY_NOTE_LIST = "rhizome_editor_note_list_width";
-const STORAGE_KEY_PREVIEW = "rhizome_editor_preview_width";
 const DEFAULT_NOTE_LIST_WIDTH = 256;
-const DEFAULT_PREVIEW_PERCENT = 40;
 const MIN_NOTE_LIST_WIDTH = 180;
 const MAX_NOTE_LIST_WIDTH = 400;
-const MIN_PREVIEW_PERCENT = 20;
-const MAX_PREVIEW_PERCENT = 60;
 
 function EditorLayout() {
-  const { isConnected, mounted } = useEditor();
+  const { isConnected, mounted, mergedEntries, currentNote, openNote } = useEditor();
   const [showPreview, setShowPreview] = useState(true);
   const [noteListWidth, setNoteListWidth] = useState(DEFAULT_NOTE_LIST_WIDTH);
-  const [previewPercent, setPreviewPercent] = useState(DEFAULT_PREVIEW_PERCENT);
+  const [initialNoteOpened, setInitialNoteOpened] = useState(false);
 
   useEffect(() => {
     const savedNoteList = localStorage.getItem(STORAGE_KEY_NOTE_LIST);
-    const savedPreview = localStorage.getItem(STORAGE_KEY_PREVIEW);
     if (savedNoteList) setNoteListWidth(parseInt(savedNoteList, 10));
-    if (savedPreview) setPreviewPercent(parseInt(savedPreview, 10));
   }, []);
+
+  useEffect(() => {
+    if (!isConnected || initialNoteOpened || mergedEntries.length === 0) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const notePath = params.get("note");
+    if (!notePath) {
+      setInitialNoteOpened(true);
+      return;
+    }
+
+    const entry = mergedEntries.find((e) => e.path === notePath);
+    if (entry && (!currentNote || currentNote.path !== notePath)) {
+      openNote(entry);
+    }
+    setInitialNoteOpened(true);
+  }, [isConnected, mergedEntries, currentNote, openNote, initialNoteOpened]);
 
   const saveNoteListWidth = (width: number) => {
     localStorage.setItem(STORAGE_KEY_NOTE_LIST, String(width));
     setNoteListWidth(width);
-  };
-
-  const savePreviewPercent = (percent: number) => {
-    localStorage.setItem(STORAGE_KEY_PREVIEW, String(percent));
-    setPreviewPercent(percent);
   };
 
   if (!mounted) {
@@ -80,12 +86,7 @@ function EditorLayout() {
         </ResizablePanel>
         
         {showPreview ? (
-          <SplitViewResizer
-            previewPercent={previewPercent}
-            onPreviewPercentChange={savePreviewPercent}
-            minPreviewPercent={MIN_PREVIEW_PERCENT}
-            maxPreviewPercent={MAX_PREVIEW_PERCENT}
-          >
+          <SplitViewResizer>
             <CodeEditor />
             <PreviewPane />
           </SplitViewResizer>

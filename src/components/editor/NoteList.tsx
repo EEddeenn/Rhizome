@@ -43,7 +43,7 @@ export function NoteList() {
   if (isLoadingManifest && mergedEntries.length === 0) {
     const skeletonWidths = ["90%", "85%", "95%", "80%", "88%"];
     return (
-      <div className="border-r border-border p-4 h-full">
+      <div className="p-4 h-full">
         <div className="animate-pulse space-y-2">
           {skeletonWidths.map((width, i) => (
             <div
@@ -58,7 +58,7 @@ export function NoteList() {
   }
 
   return (
-    <div className="border-r border-border flex flex-col h-full">
+    <div className="flex flex-col h-full">
       <div className="p-3 border-b border-border space-y-2">
         <div className="flex gap-1">
           <input

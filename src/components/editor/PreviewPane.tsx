@@ -143,14 +143,14 @@ export function PreviewPane() {
 
   if (!currentNote) {
     return (
-      <div className="flex-1 flex items-center justify-center text-muted border-l border-border">
+      <div className="flex-1 flex items-center justify-center text-muted">
         <p>Select a note to preview</p>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 overflow-y-auto border-l border-border bg-background">
+    <div className="flex-1 overflow-y-auto bg-background">
       <div className="p-4">
         {error && (
           <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg mb-4">

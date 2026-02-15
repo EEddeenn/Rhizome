@@ -9,7 +9,7 @@ import { scrollElementIntoContainer } from "@/components/navigation";
 import { TocDropdown } from "./TocDropdown";
 import { BacklinksDropdown } from "./BacklinksDropdown";
 import { usePaneData } from "./usePaneData";
-import { CloseIcon, TocIcon, DuplicateIcon, BacklinksIcon, OpenFullIcon } from "@/components/icons";
+import { CloseIcon, TocIcon, DuplicateIcon, BacklinksIcon, OpenFullIcon, EditIcon } from "@/components/icons";
 
 interface SplitPaneProps {
   pane: PaneData;
@@ -36,7 +36,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
 
   if (loading) {
     return (
-      <div className="h-full w-1/2 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 last:border-r-0">
+      <div className="h-full flex flex-col bg-white dark:bg-gray-900">
         <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
           <div className="animate-pulse h-4 bg-gray-200 dark:bg-gray-700 rounded w-32" />
           <div className="flex gap-1">
@@ -56,7 +56,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
 
   if (!entry) {
     return (
-      <div className="h-full w-1/2 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 last:border-r-0">
+      <div className="h-full flex flex-col bg-white dark:bg-gray-900">
         <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
           <span className="text-sm text-gray-500 dark:text-gray-400">Not Found</span>
           <button
@@ -77,7 +77,7 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
   }
 
   return (
-    <div ref={paneRef} data-pane-index={index} className="h-full w-1/2 flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 last:border-r-0">
+    <div ref={paneRef} data-pane-index={index} className="h-full flex flex-col bg-white dark:bg-gray-900">
       <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-xs text-gray-500 dark:text-gray-400 uppercase shrink-0">
@@ -141,6 +141,14 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
           >
             <OpenFullIcon />
           </button>
+          <a
+            href={`/editor?note=${encodeURIComponent(entry.sourcePath)}`}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            aria-label="Open in editor"
+            title="Open in editor"
+          >
+            <EditIcon />
+          </a>
           <button
             onClick={handleClose}
             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded text-gray-500 dark:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"

@@ -69,7 +69,9 @@ export function ResizablePanel({
     }
   }, [savedWidth]);
 
-  const resizeHandle = side === "left" ? "right-0" : "left-0";
+  const resizeHandleClass = side === "left" 
+    ? "right-0 border-r" 
+    : "left-0 border-l";
 
   return (
     <div
@@ -79,7 +81,7 @@ export function ResizablePanel({
     >
       {children}
       <div
-        className={`absolute top-0 ${resizeHandle} bottom-0 w-1 cursor-col-resize hover:bg-blue-500/50 transition-colors z-10 ${isResizing ? "bg-blue-500" : ""}`}
+        className={`absolute top-0 ${resizeHandleClass} bottom-0 w-px cursor-col-resize bg-border hover:bg-blue-500 transition-colors z-10 ${isResizing ? "!bg-blue-500" : ""}`}
         onMouseDown={handleMouseDown}
       />
     </div>
