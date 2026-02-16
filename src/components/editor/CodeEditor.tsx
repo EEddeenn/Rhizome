@@ -1,11 +1,93 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useNote } from "./contexts";
+import { useNote, useManifest } from "./contexts";
 import type { EditorView } from "@codemirror/view";
+import type { CompletionContext } from "@codemirror/autocomplete";
+
+// Cache CodeMirror modules at module level to avoid repeated dynamic imports
+type CodeMirrorModules = {
+  EditorView: typeof import("@codemirror/view").EditorView;
+  EditorState: typeof import("@codemirror/state").EditorState;
+  lineNumbers: typeof import("@codemirror/view").lineNumbers;
+  highlightActiveLine: typeof import("@codemirror/view").highlightActiveLine;
+  highlightActiveLineGutter: typeof import("@codemirror/view").highlightActiveLineGutter;
+  keymap: typeof import("@codemirror/view").keymap;
+  dropCursor: typeof import("@codemirror/view").dropCursor;
+  drawSelection: typeof import("@codemirror/view").drawSelection;
+  markdown: typeof import("@codemirror/lang-markdown").markdown;
+  markdownLanguage: typeof import("@codemirror/lang-markdown").markdownLanguage;
+  defaultHighlightStyle: typeof import("@codemirror/language").defaultHighlightStyle;
+  syntaxHighlighting: typeof import("@codemirror/language").syntaxHighlighting;
+  bracketMatching: typeof import("@codemirror/language").bracketMatching;
+  indentOnInput: typeof import("@codemirror/language").indentOnInput;
+  languages: typeof import("@codemirror/language-data").languages;
+  autocompletion: typeof import("@codemirror/autocomplete").autocompletion;
+  closeBrackets: typeof import("@codemirror/autocomplete").closeBrackets;
+  closeBracketsKeymap: typeof import("@codemirror/autocomplete").closeBracketsKeymap;
+  completionKeymap: typeof import("@codemirror/autocomplete").completionKeymap;
+  defaultKeymap: typeof import("@codemirror/commands").defaultKeymap;
+  history: typeof import("@codemirror/commands").history;
+  historyKeymap: typeof import("@codemirror/commands").historyKeymap;
+};
+
+let cachedModules: CodeMirrorModules | null = null;
+let modulesPromise: Promise<CodeMirrorModules> | null = null;
+
+async function loadCodeMirrorModules(): Promise<CodeMirrorModules> {
+  if (cachedModules) return cachedModules;
+  if (modulesPromise) return modulesPromise;
+
+  modulesPromise = Promise.all([
+    import("@codemirror/view"),
+    import("@codemirror/state"),
+    import("@codemirror/lang-markdown"),
+    import("@codemirror/language"),
+    import("@codemirror/language-data"),
+    import("@codemirror/autocomplete"),
+    import("@codemirror/commands"),
+  ]).then(([
+    view,
+    state,
+    markdownMod,
+    language,
+    languageData,
+    autocomplete,
+    commands,
+  ]) => {
+    cachedModules = {
+      EditorView: view.EditorView,
+      EditorState: state.EditorState,
+      lineNumbers: view.lineNumbers,
+      highlightActiveLine: view.highlightActiveLine,
+      highlightActiveLineGutter: view.highlightActiveLineGutter,
+      keymap: view.keymap,
+      dropCursor: view.dropCursor,
+      drawSelection: view.drawSelection,
+      markdown: markdownMod.markdown,
+      markdownLanguage: markdownMod.markdownLanguage,
+      defaultHighlightStyle: language.defaultHighlightStyle,
+      syntaxHighlighting: language.syntaxHighlighting,
+      bracketMatching: language.bracketMatching,
+      indentOnInput: language.indentOnInput,
+      languages: languageData.languages,
+      autocompletion: autocomplete.autocompletion,
+      closeBrackets: autocomplete.closeBrackets,
+      closeBracketsKeymap: autocomplete.closeBracketsKeymap,
+      completionKeymap: autocomplete.completionKeymap,
+      defaultKeymap: commands.defaultKeymap,
+      history: commands.history,
+      historyKeymap: commands.historyKeymap,
+    };
+    return cachedModules;
+  });
+
+  return modulesPromise;
+}
 
 export function CodeEditor() {
   const { currentContent, updateContent, currentNote, isLoadingNote } = useNote();
+  const { mergedEntries } = useManifest();
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const [editorLoaded, setEditorLoaded] = useState(false);
@@ -13,26 +95,20 @@ export function CodeEditor() {
   const lastPathRef = useRef<string | null>(null);
   const initAbortRef = useRef<AbortController | null>(null);
   const contentRef = useRef(currentContent);
+  const mergedEntriesRef = useRef<Array<{ title: string; slug: string; type: string }>>([]);
 
-  // Keep contentRef in sync to avoid stale closure in initEditor
   useEffect(() => {
     contentRef.current = currentContent;
   }, [currentContent]);
 
+  useEffect(() => {
+    mergedEntriesRef.current = mergedEntries;
+  }, [mergedEntries]);
+
   const initEditor = useCallback(async (signal: AbortSignal) => {
     if (!containerRef.current) return;
 
-    const [
-      { EditorView, lineNumbers, highlightActiveLine, highlightActiveLineGutter },
-      { EditorState },
-      { markdown, markdownLanguage },
-      { defaultHighlightStyle, syntaxHighlighting },
-    ] = await Promise.all([
-      import("@codemirror/view"),
-      import("@codemirror/state"),
-      import("@codemirror/lang-markdown"),
-      import("@codemirror/language"),
-    ]);
+    const modules = await loadCodeMirrorModules();
 
     // Check if aborted during async loading
     if (signal.aborted) return;
@@ -42,6 +118,31 @@ export function CodeEditor() {
       viewRef.current.destroy();
       viewRef.current = null;
     }
+
+    const {
+      EditorView,
+      EditorState,
+      lineNumbers,
+      highlightActiveLine,
+      highlightActiveLineGutter,
+      keymap,
+      dropCursor,
+      drawSelection,
+      markdown,
+      markdownLanguage,
+      defaultHighlightStyle,
+      syntaxHighlighting,
+      bracketMatching,
+      indentOnInput,
+      languages,
+      autocompletion,
+      closeBrackets,
+      closeBracketsKeymap,
+      completionKeymap,
+      defaultKeymap,
+      history,
+      historyKeymap,
+    } = modules;
 
     const baseTheme = EditorView.theme({
       "&": {
@@ -78,6 +179,26 @@ export function CodeEditor() {
       ".cm-selectionBackground": {
         backgroundColor: "rgba(59, 130, 246, 0.2) !important",
       },
+      ".cm-tooltip-autocomplete": {
+        backgroundColor: "var(--background, #fff)",
+        border: "1px solid var(--border, #e5e7eb)",
+        borderRadius: "6px",
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        fontFamily: "var(--font-sans), sans-serif",
+      },
+      ".cm-tooltip-autocomplete ul": {
+        fontFamily: "var(--font-sans), sans-serif",
+      },
+      ".cm-tooltip-autocomplete ul li": {
+        padding: "4px 8px",
+      },
+      ".cm-tooltip-autocomplete ul li[aria-selected]": {
+        backgroundColor: "rgba(59, 130, 246, 0.1)",
+        color: "inherit",
+      },
+      ".cm-completionIcon": {
+        marginRight: "4px",
+      },
     });
 
     const updateListener = EditorView.updateListener.of((update) => {
@@ -87,6 +208,28 @@ export function CodeEditor() {
       }
     });
 
+    const wikiLinkCompleter = (context: CompletionContext) => {
+      const before = context.matchBefore(/\[\[[^\]|]*$/);
+      if (!before || (context.explicit && !before)) return null;
+      
+      const query = before.text.slice(2).toLowerCase();
+      const entries = mergedEntriesRef.current.filter((e: { title: string; slug: string; type: string }) => 
+        e.type !== "pdf" && 
+        (e.title.toLowerCase().includes(query) || e.slug.toLowerCase().includes(query))
+      ).slice(0, 20);
+
+      return {
+        from: before.from + 2,
+        options: entries.map((e: { title: string; slug: string }) => ({
+          label: e.title,
+          displayLabel: e.title,
+          detail: e.slug,
+          apply: e.title,
+        })),
+        validFor: /^.*$/,
+      };
+    };
+
     // Use contentRef.current to get fresh content, avoiding stale closure
     const state = EditorState.create({
       doc: contentRef.current,
@@ -94,8 +237,28 @@ export function CodeEditor() {
         lineNumbers(),
         highlightActiveLine(),
         highlightActiveLineGutter(),
-        markdown({ base: markdownLanguage }),
+        history(),
+        dropCursor(),
+        drawSelection(),
+        indentOnInput(),
+        bracketMatching(),
+        closeBrackets(),
+        autocompletion({
+          override: [wikiLinkCompleter],
+          activateOnTyping: true,
+          maxRenderedOptions: 20,
+        }),
+        markdown({
+          base: markdownLanguage,
+          codeLanguages: languages,
+        }),
         syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+        keymap.of([
+          ...closeBracketsKeymap,
+          ...defaultKeymap,
+          ...historyKeymap,
+          ...completionKeymap,
+        ]),
         baseTheme,
         updateListener,
         EditorView.lineWrapping,

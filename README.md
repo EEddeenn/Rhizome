@@ -35,7 +35,7 @@ A static personal notes and knowledge management system built with Next.js, MDX,
 - **Static Export** - No server required
 - **SEO Ready** - Sitemap, RSS, Open Graph, Twitter cards
 - **Self-Hosted Assets** - No external CDN dependencies (fonts, KaTeX)
-- **Web Editor** - Browser-based editor with direct GitHub commits (no backend)
+- **Web Editor** - Browser-based editor with direct GitHub commits, syntax highlighting, wiki-link autocompletion, PDF upload, and local-first content loading (no backend)
 
 ## Quick Start
 
@@ -59,6 +59,7 @@ The static site will be output to the `out/` directory.
 │   ├── notes/           # Note MDX files
 │   ├── articles/        # Article MDX files
 │   └── assets/          # favicon.ico, PDFs, images
+│       └── pdfs/        # PDF files for embedding
 ├── src/
 │   ├── app/(site)/      # Next.js App Router pages
 │   │   ├── notes/       # Notes routes

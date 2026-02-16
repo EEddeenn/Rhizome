@@ -2,6 +2,169 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.26.0] - 2026-02-16
+
+### Added
+
+#### Offline-First Editor Architecture
+- All changes now stored locally in browser until manual sync
+- New notes, edits, and deletions work without network connectivity
+- Pending changes persist across page refreshes via localStorage
+- Browser warns before closing with unsynced changes
+
+#### Pending Changes System
+- `src/lib/editor/pending-changes.ts` — New module for managing pending operations
+- `PendingChangesStore` class with subscription-based reactivity
+- Supports create, update, and delete operations with metadata tracking
+- `usePendingChanges()` hook for React components
+
+#### Sync Functionality
+- Green "Sync" button in toolbar to push all pending changes to GitHub
+- Progress indicator during sync (e.g., "Syncing 2/5")
+- Batch processing of all pending changes in single operation
+- Per-file error reporting with dismissible error popup
+
+#### Discard Functionality
+- Orange "Discard" button to clear all pending changes
+- Confirmation modal before discarding
+- Clears editor if currently viewing unsynced content
+
+#### Auto-Save
+- Pending notes and articles auto-save after 1 second of inactivity
+- Save button shows "Save" (blue) when dirty, "Saved" (gray) when saved
+- Manual save still available for immediate save
+
+#### Visual Indicators
+- Note list shows badges for pending changes:
+  - **New** (blue) — Newly created, unsynced notes
+  - **Modified** (yellow) — Notes with pending updates
+  - **Deleted** (red, strikethrough) — Notes pending deletion
+- Pending count shown in note list header
+- Deleted notes filtered from visible list
+- Articles correctly grouped under "Articles" (not "Notes")
+
+### Changed
+
+#### Save Behavior
+- "Save" button now saves to local pending store only (instant, no network)
+- No immediate GitHub API call on save
+- `currentSource` field now includes `"pending"` state
+
+#### Create/Delete Behavior
+- New notes appear immediately in list with correct type badge
+- Deleted notes removed from list immediately
+- PDF uploads work offline and preview locally
+
+#### Context Architecture
+- Added `sync()`, `discardAllPending()`, `clearSyncError()` to `NoteContext`
+- Added `isSyncing`, `syncError`, `syncProgress`, `hasPendingChanges` state
+- Added `pendingChangeForCurrentNote` for current note's pending status
+
+#### PDF Embed Support
+- Pending PDFs can now be embedded in pending notes using `![[file.pdf]]`
+- PDF embeds use `EditorPreviewPDFViewer` with pending change detection
+- Consistent `PDFViewerInner` styling for both pending and synced PDFs
+
+### Fixed
+
+#### PDF Handling
+- PDF preview now works for unsynced PDFs (converts base64 to blob URL)
+- Shows banner: "PDF preview from local data. Click Sync to upload"
+- Unsynced PDFs can now be deleted (removes pending create)
+- PDF embeds in pending notes render correctly with full viewer controls
+
+#### Note Operations
+- Fixed delete for unsynced PDFs — now properly removes pending create
+- Fixed note list not refreshing after create/delete operations (now uses subscription)
+- Fixed race condition when rapidly creating and opening notes
+- Fixed new articles appearing in "Notes" group — now correctly use `createEntryFromPath()`
+- Fixed creating multiple pending notes in sequence
+
+#### CodeMirror Performance
+- CodeMirror modules now cached at module level for faster note switching
+- Fixed stale closure in wiki-link completer causing editor re-initialization
+
+#### Preview Pane
+- Added cancellation for pending MDX compilations on note switch
+- Prevents stale preview content when rapidly switching notes
+- Fixed infinite loop error with `useSyncExternalStore` (replaced with custom hook)
+
+### Dependencies
+- No new dependencies (uses existing localStorage and React APIs)
+
+---
+
+## [0.25.0] - 2026-02-16
+
+### Added
+
+#### PDF Support in Editor
+- PDF files now appear in note list with dedicated "PDFs" filter and group
+- PDF upload via "New" button with file picker
+- PDFs preview in editor using PDF.js viewer
+- `contentSource` field on `MergedEntry` to track if content is available locally or only on GitHub
+- `currentSource` field on `NoteState` to track where current content was loaded from
+
+#### Editor Syntax Highlighting & Autocompletion
+- CodeMirror 6 with full syntax highlighting for 50+ languages in code blocks
+- Wiki-link autocompletion - type `[[` to see suggestions from manifest
+- Bracket matching, auto-indent, and close brackets
+- Undo/redo support with history keymap
+
+#### Content Fetcher Utility
+- `src/lib/editor/content-fetcher.ts` — Unified content fetching with local-first strategy
+- `fetchNoteContent()` — Tries `/generated/content/content.json` first, falls back to GitHub API
+- `fetchPdfContent()` — Tries `/assets/pdfs/` first, falls back to GitHub API with blob URL creation
+- Caching for local content to minimize redundant fetches
+
+#### GitHub Adapter Enhancement
+- `readFileRaw()` method — Returns raw base64 content without UTF-8 decoding (for binary files)
+- `RawFileContent` type for binary file handling
+
+### Changed
+
+#### Editor Architecture
+- `useNoteOperations.openNote()` now uses `fetchNoteContent()` instead of direct GitHub API calls
+- `EditorPDFViewer` now uses `fetchPdfContent()` for consistent fetching behavior
+- Context providers (`ManifestProvider`, `NoteProvider`) removed `useMemo` wrapper for immediate reactivity
+- Note list updates immediately after create/delete operations
+
+#### UI Improvements
+- "New Note" button renamed to "New" with tabbed modal (Note/Article + PDF tabs)
+- PDFs show as "indexed" in manifest (not "new") since they can't exist in build manifest
+
+### Fixed
+
+#### Editor Loading Bugs
+- Fixed stale closure in `CodeEditor.initEditor()` causing wrong content on note switch
+- Fixed missing `editorLoaded` reset causing codebox flash when switching to PDFs
+- Fixed race condition on rapid note switching with AbortController pattern
+- Fixed memory leak in `useAnchorScrollEffect` with proper timeout cleanup
+- Fixed `isLoadingNote` not reset on auth error causing permanent loading spinner
+- Fixed localStorage parse validation for note list width (handles NaN gracefully)
+
+#### Preview Pane Bugs
+- Fixed 300ms debounce delaying preview on initial note load
+- Fixed old preview flashing before new one when switching notes
+- Fixed PDF viewer taking only half the page height
+
+#### PDF Handling Bugs
+- Fixed "malformed URI sequence" error - PDFs now skip file read and use preview directly
+- Fixed PDF path URL encoding for filenames with special characters
+- Fixed "Failed to load PDF" when PDF on GitHub but not local - now uses `readFileRaw()` for binary-safe transfer
+- Fixed PDF not showing when editor switches to it (CodeMirror instance now properly destroyed)
+
+#### Create/Delete Bugs
+- Fixed "sha wasn't supplied" error when creating notes over existing files - now checks `fileExists()` first
+- Fixed note list not updating after create/delete - removed `useMemo` blocking immediate re-renders
+
+### Dependencies
+- Added `@codemirror/autocomplete` — Autocompletion framework
+- Added `@codemirror/language-data` — Language definitions for code blocks
+
+---
+
+
 ## [0.24.0] - 2026-02-16
 
 ### Added

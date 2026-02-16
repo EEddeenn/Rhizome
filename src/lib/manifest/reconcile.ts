@@ -18,6 +18,7 @@ export interface MergedEntry {
   existsInBuild: boolean;
   existsInRuntime: boolean;
   syncStatus: MergedEntryStatus;
+  contentSource: "local" | "github";
   stale: boolean;
   orderKey?: number;
 }
@@ -53,6 +54,7 @@ export function reconcile(
         existsInBuild: true,
         existsInRuntime,
         syncStatus: existsInRuntime ? "indexed" : "missing",
+        contentSource: "local",
         stale: !existsInRuntime,
         orderKey: buildEntry.order,
       });
@@ -68,6 +70,7 @@ export function reconcile(
       const derivedTitle = deriveTitleFromPath(path);
       const derivedType = deriveTypeFromPath(path);
       const derivedSlug = deriveSlugFromPath(path);
+      const isPdf = derivedType === "pdf";
       
       newEntries.push({
         path,
@@ -78,8 +81,9 @@ export function reconcile(
         runtimeSha: runtimeEntry.sha,
         existsInBuild: false,
         existsInRuntime: true,
-        syncStatus: "new",
-        stale: true,
+        syncStatus: isPdf ? "indexed" : "new",
+        contentSource: "github",
+        stale: !isPdf,
       });
     }
     
@@ -105,6 +109,27 @@ function deriveTypeFromPath(path: string): EntryType {
   if (path.includes("/papers/")) return "paper";
   if (path.includes("/assets/pdfs/") || path.toLowerCase().endsWith(".pdf")) return "pdf";
   return "note";
+}
+
+export function createEntryFromPath(path: string, sha?: string): MergedEntry {
+  const derivedTitle = deriveTitleFromPath(path);
+  const derivedType = deriveTypeFromPath(path);
+  const derivedSlug = deriveSlugFromPath(path);
+  const isPdf = derivedType === "pdf";
+  
+  return {
+    path,
+    title: derivedTitle,
+    tags: [],
+    slug: derivedSlug,
+    type: derivedType,
+    runtimeSha: sha,
+    existsInBuild: false,
+    existsInRuntime: true,
+    syncStatus: isPdf ? "indexed" : "new",
+    contentSource: "github",
+    stale: !isPdf,
+  };
 }
 
 export function filterByStatus(

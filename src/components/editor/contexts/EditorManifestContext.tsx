@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, type ReactNode, type Dispatch, type SetStateAction } from "react";
+import { createContext, useContext, type ReactNode, type Dispatch, type SetStateAction } from "react";
 import { useManifestOperations } from "../hooks/useManifestOperations";
 import type { VaultAdapter, EditorConfig } from "@/lib/editor";
 import type { MergedEntry, RuntimeManifest } from "@/lib/manifest";
@@ -45,7 +45,7 @@ export function ManifestProvider({ children, adapter, isConnected, mounted, conf
     config,
   });
 
-  const value = useMemo<ManifestContextValue>(() => ({
+  const value: ManifestContextValue = {
     mergedEntries: manifest.mergedEntries,
     isLoadingManifest: manifest.isLoadingManifest,
     manifestLoadError: manifest.manifestLoadError,
@@ -57,7 +57,7 @@ export function ManifestProvider({ children, adapter, isConnected, mounted, conf
     refreshManifest: manifest.refreshManifest,
     toggleShowMissing: manifest.toggleShowMissing,
     updateMergedEntries: manifest.updateMergedEntries,
-  }), [manifest]);
+  };
 
   return (
     <ManifestContext.Provider value={value}>

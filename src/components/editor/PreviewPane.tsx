@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, Component, useCallback, useRef, type ReactNode } from "react";
-import { useNote, useManifest } from "./contexts";
+import { useNote, useManifest, useConnection } from "./contexts";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { sharedRemarkPlugins, sharedRehypePlugins, rehypeSlug } from "@/lib/mdx/plugins";
@@ -11,9 +11,16 @@ import { getManifest } from "@/lib/generated/load-manifest";
 import { Callout } from "@/components/mdx/Callout";
 import { Mermaid } from "@/components/mdx/Mermaid/Mermaid";
 import { FrontmatterDisplay } from "./FrontmatterDisplay";
-import { PreviewPDFViewer, PreviewNoteEmbed, PreviewEmbedError, EmbedProvider } from "./preview";
+import { PreviewPDFViewer, EditorPDFViewer, PreviewNoteEmbed, PreviewEmbedError, EmbedProvider } from "./preview";
 import { scrollElementIntoContainer } from "@/components/navigation";
+import { pendingChanges, type PendingChange } from "@/lib/editor/pending-changes";
 import matter from "gray-matter";
+import dynamic from "next/dynamic";
+
+const PDFViewerInner = dynamic(
+  () => import("@/components/mdx/PDFViewer/PDFViewerInner").then((mod) => mod.PDFViewerInner),
+  { ssr: false }
+);
 
 function stripFrontmatter(content: string): string {
   return content.replace(/^---\n[\s\S]*?\n---\n?/, "");
@@ -26,6 +33,155 @@ function parseFrontmatter(content: string): Record<string, unknown> | null {
   } catch {
     return null;
   }
+}
+
+interface EditorPreviewPDFViewerProps {
+  src?: string;
+  initialPage?: string | number;
+  height?: string;
+}
+
+function EditorPreviewPDFViewer({ src, initialPage, height }: EditorPreviewPDFViewerProps) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState<boolean | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!src) {
+      setIsPending(null);
+      setBlobUrl(null);
+      return;
+    }
+    
+    const path = `content${src}`;
+    const pendingChange = pendingChanges.getChange(path);
+    const pending = pendingChange?.type === "create" && 
+      pendingChange.isBinary === true && 
+      !!pendingChange.content;
+    
+    setIsPending(pending);
+
+    if (pending && pendingChange?.content) {
+      try {
+        const binaryString = atob(pendingChange.content);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        
+        if (blobUrlRef.current) {
+          URL.revokeObjectURL(blobUrlRef.current);
+        }
+        blobUrlRef.current = url;
+        setBlobUrl(url);
+      } catch (e) {
+        setBlobUrl(null);
+      }
+    } else {
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
+      setBlobUrl(null);
+    }
+  }, [src]);
+
+  useEffect(() => {
+    return () => {
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+      }
+    };
+  }, []);
+
+  if (!src) {
+    return (
+      <div className="my-4 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
+        <div className="p-4 text-gray-500 dark:text-gray-400 text-sm">
+          PDF Viewer: No source provided
+        </div>
+      </div>
+    );
+  }
+
+  if (isPending === null || (isPending && !blobUrl)) {
+    return (
+      <div className="my-4 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
+        <div className="h-[50vh] flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm animate-pulse">
+          Loading PDF viewer...
+        </div>
+      </div>
+    );
+  }
+
+  if (isPending && blobUrl) {
+    const page = typeof initialPage === "string" ? parseInt(initialPage, 10) : initialPage;
+    
+    return (
+      <div className="my-4 border border-yellow-300 dark:border-yellow-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
+        <div className="px-3 py-1.5 bg-yellow-50 dark:bg-yellow-900/30 border-b border-yellow-200 dark:border-yellow-700 text-xs text-yellow-700 dark:text-yellow-300">
+          PDF preview from local data (pending sync)
+        </div>
+        <PDFViewerInner src={blobUrl} initialPage={page || 1} height={height || "50vh"} />
+      </div>
+    );
+  }
+
+  return <PreviewPDFViewer src={src} initialPage={initialPage} height={height} />;
+}
+
+interface PendingPDFPreviewProps {
+  pendingChange: PendingChange;
+}
+
+function PendingPDFPreview({ pendingChange }: PendingPDFPreviewProps) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingChange.content || !pendingChange.isBinary) {
+      return;
+    }
+
+    try {
+      const binaryString = atob(pendingChange.content);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+      }
+      blobUrlRef.current = url;
+      setBlobUrl(url);
+    } catch (e) {
+      console.error("Failed to create PDF blob:", e);
+    }
+
+    return () => {
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
+    };
+  }, [pendingChange.content, pendingChange.isBinary]);
+
+  if (!blobUrl) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900">
+        <div className="animate-spin w-6 h-6 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <PDFViewerInner src={blobUrl} height="100%" />
+  );
 }
 
 interface ErrorBoundaryProps {
@@ -89,7 +245,7 @@ function PreviewContent({
       ),
       Callout,
       Mermaid,
-      PDFViewer: PreviewPDFViewer,
+      PDFViewer: EditorPreviewPDFViewer,
       NoteEmbed: PreviewNoteEmbed,
       EmbedError: PreviewEmbedError,
     }),
@@ -106,8 +262,9 @@ function PreviewContent({
 }
 
 export function PreviewPane() {
-  const { currentContent, currentNote, openNote, isLoadingNote } = useNote();
+  const { currentContent, currentNote, openNote, isLoadingNote, pendingChangeForCurrentNote } = useNote();
   const { mergedEntries } = useManifest();
+  const { adapter } = useConnection();
   const [compiled, setCompiled] = useState<MDXRemoteSerializeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [debouncedContent, setDebouncedContent] = useState(currentContent);
@@ -199,6 +356,8 @@ export function PreviewPane() {
       return;
     }
 
+    let cancelled = false;
+
     setError(null);
     setFrontmatter(parseFrontmatter(debouncedContent));
 
@@ -216,11 +375,21 @@ export function PreviewPane() {
         rehypePlugins: [rehypeSlug, rehypeBlockIds, ...sharedRehypePlugins],
       },
     })
-      .then((result) => setCompiled(result))
+      .then((result) => {
+        if (!cancelled) {
+          setCompiled(result);
+        }
+      })
       .catch((err) => {
-        console.error("Preview compilation error:", err);
-        setError(err.message || "Preview failed");
+        if (!cancelled) {
+          console.error("Preview compilation error:", err);
+          setError(err.message || "Preview failed");
+        }
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedContent, resolvers]);
 
   if (isLoadingNote) {
@@ -243,12 +412,24 @@ export function PreviewPane() {
   }
 
   if (currentNote.type === "pdf") {
-    const rawPath = currentNote.path.replace(/^content\/assets\/pdfs\//, "");
-    const encodedPath = rawPath.split("/").map(encodeURIComponent).join("/");
-    const pdfPath = `/assets/pdfs/${encodedPath}`;
+    const pendingChange = pendingChangeForCurrentNote;
+    
+    if (pendingChange?.type === "create" && pendingChange.isBinary && pendingChange.content) {
+      return (
+        <div className="flex-1 min-h-0 bg-background flex flex-col">
+          <div className="px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 border-b border-yellow-200 dark:border-yellow-800">
+            <p className="text-xs text-yellow-700 dark:text-yellow-300">
+              PDF preview from local data. Click Sync to upload to GitHub.
+            </p>
+          </div>
+          <PendingPDFPreview pendingChange={pendingChange} />
+        </div>
+      );
+    }
+    
     return (
       <div className="flex-1 min-h-0 bg-background flex flex-col">
-        <PreviewPDFViewer src={pdfPath} height="100%" />
+        <EditorPDFViewer path={currentNote.path} adapter={adapter} height="100%" />
       </div>
     );
   }

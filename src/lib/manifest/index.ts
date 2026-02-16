@@ -25,5 +25,6 @@ export {
   groupByType,
   getEntryByPath,
   updateEntrySha,
+  createEntryFromPath,
 } from "./reconcile";
 export type { MergedEntry, MergedEntryStatus } from "./reconcile";

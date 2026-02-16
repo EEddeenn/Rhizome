@@ -5,17 +5,71 @@ The Rhizome static web editor allows you to edit your MDX notes directly in the 
 ## Features
 
 - **Pure Static**: No backend server required — runs entirely in the browser
-- **Direct Commits**: Saves directly to your repository's default branch
+- **Offline-First**: All changes stored locally until you manually sync
+- **Auto-Save**: Pending notes auto-save after 1 second of inactivity
+- **Direct Commits**: Sync pushes all changes directly to your repository's default branch
 - **Fast Boot**: Loads note list instantly from build manifest, then reconciles with GitHub
+- **Local-First Loading**: Content loads from local server first, falls back to GitHub API
 - **Live Preview**: See rendered MDX as you type (with debouncing)
-- **CodeMirror 6**: Full-featured code editor with syntax highlighting
+- **CodeMirror 6**: Full-featured code editor with syntax highlighting and autocompletion
+- **Wiki-Link Completion**: Type `[[` to autocomplete from your note manifest
+- **PDF Support**: Upload, preview, and embed PDF files in notes
+- **Pending Changes**: Visual indicators show which notes have unsynced changes
+- **Batch Sync**: Push all pending changes to GitHub in one operation
 - **Conflict Detection**: SHA-based optimistic concurrency for safe saves
 - **Session or Persistent Storage**: Choose between session-only or remembered tokens
-- **Status Badges**: See which notes are indexed, new, or missing
 
 ## Access the Editor
 
 Navigate to `/editor` on your deployed site to access the editor.
+
+## Offline-First Workflow
+
+The editor uses an **offline-first** architecture where all changes are stored locally until you manually sync:
+
+### How It Works
+
+1. **Auto-Save** — Notes and articles auto-save to local storage after 1 second of inactivity
+2. **Manual Save** — Click "Save" for immediate save (PDFs require manual save)
+3. **Sync** — Clicking "Sync" pushes all pending changes to GitHub
+4. **Discard** — Clicking "Discard" clears all pending changes without syncing
+
+### Benefits
+
+- **Instant saves** — No network latency when saving
+- **Works offline** — Create, edit, and delete notes without connectivity
+- **Batch operations** — Multiple changes synced together efficiently
+- **Clear status** — Always know what's pending vs. synced
+
+### Visual Indicators
+
+The note list shows badges for pending changes:
+
+- **New** (blue) — Newly created note, not yet synced
+- **Modified** (yellow) — Note has pending updates
+- **Deleted** (red, strikethrough) — Note pending deletion
+
+The toolbar shows:
+- "Save" button (blue) — Saves immediately (shows "Saved" in gray when saved)
+- "Sync" button (green) — Pushes all pending changes
+- "Discard" button (orange) — Clears all pending changes
+
+### Browser Warning
+
+If you try to close the browser with pending changes, you'll see a warning prompt. This prevents accidental data loss.
+
+## Content Loading Strategy
+
+The editor uses a **local-first** approach for loading content:
+
+1. **Notes/Articles**: Tries `/generated/content/content.json` first (instant), falls back to GitHub API
+2. **PDFs**: Tries `/assets/pdfs/` first (instant), falls back to GitHub API with blob URL
+3. **Manifest**: Build manifest loads instantly, runtime manifest fetched from GitHub
+
+This means:
+- Content that exists in your build loads instantly without API calls
+- New/modified content only in GitHub is still accessible via API fallback
+- Reduced GitHub API usage for faster loading
 
 ## Manifest System
 
@@ -106,61 +160,126 @@ After revoking, you'll need to create a new token to use the editor again.
 
 ### Browsing Notes
 
-- The left sidebar shows all notes in your content directory
+- The left sidebar shows all notes and PDFs organized by type (Notes, Articles, PDFs)
 - Notes load instantly from the build manifest
 - Use the search box to filter notes by name or path
-- Filter by type (Notes/Articles) using the buttons below the search
+- Filter by type (Notes/Articles/PDFs) using the buttons below the search
 - Use "Show missing" toggle to see notes that exist in build but are deleted from repo
 - Click the refresh button to fetch the latest state from GitHub
-- Status badges show: **New** (unindexed) or **Missing** (deleted)
+- Status badges show: **New** (unindexed), **Modified** (pending changes), or **Missing** (deleted)
 
 ### Editing
 
 - Click a note to open it in the editor
-- The editor supports MDX syntax with syntax highlighting
-- Changes are tracked locally (shown as "unsaved")
+- CodeMirror 6 provides full syntax highlighting for 50+ languages in code blocks
+- Type `[[` to trigger wiki-link autocompletion from your note manifest
+- Bracket matching, auto-indent, and close brackets are enabled
+- Undo/redo supported with Ctrl+Z / Ctrl+Y
+- **Auto-Save**: Notes and articles auto-save after 1 second of inactivity
+- The Save button shows "Save" (blue) when dirty, "Saved" (gray) when saved
 
 ### Preview
 
 - The right panel shows a live preview of your MDX content
 - Click the eye icon in the bottom-right corner to toggle the preview
 - Preview uses the same MDX plugins as the main site (callouts, wiki-links, math, etc.)
+- **PDF Embeds**: Pending PDFs can be embedded with `![[filename.pdf]]` and preview correctly
 - **Limitations**:
   - Note embeds show as placeholders (green boxes with slug)
-  - PDF embeds show as placeholders (blue boxes with path)
   - Mermaid diagrams show as code blocks
   - Internal links use basic styling (no split-view integration)
 
 ### Saving
 
-- Click "Save" to commit your changes directly to the default branch
-- A commit is created with the message "Update [note name]"
-- After saving, you can click "View commit" to see the commit on GitHub
+The editor uses auto-save with optional manual save:
 
-### Creating New Notes
+1. **Auto-Save** — Notes and articles automatically save after 1 second of inactivity
+   - Changes are saved to local pending store (instant, no network)
+   - Note shows "Modified" badge in the list until synced
+   - Save button shows "Saved" (gray) when content is saved
 
-1. Click "New Note" in the toolbar
-2. Enter a title for your note
-3. Select the type (Note or Article)
-4. Click "Create"
+2. **Manual Save** — Click "Save" for immediate save
+   - Useful when you want to ensure content is saved before switching notes
 
-The note will be created in the appropriate directory (`content/notes/` or `content/articles/`) with default frontmatter.
+3. **Sync** — Click "Sync" to push all pending changes to GitHub
+   - All pending creates, updates, and deletions are processed
+   - Progress is shown (e.g., "Syncing 2/5")
+   - After sync, you can click "View commit" to see commits on GitHub
+
+### Discarding Changes
+
+If you want to abandon all pending changes:
+
+1. Click "Discard" (orange button, only visible when there are pending changes)
+2. Confirm the discard in the modal
+3. All pending changes are cleared from local storage
+4. If you were editing an unsynced note, the editor is cleared
+
+### Reload Remote
+
+To discard changes for just the current note and reload from GitHub:
+
+1. Select a note with pending changes
+2. Click the refresh icon in the note list toolbar
+3. The note reloads from GitHub, discarding local changes
+
+### Creating New Notes or Uploading PDFs
+
+1. Click "New" in the toolbar
+2. Choose the tab:
+   - **Note / Article**: Enter a title, select type (Note or Article), and click "Create"
+   - **PDF**: Select a PDF file, optionally rename it, and click "Upload"
+
+Notes are created in `content/notes/` or `content/articles/` based on the selected type.  
+PDFs are uploaded to `content/assets/pdfs/`.
+
+**Offline Support**: New notes and PDFs can be created offline. They'll appear in the correct group (Notes, Articles, or PDFs) with a "New" badge and preview locally. Click "Sync" when ready to upload to GitHub.
+
+### Embedding PDFs
+
+You can embed PDFs in your notes using wiki-link syntax:
+
+```markdown
+![[my-document.pdf]]
+![[my-document.pdf#page=5]]
+```
+
+**Pending PDFs**: PDFs that haven't been synced yet can still be embedded in pending notes. The preview will render them from local data with a yellow banner indicating "pending sync".
+
+### Deleting Notes
+
+1. Select a note or PDF
+2. Click "Delete" in the toolbar
+3. Confirm the deletion in the modal
+
+The note is marked for deletion locally:
+- If the note was unsynced (newly created), it's removed immediately
+- If the note exists on GitHub, it shows "Deleted" badge and is hidden from the list
+- Changes are synced when you click "Sync"
 
 ### Handling Conflicts
 
-If the remote file has changed since you loaded it:
+Conflicts are detected during sync when the remote file has changed:
 
-1. You'll see a conflict dialog when trying to save
-2. Choose one of:
-   - **Reload Remote**: Discard your changes and load the latest version
-   - **Overwrite Remote**: Force save your changes (requires confirmation)
-   - **Cancel**: Keep editing and resolve manually
+1. You'll see a sync error showing which files had conflicts
+2. Options to resolve:
+   - **Reload Remote**: Select the note and click refresh to load the latest version
+   - **Discard All**: Clear all pending changes and start fresh
+   - **Manual Resolution**: Copy your changes, reload remote, then reapply
+
+### Sync Errors
+
+If sync partially fails:
+- Successfully synced changes are cleared from pending
+- Failed changes remain pending for retry
+- Error message shows which files failed and why
+- Fix the issues and click "Sync" again
 
 ## Direct-Commit Architecture
 
 The editor commits directly to your repository's default branch using the GitHub REST API:
 
-1. When you save, the editor sends a `PUT` request to `/repos/{owner}/{repo}/contents/{path}`
+1. When you sync, the editor sends a `PUT` request to `/repos/{owner}/{repo}/contents/{path}`
 2. The request includes your content (base64 encoded) and a commit message
 3. GitHub creates a commit on the default branch
 4. Your CI/CD pipeline (if any) rebuilds the site automatically
@@ -198,8 +317,39 @@ The editor commits directly to your repository's default branch using the GitHub
 - Verify the token still has write permissions
 - Try disconnecting and reconnecting
 
+### "Failed to load PDF" Error
+
+- PDF may not exist in the repository yet
+- Check your internet connection for GitHub fallback
+- Verify the file path is correct
+
 ### Preview Not Rendering
 
 - The preview uses a subset of MDX features
 - Some custom components may not render in preview
 - Preview errors don't affect the actual content
+
+### "Sync Failed" Error
+
+- Check your internet connection
+- Verify the token still has write permissions
+- If you see conflict errors, someone else may have edited the file on GitHub
+- Use "Reload Remote" to fetch the latest version and reapply your changes
+
+### Changes Not Appearing After Sync
+
+- GitHub API may have eventual consistency delay
+- Click the refresh button in the note list to fetch fresh data
+- If issues persist, try disconnecting and reconnecting
+
+### Lost Unsynced Changes
+
+- Pending changes are stored in browser localStorage
+- Clearing browser data will delete pending changes
+- Using "Discard" button will clear all pending changes intentionally
+
+### New Article Shows in Notes
+
+- Articles are correctly grouped based on their path (`content/articles/` vs `content/notes/`)
+- Ensure you selected "Article" type when creating the note
+- The note list shows separate groups for Notes, Articles, and PDFs

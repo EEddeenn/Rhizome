@@ -198,13 +198,33 @@ export class GitHubAdapterPAT implements VaultAdapter {
     };
   }
 
+  async readFileRaw(path: string, ref?: string): Promise<{ contentBase64: string; sha: string }> {
+    const { defaultBranch } = await this.getRepoInfo();
+    const branch = ref || defaultBranch;
+
+    const data = await this.fetchGitHub<{
+      content: string;
+      sha: string;
+      encoding: string;
+    }>(`/repos/${this.owner}/${this.repo}/contents/${path}?ref=${branch}`);
+
+    if (data.encoding !== "base64") {
+      throw new Error(`Unexpected encoding: ${data.encoding}`);
+    }
+
+    return {
+      contentBase64: data.content.replace(/\n/g, ""),
+      sha: data.sha,
+    };
+  }
+
   async writeFile(params: WriteParams): Promise<WriteResult> {
     const { defaultBranch } = await this.getRepoInfo();
     const branch = params.branch || defaultBranch;
 
     const body: Record<string, unknown> = {
       message: params.message,
-      content: base64Encode(params.content),
+      content: params.isBase64 ? params.content : base64Encode(params.content),
       branch,
     };
 

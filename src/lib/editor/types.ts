@@ -16,6 +16,11 @@ export interface FileContent {
   sha: string;
 }
 
+export interface RawFileContent {
+  contentBase64: string;
+  sha: string;
+}
+
 export interface WriteResult {
   commitSha: string;
   htmlUrl?: string;
@@ -28,6 +33,7 @@ export interface WriteParams {
   message: string;
   branch?: string;
   sha?: string;
+  isBase64?: boolean;
 }
 
 export interface DeleteParams {
@@ -41,6 +47,7 @@ export interface VaultAdapter {
   getRepoInfo(): Promise<RepoInfo>;
   listNotes(params?: { root?: string }): Promise<NoteInfo[]>;
   readFile(path: string, ref?: string): Promise<FileContent>;
+  readFileRaw(path: string, ref?: string): Promise<RawFileContent>;
   writeFile(params: WriteParams): Promise<WriteResult>;
   deleteFile(params: DeleteParams): Promise<WriteResult>;
   fileExists(path: string, ref?: string): Promise<boolean>;

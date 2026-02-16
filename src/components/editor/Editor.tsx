@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { EditorProvider } from "./EditorContext";
 import { useConnection, useManifest, useNote } from "./contexts";
 import { ConnectionPanel } from "./ConnectionPanel";
@@ -38,6 +38,15 @@ function EditorLayout() {
     }
   }, []);
 
+  const saveNoteListWidth = useCallback((width: number) => {
+    localStorage.setItem(STORAGE_KEYS.NOTE_LIST_WIDTH, String(width));
+    setNoteListWidth(width);
+  }, []);
+
+  const togglePreview = useCallback(() => {
+    setShowPreview((prev) => !prev);
+  }, []);
+
   useEffect(() => {
     if (!isConnected || initialNoteOpened || mergedEntries.length === 0) return;
 
@@ -66,11 +75,6 @@ function EditorLayout() {
     }
     window.history.replaceState(null, "", url.toString());
   }, [currentNote, initialNoteOpened]);
-
-  const saveNoteListWidth = (width: number) => {
-    localStorage.setItem(STORAGE_KEYS.NOTE_LIST_WIDTH, String(width));
-    setNoteListWidth(width);
-  };
 
   if (!mounted) {
     return (
@@ -147,7 +151,7 @@ function EditorLayout() {
       </div>
       
       <button
-        onClick={() => setShowPreview(!showPreview)}
+        onClick={togglePreview}
         className="fixed bottom-4 right-4 p-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full shadow-lg transition-colors"
         title={showPreview ? "Hide preview" : "Show preview"}
       >
