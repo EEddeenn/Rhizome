@@ -11,20 +11,18 @@ import { ConflictModal } from "./ConflictModal";
 import { ResizablePanel } from "./ResizablePanel";
 import { SplitViewResizer } from "./SplitViewResizer";
 import { EyeIcon, EyeSlashIcon } from "@/components/icons";
-
-const STORAGE_KEY_NOTE_LIST = "rhizome_editor_note_list_width";
-const DEFAULT_NOTE_LIST_WIDTH = 256;
-const MIN_NOTE_LIST_WIDTH = 180;
-const MAX_NOTE_LIST_WIDTH = 400;
+import { Nav } from "@/components/layout/Nav";
+import { Footer } from "@/components/layout/Footer";
+import { STORAGE_KEYS, NOTE_LIST_WIDTH } from "./constants/storage";
 
 function EditorLayout() {
-  const { isConnected, mounted, mergedEntries, currentNote, openNote } = useEditor();
+  const { isConnected, isConnecting, mounted, mergedEntries, currentNote, openNote, tokenExpired } = useEditor();
   const [showPreview, setShowPreview] = useState(true);
-  const [noteListWidth, setNoteListWidth] = useState(DEFAULT_NOTE_LIST_WIDTH);
+  const [noteListWidth, setNoteListWidth] = useState<number>(NOTE_LIST_WIDTH.DEFAULT);
   const [initialNoteOpened, setInitialNoteOpened] = useState(false);
 
   useEffect(() => {
-    const savedNoteList = localStorage.getItem(STORAGE_KEY_NOTE_LIST);
+    const savedNoteList = localStorage.getItem(STORAGE_KEYS.NOTE_LIST_WIDTH);
     if (savedNoteList) setNoteListWidth(parseInt(savedNoteList, 10));
   }, []);
 
@@ -58,7 +56,7 @@ function EditorLayout() {
   }, [currentNote, initialNoteOpened]);
 
   const saveNoteListWidth = (width: number) => {
-    localStorage.setItem(STORAGE_KEY_NOTE_LIST, String(width));
+    localStorage.setItem(STORAGE_KEYS.NOTE_LIST_WIDTH, String(width));
     setNoteListWidth(width);
   };
 
@@ -70,13 +68,40 @@ function EditorLayout() {
     );
   }
 
+  if (isConnecting) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Nav />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin w-8 h-8 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full mx-auto mb-4" />
+            <p className="text-muted">Connecting to GitHub...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="max-w-5xl mx-auto px-4 py-8">
-          <h1 className="text-2xl font-bold mb-6">Editor</h1>
+      <div className="min-h-screen flex flex-col bg-background">
+        <Nav />
+        <main className="flex-1 max-w-3xl mx-auto px-4 py-6 sm:py-8 w-full">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Editor</h1>
+          {tokenExpired && (
+            <div className="mb-6 p-3 sm:p-4 text-sm sm:text-base text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+              Your session has expired. Please reconnect to continue.
+            </div>
+          )}
+          {!tokenExpired && (
+            <p className="text-muted text-sm sm:text-base mb-6 sm:mb-8">
+              Connect to your GitHub repository to edit notes directly from the browser.
+            </p>
+          )}
           <ConnectionPanel />
-        </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -87,9 +112,9 @@ function EditorLayout() {
       
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <ResizablePanel
-          defaultWidth={DEFAULT_NOTE_LIST_WIDTH}
-          minWidth={MIN_NOTE_LIST_WIDTH}
-          maxWidth={MAX_NOTE_LIST_WIDTH}
+          defaultWidth={NOTE_LIST_WIDTH.DEFAULT}
+          minWidth={NOTE_LIST_WIDTH.MIN}
+          maxWidth={NOTE_LIST_WIDTH.MAX}
           side="left"
           savedWidth={noteListWidth}
           onSaveWidth={saveNoteListWidth}

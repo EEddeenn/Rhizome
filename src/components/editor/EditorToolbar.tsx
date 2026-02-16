@@ -19,6 +19,7 @@ export function EditorToolbar() {
     deleteNote,
     config,
     setConfig,
+    disconnect,
   } = useEditor();
 
   const [showNewNote, setShowNewNote] = useState(false);
@@ -108,6 +109,7 @@ export function EditorToolbar() {
         onClose={() => setShowSettings(false)}
         config={config}
         onConfigChange={setConfig}
+        onDisconnect={disconnect}
       />
 
       <DeleteConfirmModal

@@ -70,20 +70,22 @@ export function ResizablePanel({
   }, [savedWidth]);
 
   const resizeHandleClass = side === "left" 
-    ? "right-0 border-r" 
-    : "left-0 border-l";
+    ? "right-0" 
+    : "left-0";
 
   return (
     <div
       ref={panelRef}
-      className="relative h-full shrink-0"
+      className="relative h-full shrink-0 bg-background"
       style={{ width: `${width}px` }}
     >
       {children}
       <div
-        className={`absolute top-0 ${resizeHandleClass} bottom-0 w-px cursor-col-resize bg-border hover:bg-blue-500 transition-colors z-10 ${isResizing ? "!bg-blue-500" : ""}`}
+        className={`absolute top-0 ${resizeHandleClass} bottom-0 w-1.5 cursor-col-resize group transition-colors z-10`}
         onMouseDown={handleMouseDown}
-      />
+      >
+        <div className={`w-px h-full bg-gray-200 dark:bg-gray-700 group-hover:bg-blue-500 dark:group-hover:bg-blue-400 transition-colors mx-auto ${isResizing ? "!bg-blue-500 dark:!bg-blue-400" : ""}`} />
+      </div>
     </div>
   );
 }

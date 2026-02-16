@@ -22,6 +22,7 @@ interface EditorContextValue {
   isSaving: boolean;
   saveError: string | null;
   lastSaveUrl: string | null;
+  isLoadingNote: boolean;
   config: {
     owner: string;
     repo: string;
@@ -37,6 +38,8 @@ interface EditorContextValue {
   showMissing: boolean;
   manifestLoadError: string | null;
   adapter: VaultAdapter | null;
+  tokenExpired: boolean;
+  autoLogin: boolean;
   setConfig: (config: Partial<{ owner: string; repo: string; contentRoot: string }>) => void;
   setToken: (token: string, remember: boolean) => void;
   disconnect: () => void;
@@ -51,6 +54,8 @@ interface EditorContextValue {
   reloadRemote: () => Promise<void>;
   clearSaveError: () => void;
   toggleShowMissing: () => void;
+  clearTokenExpired: () => void;
+  setAutoLogin: (enabled: boolean) => void;
 }
 
 const EditorContext = createContext<EditorContextValue | null>(null);
@@ -85,6 +90,7 @@ export function EditorProvider({ children }: EditorProviderProps) {
     setRuntimeManifest: manifest.setRuntimeManifest,
     mergedEntries: manifest.mergedEntries,
     updateMergedEntries: manifest.updateMergedEntries,
+    onAuthError: connection.markTokenExpired,
   });
 
   const value = useMemo<EditorContextValue>(
@@ -101,12 +107,15 @@ export function EditorProvider({ children }: EditorProviderProps) {
       isSaving: notes.isSaving,
       saveError: notes.saveError,
       lastSaveUrl: notes.lastSaveUrl,
+      isLoadingNote: notes.isLoadingNote,
       config: connection.config,
       tokenValidation: connection.tokenValidation,
       mounted: connection.mounted,
       showMissing: manifest.showMissing,
       manifestLoadError: manifest.manifestLoadError,
       adapter: connection.adapter,
+      tokenExpired: connection.tokenExpired,
+      autoLogin: connection.autoLogin,
       setConfig: connection.setConfig,
       setToken: connection.setToken,
       disconnect: connection.disconnect,
@@ -121,6 +130,8 @@ export function EditorProvider({ children }: EditorProviderProps) {
       reloadRemote: notes.reloadRemote,
       clearSaveError: notes.clearSaveError,
       toggleShowMissing: manifest.toggleShowMissing,
+      clearTokenExpired: connection.clearTokenExpired,
+      setAutoLogin: connection.setAutoLogin,
     }),
     [connection, manifest, notes]
   );

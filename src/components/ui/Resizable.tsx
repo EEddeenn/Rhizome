@@ -10,7 +10,7 @@ interface ResizeHandleProps {
 export function ResizeHandle({ onResizeStart, isResizing }: ResizeHandleProps) {
   return (
     <div
-      className={`w-1 cursor-col-resize bg-border hover:bg-blue-500 transition-colors shrink-0 ${isResizing ? "!bg-blue-500" : ""}`}
+      className={`w-1 cursor-col-resize bg-gray-200 dark:bg-gray-700 hover:bg-blue-500 dark:hover:bg-blue-400 transition-colors shrink-0 ${isResizing ? "!bg-blue-500 dark:!bg-blue-400" : ""}`}
       onMouseDown={onResizeStart}
     />
   );

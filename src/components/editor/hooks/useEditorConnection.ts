@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { authStore, type TokenValidationResult } from "@/lib/editor";
 import type { VaultAdapter } from "@/lib/editor";
 
@@ -16,6 +16,8 @@ export interface ConnectionState {
   };
   tokenValidation: TokenValidationResult | null;
   mounted: boolean;
+  tokenExpired: boolean;
+  autoLogin: boolean;
 }
 
 export interface UseEditorConnectionReturn extends ConnectionState {
@@ -23,6 +25,9 @@ export interface UseEditorConnectionReturn extends ConnectionState {
   setToken: (token: string, remember: boolean) => void;
   disconnect: () => void;
   validateAndConnect: () => Promise<void>;
+  clearTokenExpired: () => void;
+  markTokenExpired: () => void;
+  setAutoLogin: (enabled: boolean) => void;
 }
 
 const DEFAULT_CONFIG = {
@@ -40,42 +45,14 @@ export function useEditorConnection(): UseEditorConnectionReturn {
     config: DEFAULT_CONFIG,
     tokenValidation: null,
     mounted: false,
+    tokenExpired: false,
+    autoLogin: false,
   });
 
-  useEffect(() => {
-    const storedConfig = authStore.getConfig();
-    setState((prev) => ({
-      ...prev,
-      config: storedConfig.owner ? storedConfig : DEFAULT_CONFIG,
-      mounted: true,
-    }));
-  }, []);
-
-  const setConfig = useCallback((config: Partial<ConnectionState["config"]>) => {
-    authStore.setConfig(config);
-    setState((prev) => ({
-      ...prev,
-      config: { ...prev.config, ...config },
-    }));
-  }, []);
-
-  const setToken = useCallback((token: string, remember: boolean) => {
-    authStore.setToken(token, remember);
-  }, []);
-
-  const disconnect = useCallback(() => {
-    authStore.disconnect();
-    setState((prev) => ({
-      ...prev,
-      isConnected: false,
-      connectionError: null,
-      adapter: null,
-      tokenValidation: null,
-    }));
-  }, []);
+  const autoConnectAttempted = useRef(false);
 
   const validateAndConnect = useCallback(async () => {
-    setState((prev) => ({ ...prev, isConnecting: true, connectionError: null }));
+    setState((prev) => ({ ...prev, isConnecting: true, connectionError: null, tokenExpired: false }));
 
     try {
       const result = await authStore.validateTokenAndRepoAccess();
@@ -110,11 +87,83 @@ export function useEditorConnection(): UseEditorConnectionReturn {
     }
   }, []);
 
+  useEffect(() => {
+    const storedConfig = authStore.getConfig();
+    const hasToken = authStore.getToken() !== null;
+    const hasValidConfig = Boolean(storedConfig.owner && storedConfig.repo);
+    const autoLoginEnabled = authStore.getAutoLogin();
+
+    setState((prev) => ({
+      ...prev,
+      config: storedConfig.owner ? storedConfig : DEFAULT_CONFIG,
+      autoLogin: autoLoginEnabled,
+      mounted: true,
+    }));
+
+    const unsubscribe = authStore.subscribe((authState) => {
+      setState((prev) => ({
+        ...prev,
+        config: authState.config,
+        autoLogin: authState.autoLogin,
+      }));
+    });
+
+    if (autoLoginEnabled && hasToken && hasValidConfig && !autoConnectAttempted.current) {
+      autoConnectAttempted.current = true;
+      validateAndConnect();
+    }
+
+    return unsubscribe;
+  }, [validateAndConnect]);
+
+  const setConfig = useCallback((config: Partial<ConnectionState["config"]>) => {
+    authStore.setConfig(config);
+  }, []);
+
+  const setAutoLogin = useCallback((enabled: boolean) => {
+    authStore.setAutoLogin(enabled);
+  }, []);
+
+  const setToken = useCallback((token: string, remember: boolean) => {
+    authStore.setToken(token, remember);
+    setState((prev) => ({ ...prev, tokenExpired: false }));
+  }, []);
+
+  const disconnect = useCallback(() => {
+    authStore.disconnect();
+    setState((prev) => ({
+      ...prev,
+      isConnected: false,
+      connectionError: null,
+      adapter: null,
+      tokenValidation: null,
+      tokenExpired: false,
+    }));
+  }, []);
+
+  const clearTokenExpired = useCallback(() => {
+    setState((prev) => ({ ...prev, tokenExpired: false }));
+  }, []);
+
+  const markTokenExpired = useCallback(() => {
+    authStore.disconnect();
+    setState((prev) => ({
+      ...prev,
+      tokenExpired: true,
+      isConnected: false,
+      adapter: null,
+      connectionError: "Your session has expired. Please reconnect.",
+    }));
+  }, []);
+
   return {
     ...state,
     setConfig,
     setToken,
     disconnect,
     validateAndConnect,
+    clearTokenExpired,
+    markTokenExpired,
+    setAutoLogin,
   };
 }

@@ -14,10 +14,7 @@ import {
   type BuildManifest,
   type RuntimeManifest,
 } from "@/lib/manifest";
-
-function extractErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
-}
+import { extractErrorMessage, isAuthError, isConflictError } from "../utils/error";
 
 export interface NoteState {
   currentNote: MergedEntry | null;
@@ -27,6 +24,7 @@ export interface NoteState {
   isSaving: boolean;
   saveError: string | null;
   lastSaveUrl: string | null;
+  isLoadingNote: boolean;
 }
 
 export interface UseNoteOperationsParams {
@@ -41,6 +39,7 @@ export interface UseNoteOperationsParams {
   setRuntimeManifest: Dispatch<SetStateAction<RuntimeManifest | null>>;
   mergedEntries: MergedEntry[];
   updateMergedEntries: (entries: MergedEntry[]) => void;
+  onAuthError?: () => void;
 }
 
 export interface UseNoteOperationsReturn extends NoteState {
@@ -62,6 +61,7 @@ export function useNoteOperations({
   setRuntimeManifest,
   mergedEntries,
   updateMergedEntries,
+  onAuthError,
 }: UseNoteOperationsParams): UseNoteOperationsReturn {
   const [state, setState] = useState<NoteState>({
     currentNote: null,
@@ -71,6 +71,7 @@ export function useNoteOperations({
     isSaving: false,
     saveError: null,
     lastSaveUrl: null,
+    isLoadingNote: false,
   });
 
   const refreshManifestForCreate = useCallback(async (): Promise<MergedEntry[]> => {
@@ -95,6 +96,8 @@ export function useNoteOperations({
     async (entry: MergedEntry) => {
       if (!adapter) return;
 
+      setState((prev) => ({ ...prev, isLoadingNote: true }));
+
       try {
         const { content, sha } = await adapter.readFile(entry.path);
         setState((prev) => ({
@@ -104,6 +107,7 @@ export function useNoteOperations({
           currentSha: sha,
           isDirty: false,
           saveError: null,
+          isLoadingNote: false,
         }));
 
         if (runtimeManifest && sha !== entry.runtimeSha) {
@@ -114,11 +118,15 @@ export function useNoteOperations({
           updateMergedEntries(merged);
         }
       } catch (error: unknown) {
+        if (isAuthError(error)) {
+          onAuthError?.();
+          return;
+        }
         const message = extractErrorMessage(error, "Failed to open note");
-        setState((prev) => ({ ...prev, saveError: message }));
+        setState((prev) => ({ ...prev, saveError: message, isLoadingNote: false }));
       }
     },
-    [adapter, buildManifest, runtimeManifest, setRuntimeManifest, updateMergedEntries]
+    [adapter, buildManifest, runtimeManifest, setRuntimeManifest, updateMergedEntries, onAuthError]
   );
 
   const updateContent = useCallback((content: string) => {
@@ -175,15 +183,17 @@ export function useNoteOperations({
         lastSaveUrl: result.htmlUrl || null,
       }));
     } catch (error: unknown) {
-      if (error instanceof GitHubApiError) {
-        if (GitHubApiError.isConflict(error) || GitHubApiError.isUnprocessable(error)) {
-          setState((prev) => ({
-            ...prev,
-            isSaving: false,
-            saveError: "CONFLICT: Remote has changed",
-          }));
-          return;
-        }
+      if (isConflictError(error)) {
+        setState((prev) => ({
+          ...prev,
+          isSaving: false,
+          saveError: "CONFLICT: Remote has changed",
+        }));
+        return;
+      }
+      if (isAuthError(error)) {
+        onAuthError?.();
+        return;
       }
       const message = extractErrorMessage(error, "Failed to save");
       setState((prev) => ({ ...prev, isSaving: false, saveError: message }));
@@ -216,6 +226,10 @@ export function useNoteOperations({
           lastSaveUrl: result.htmlUrl || null,
         }));
       } catch (error: unknown) {
+        if (isAuthError(error)) {
+          onAuthError?.();
+          return;
+        }
         const message = extractErrorMessage(error, "Failed to create note");
         setState((prev) => ({ ...prev, isSaving: false, saveError: message }));
       }
@@ -249,6 +263,10 @@ export function useNoteOperations({
         lastSaveUrl: null,
       }));
     } catch (error: unknown) {
+      if (isAuthError(error)) {
+        onAuthError?.();
+        return;
+      }
       const message = extractErrorMessage(error, "Failed to delete note");
       setState((prev) => ({ ...prev, isSaving: false, saveError: message }));
     }
@@ -280,6 +298,10 @@ export function useNoteOperations({
         }));
       }
     } catch (error: unknown) {
+      if (isAuthError(error)) {
+        onAuthError?.();
+        return;
+      }
       const message = extractErrorMessage(error, "Failed to reload");
       setState((prev) => ({ ...prev, saveError: message }));
     }

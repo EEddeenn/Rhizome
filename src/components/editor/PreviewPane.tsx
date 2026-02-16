@@ -103,7 +103,7 @@ function PreviewContent({
 }
 
 export function PreviewPane() {
-  const { currentContent, currentNote, mergedEntries, openNote } = useEditor();
+  const { currentContent, currentNote, mergedEntries, openNote, isLoadingNote } = useEditor();
   const [compiled, setCompiled] = useState<MDXRemoteSerializeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [debouncedContent, setDebouncedContent] = useState(currentContent);
@@ -206,6 +206,17 @@ export function PreviewPane() {
         setError(err.message || "Preview failed");
       });
   }, [debouncedContent, resolvers]);
+
+  if (isLoadingNote) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin w-6 h-6 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full mx-auto mb-2" />
+          <p className="text-muted text-sm">Loading preview...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentNote) {
     return (
