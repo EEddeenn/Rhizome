@@ -1,17 +1,8 @@
-import { unified } from "unified";
-import remarkParse from "remark-parse";
 import { visit } from "unist-util-visit";
 import type { WikiLink } from "./types";
 import { normalizeTitle } from "./normalize";
 import { WIKI_LINK_PATTERN, MD_LINK_PATTERN } from "./patterns";
-
-type MdastNode = {
-  type: string;
-  children?: MdastNode[];
-  value?: string;
-};
-
-const cachedParser = unified().use(remarkParse);
+import { type MdastNode, cachedParser } from "./mdast-utils";
 
 export function extractWikiLinks(raw: string): WikiLink[] {
   const links: WikiLink[] = [];

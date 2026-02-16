@@ -1,6 +1,7 @@
 import { visit } from "unist-util-visit";
 import type { Plugin } from "unified";
 import type { Root, Blockquote, Paragraph, Text, Content } from "mdast";
+import { type MdxJsxFlowElement, type MdxJsxAttribute } from "./mdx-types";
 
 const CALLOUT_PATTERN = /^\s*\[!([A-Za-z0-9_-]+)\]([+-])?\s*(.*)$/;
 
@@ -80,29 +81,30 @@ export const remarkObsidianCallouts: Plugin<[], Root> = () => {
 
       const normalizedChildren = children.filter((c) => !isEmptyParagraph(c));
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const calloutNode: any = {
+      const attributes: MdxJsxAttribute[] = [
+        { type: "mdxJsxAttribute", name: "type", value: calloutType },
+      ];
+      
+      if (title) {
+        attributes.push({ type: "mdxJsxAttribute", name: "title", value: title });
+      }
+      
+      if (foldFlag) {
+        attributes.push({
+          type: "mdxJsxAttribute",
+          name: "fold",
+          value: foldFlag === "+" ? "open" : "closed",
+        });
+      }
+
+      const calloutNode: MdxJsxFlowElement = {
         type: "mdxJsxFlowElement",
         name: "Callout",
-        attributes: [
-          { type: "mdxJsxAttribute", name: "type", value: calloutType },
-          ...(title
-            ? [{ type: "mdxJsxAttribute", name: "title", value: title }]
-            : []),
-          ...(foldFlag
-            ? [
-                {
-                  type: "mdxJsxAttribute",
-                  name: "fold",
-                  value: foldFlag === "+" ? "open" : "closed",
-                },
-              ]
-            : []),
-        ],
+        attributes,
         children: normalizedChildren,
       };
 
-      parent.children[index] = calloutNode;
+      parent.children[index] = calloutNode as unknown as typeof parent.children[0];
     });
   };
 };

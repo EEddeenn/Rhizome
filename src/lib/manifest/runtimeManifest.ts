@@ -1,8 +1,7 @@
 import type { VaultAdapter } from "@/lib/editor";
+import type { BuildManifest } from "./buildManifest";
+import { reconcile, type MergedEntry } from "./reconcile";
 
-/**
- * Runtime entry from GitHub API
- */
 export interface RuntimeEntry {
   /** Repo path (e.g., "content/notes/my-note.mdx") */
   path: string;
@@ -183,4 +182,44 @@ export function createEmptyRuntimeManifest(ref: string, root: string): RuntimeMa
     root,
     entries: {},
   };
+}
+
+export interface RefreshRuntimeManifestParams {
+  adapter: VaultAdapter;
+  config: {
+    owner: string;
+    repo: string;
+    contentRoot: string;
+  };
+  buildManifest: BuildManifest | null;
+}
+
+export interface RefreshRuntimeManifestResult {
+  runtimeManifest: RuntimeManifest;
+  mergedEntries: MergedEntry[];
+}
+
+export async function refreshRuntimeManifestAndReconcile(
+  params: RefreshRuntimeManifestParams
+): Promise<RefreshRuntimeManifestResult> {
+  const { adapter, config, buildManifest } = params;
+  
+  const repoInfo = await adapter.getRepoInfo();
+  
+  const runtimeManifest = await fetchRuntimeManifestFromGitHub(adapter, {
+    root: config.contentRoot,
+    ref: repoInfo.defaultBranch,
+  });
+  
+  saveRuntimeManifestCache(
+    config.owner,
+    config.repo,
+    repoInfo.defaultBranch,
+    config.contentRoot,
+    runtimeManifest
+  );
+  
+  const mergedEntries = reconcile(buildManifest, runtimeManifest);
+  
+  return { runtimeManifest, mergedEntries };
 }

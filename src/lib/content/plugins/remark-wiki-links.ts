@@ -1,9 +1,10 @@
 import { visit } from "unist-util-visit";
 import type { Plugin } from "unified";
 import type { Root, Text, Link, Parent, Paragraph } from "mdast";
-import { slugifyAnchor } from "../slug";
+import { slugifyAnchor, slugifyTitle } from "../slug";
 import type { ResolvedLink, ResolvedEmbed } from "../types";
 import { WIKI_LINK_PATTERN } from "../patterns";
+import { type MdxJsxFlowElement, createMdxElement, isMdxJsxFlowElement } from "./mdx-types";
 
 interface WikiLinkOptions {
   resolve?: (title: string, anchor?: string) => ResolvedLink;
@@ -26,7 +27,7 @@ function parsePdfAnchor(anchor: string | undefined): { page?: number; fragment?:
 }
 
 const defaultResolver = (title: string, anchor?: string): ResolvedLink => {
-  const route = `/notes/${title.toLowerCase().replace(/\s+/g, "-")}`;
+  const route = `/notes/${slugifyTitle(title)}`;
   const processedAnchor = anchor
     ? anchor.startsWith("^")
       ? anchor
@@ -48,43 +49,9 @@ const defaultEmbedResolver = (target: string, anchor?: string): ResolvedEmbed | 
     return { type: "pdf", path: pdfPath, page };
   }
   
-  const slug = `notes/${target.toLowerCase().replace(/\s+/g, "-")}`;
+  const slug = `notes/${slugifyTitle(target)}`;
   return { type: "note", slug, anchor: processedAnchor };
 };
-
-interface MdxJsxAttribute {
-  type: "mdxJsxAttribute";
-  name: string;
-  value: string | null;
-}
-
-interface MdxJsxFlowElement {
-  type: "mdxJsxFlowElement";
-  name: string;
-  attributes: MdxJsxAttribute[];
-  children: [];
-}
-
-function createMdxElement(name: string, attrs: Record<string, string | undefined>): MdxJsxFlowElement {
-  const attributes: MdxJsxAttribute[] = Object.entries(attrs)
-    .filter(([, value]) => value !== undefined)
-    .map(([name, value]) => ({
-      type: "mdxJsxAttribute" as const,
-      name,
-      value: value ?? null,
-    }));
-
-  return {
-    type: "mdxJsxFlowElement",
-    name,
-    attributes,
-    children: [],
-  };
-}
-
-function isMdxJsxFlowElement(node: unknown): node is MdxJsxFlowElement {
-  return typeof node === "object" && node !== null && (node as { type?: string }).type === "mdxJsxFlowElement";
-}
 
 export const remarkWikiLinks: Plugin<[WikiLinkOptions?], Root> = (options = {}) => {
   const resolver = options.resolve || defaultResolver;
@@ -171,7 +138,7 @@ export const remarkWikiLinks: Plugin<[WikiLinkOptions?], Root> = (options = {}) 
         });
       }
 
-      parent.children.splice(index, 1, ...newNodes);
+      parent.children.splice(index, 1, ...(newNodes as unknown as typeof parent.children));
     });
 
     visit(tree, "paragraph", (node: Paragraph, index, parent: Parent | undefined) => {
@@ -199,7 +166,7 @@ export const remarkWikiLinks: Plugin<[WikiLinkOptions?], Root> = (options = {}) 
         newNodes.push(currentParagraph);
       }
 
-      parent.children.splice(index, 1, ...newNodes);
+      parent.children.splice(index, 1, ...(newNodes as unknown as typeof parent.children));
     });
   };
 };

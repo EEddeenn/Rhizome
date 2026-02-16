@@ -1,5 +1,5 @@
 import { normalizeTitle } from "./normalize";
-import { slugifyAnchor } from "./slug";
+import { slugifyAnchor, slugifyTitle } from "./slug";
 import type { Manifest, ResolvedLink, ResolvedEmbed } from "./types";
 
 export type { ResolvedLink, ResolvedEmbed };
@@ -22,7 +22,7 @@ export function createWikiLinkResolver(manifest: Manifest): (title: string, anch
       return { route, anchor: processedAnchor, exists: true };
     }
     return {
-      route: `/notes/${title.toLowerCase().replace(/\s+/g, "-")}`,
+      route: `/notes/${slugifyTitle(title)}`,
       anchor: processedAnchor,
       exists: false,
     };
@@ -63,7 +63,7 @@ export function createEmbedResolver(manifest: Manifest): (target: string, anchor
       return { type: "note", slug, anchor: processedAnchor };
     }
     
-    const fallbackSlug = `notes/${target.toLowerCase().replace(/\s+/g, "-")}`;
+    const fallbackSlug = `notes/${slugifyTitle(target)}`;
     return { type: "note", slug: fallbackSlug, anchor: processedAnchor };
   };
 }

@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import { slugifyForFile } from "../src/lib/content/slug";
 
 const CONTENT_DIR = "content";
 const TEMPLATES_DIR = "templates";
@@ -11,13 +12,6 @@ const templates: Record<string, string> = {
 
 function formatDate(date: Date): string {
   return date.toISOString().split("T")[0];
-}
-
-function slugify(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
 }
 
 function parseArgs(): { type: string; title: string; output?: string } {
@@ -62,7 +56,7 @@ function processTemplate(template: string, title: string): string {
 }
 
 function resolveOutputPath(type: string, title: string, customPath?: string): string {
-  const slug = slugify(title);
+  const slug = slugifyForFile(title);
   const subdir = type === "note" ? "notes" : "articles";
 
   if (customPath) {

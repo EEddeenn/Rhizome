@@ -1,18 +1,8 @@
-import { unified } from "unified";
-import remarkParse from "remark-parse";
 import { visit } from "unist-util-visit";
 import type { HeadingWithPosition, LinkWithContext } from "./types";
 import { WIKI_LINK_PATTERN, HEADING_PATTERN } from "./patterns";
+import { type MdastNode, cachedParser } from "./mdast-utils";
 
-type MdastNode = {
-  type: string;
-  value?: string;
-  position?: {
-    start?: { offset?: number };
-  };
-};
-
-const cachedParser = unified().use(remarkParse);
 const SNIPPET_LENGTH = parseInt(process.env.BACKLINK_SNIPPET_LENGTH || "100", 10);
 
 export function extractHeadingPositions(content: string): HeadingWithPosition[] {

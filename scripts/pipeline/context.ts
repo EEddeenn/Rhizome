@@ -54,9 +54,13 @@ export function createStepContext(
         ? path.join(PUBLIC_DIR, "generated", stepId)
         : path.join(GENERATED_DIR, stepId);
       const destPath = path.join(destDir, filename);
-      await fs.mkdir(destDir, { recursive: true });
-      await fs.writeFile(destPath, JSON.stringify(data));
-      return destPath;
+      try {
+        await fs.mkdir(destDir, { recursive: true });
+        await fs.writeFile(destPath, JSON.stringify(data));
+        return destPath;
+      } catch (error) {
+        throw new Error(`Failed to write ${destPath}: ${error instanceof Error ? error.message : String(error)}`);
+      }
     },
     
     writeText: async (stepId, filename, content, isPublic = false) => {
@@ -64,9 +68,13 @@ export function createStepContext(
         ? path.join(PUBLIC_DIR, "generated", stepId)
         : path.join(GENERATED_DIR, stepId);
       const destPath = path.join(destDir, filename);
-      await fs.mkdir(destDir, { recursive: true });
-      await fs.writeFile(destPath, content);
-      return destPath;
+      try {
+        await fs.mkdir(destDir, { recursive: true });
+        await fs.writeFile(destPath, content);
+        return destPath;
+      } catch (error) {
+        throw new Error(`Failed to write ${destPath}: ${error instanceof Error ? error.message : String(error)}`);
+      }
     },
     
     readCache: async (stepId) => {
@@ -79,8 +87,12 @@ export function createStepContext(
     },
     
     writeCache: async (stepId, cache) => {
-      await fs.mkdir(CACHE_DIR, { recursive: true });
-      await fs.writeFile(path.join(CACHE_DIR, `${stepId}.json`), JSON.stringify(cache));
+      try {
+        await fs.mkdir(CACHE_DIR, { recursive: true });
+        await fs.writeFile(path.join(CACHE_DIR, `${stepId}.json`), JSON.stringify(cache));
+      } catch (error) {
+        throw new Error(`Failed to write cache for ${stepId}: ${error instanceof Error ? error.message : String(error)}`);
+      }
     },
     
     getStepOutput: (stepId) => stepOutputs.get(stepId),

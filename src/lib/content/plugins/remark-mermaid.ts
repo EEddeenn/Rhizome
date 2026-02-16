@@ -1,19 +1,7 @@
 import { visit } from "unist-util-visit";
 import type { Plugin } from "unified";
 import type { Root, Code } from "mdast";
-
-interface MdxJsxAttribute {
-  type: "mdxJsxAttribute";
-  name: string;
-  value: string | null;
-}
-
-interface MdxJsxFlowElement {
-  type: "mdxJsxFlowElement";
-  name: string;
-  attributes: MdxJsxAttribute[];
-  children: [];
-}
+import { type MdxJsxFlowElement, createMdxElement } from "./mdx-types";
 
 function parseMeta(meta: string | null | undefined): { title?: string } {
   if (!meta) return {};
@@ -35,28 +23,15 @@ export const remarkMermaid: Plugin<[], Root> = () => {
       
       const { title } = parseMeta(node.meta);
       
-      const attributes: MdxJsxAttribute[] = [
-        {
-          type: "mdxJsxAttribute",
-          name: "code",
-          value: node.value || "",
-        },
-      ];
+      const attrs: Record<string, string | undefined> = {
+        code: node.value || "",
+      };
       
       if (title) {
-        attributes.push({
-          type: "mdxJsxAttribute",
-          name: "title",
-          value: title,
-        });
+        attrs.title = title;
       }
       
-      const mermaidNode: MdxJsxFlowElement = {
-        type: "mdxJsxFlowElement",
-        name: "Mermaid",
-        attributes,
-        children: [],
-      };
+      const mermaidNode = createMdxElement("Mermaid", attrs);
       
       parent.children[index] = mermaidNode as unknown as typeof parent.children[0];
     });

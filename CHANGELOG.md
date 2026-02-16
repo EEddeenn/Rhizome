@@ -2,6 +2,69 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.0] - 2026-02-16
+
+### Added
+
+#### Shared Type Modules
+- `src/lib/content/plugins/mdx-types.ts` — Centralized MDX JSX type definitions
+  - `MdxJsxAttribute`, `MdxJsxFlowElement` interfaces
+  - `isMdxJsxFlowElement()` type guard
+  - `createMdxElement()` helper factory
+- `src/lib/content/mdast-utils.ts` — Shared MDAST utilities
+  - `MdastNode` type definition
+  - `cachedParser` unified parser instance
+
+#### Barrel Exports
+- `src/components/blocks/index.ts` — Exports all block components
+- `src/components/layout/index.ts` — Exports all layout components
+- `src/lib/content/index.ts` — Exports all content utilities and types
+- `src/lib/generated/index.ts` — Exports all data loaders
+
+#### Entry Page Utilities
+- `src/lib/content/entry-utils.ts` — Shared page utilities
+  - `buildEntryMetadata()` — Generates metadata for entry pages
+  - `buildFullSlug()` — Constructs full slug from category and parts
+
+#### Manifest Refresh Utility
+- `src/lib/manifest/runtimeManifest.ts` — Added `refreshRuntimeManifestAndReconcile()`
+  - Fetches fresh manifest from GitHub
+  - Saves to cache
+  - Returns reconciled entries
+
+### Changed
+
+#### Code Quality — Type Safety
+- `src/lib/content/plugins/remark-obsidian-callouts.ts` — Replaced `any` with proper `MdxJsxFlowElement` type
+- `src/components/editor/hooks/useNoteOperations.ts` — Added null guards, removed non-null assertions
+- `src/lib/cache/create-cached-fetcher.ts` — Added `response.ok` check before JSON parsing
+
+#### Code Quality — Consolidation
+- `src/lib/content/slug.ts` — Added `slugifyTitle()`, `slugifyForFile()`, `deriveSlugFromPath()`, `deriveTitleFromPath()`
+- `src/lib/manifest/reconcile.ts` — Now imports derivation functions from `slug.ts`
+- `src/lib/content/wiki-link-resolver.ts` — Now uses `slugifyTitle()` instead of inline pattern
+- `src/lib/content/plugins/remark-wiki-links.ts` — Now uses `slugifyTitle()` from shared module
+- `scripts/new-content.ts` — Now uses `slugifyForFile()` from `@/lib/content/slug`
+
+#### Code Quality — Page Simplification
+- `src/app/(site)/notes/[...slug]/page.tsx` — Now uses `buildEntryMetadata()` and `buildFullSlug()`
+- `src/app/(site)/articles/[...slug]/page.tsx` — Now uses `buildEntryMetadata()` and `buildFullSlug()`
+
+#### Code Quality — Memoization
+- `src/components/blocks/BacklinksPanel.tsx` — Added `useMemo` for data transformations
+
+#### Code Quality — Type Imports
+- `src/components/mdx/Callout/Callout.tsx` — Now imports `CalloutType` from `CalloutBase.tsx`
+
+### Fixed
+
+#### Error Handling
+- `src/app/(site)/graph/page.tsx` — Added `.catch()` handler for fetch chain
+- `src/app/(site)/search/page.tsx` — Added `.catch()` handler for Promise.all
+- `scripts/pipeline/context.ts` — Added try-catch for `writeJson()`, `writeText()`, `writeCache()`
+
+---
+
 ## [0.22.0] - 2026-02-16
 
 ### Added

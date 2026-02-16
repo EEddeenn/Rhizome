@@ -1,17 +1,7 @@
-import { unified } from "unified";
-import remarkParse from "remark-parse";
 import { visit } from "unist-util-visit";
 import GithubSlugger from "github-slugger";
 import type { Heading } from "./types";
-
-type MdastNode = {
-  type: string;
-  depth?: number;
-  children?: MdastNode[];
-  value?: string;
-};
-
-const cachedParser = unified().use(remarkParse);
+import { type MdastNode, cachedParser } from "./mdast-utils";
 
 export interface ExtractedContent {
   headings: Heading[];

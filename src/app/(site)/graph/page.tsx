@@ -91,9 +91,18 @@ export default function GraphPage() {
 
   useEffect(() => {
     fetch("/generated/graph/graph.json")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to load graph: HTTP ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data: Graph) => {
         setGraph(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Failed to load graph:", error);
         setLoading(false);
       });
   }, []);

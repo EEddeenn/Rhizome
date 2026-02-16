@@ -1,6 +1,7 @@
 import type { BuildManifest } from "./buildManifest";
 import type { RuntimeManifest } from "./runtimeManifest";
 import type { EntryType } from "@/lib/content/types";
+import { deriveSlugFromPath, deriveTitleFromPath } from "@/lib/content/slug";
 
 export type MergedEntryStatus = "indexed" | "new" | "missing";
 
@@ -98,27 +99,11 @@ export function reconcile(
   return merged;
 }
 
-function deriveTitleFromPath(path: string): string {
-  const filename = path.split("/").pop() || path;
-  const nameWithoutExt = filename.replace(/\.(md|mdx)$/, "");
-  
-  return nameWithoutExt
-    .split("-")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
 function deriveTypeFromPath(path: string): EntryType {
   if (path.includes("/articles/")) return "article";
   if (path.includes("/books/")) return "book";
   if (path.includes("/papers/")) return "paper";
   return "note";
-}
-
-function deriveSlugFromPath(path: string): string {
-  return path
-    .replace(/^content\//, "")
-    .replace(/\.(md|mdx)$/, "");
 }
 
 export function filterByStatus(

@@ -13,8 +13,9 @@ export {
   updateRuntimeEntry,
   removeRuntimeEntry,
   createEmptyRuntimeManifest,
+  refreshRuntimeManifestAndReconcile,
 } from "./runtimeManifest";
-export type { RuntimeManifest, RuntimeEntry, FetchRuntimeManifestOptions } from "./runtimeManifest";
+export type { RuntimeManifest, RuntimeEntry, FetchRuntimeManifestOptions, RefreshRuntimeManifestParams, RefreshRuntimeManifestResult } from "./runtimeManifest";
 
 export {
   reconcile,

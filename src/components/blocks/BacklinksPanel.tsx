@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import Link from "next/link";
 import type { BacklinkInfo, Entry } from "@/lib/content/types";
 import { getEntryBySlug } from "@/lib/generated/load-manifest";
@@ -23,18 +24,22 @@ function groupByHeading(backlinks: BacklinkInfo[]): Map<string | null, BacklinkI
 export function BacklinksPanel({ backlinks }: BacklinksPanelProps) {
   if (!backlinks || backlinks.length === 0) return null;
 
-  const entriesWithInfo = backlinks
-    .map((info) => {
-      const entry = getEntryBySlug(info.slug);
-      return entry ? { entry, info } : null;
-    })
-    .filter((e): e is { entry: Entry; info: BacklinkInfo } => e !== null);
+  const { entriesWithInfo, grouped, entriesMap, hasHeadings } = useMemo(() => {
+    const entriesWithInfo = backlinks
+      .map((info) => {
+        const entry = getEntryBySlug(info.slug);
+        return entry ? { entry, info } : null;
+      })
+      .filter((e): e is { entry: Entry; info: BacklinkInfo } => e !== null);
+
+    const grouped = groupByHeading(backlinks);
+    const entriesMap = new Map(entriesWithInfo.map(({ entry, info }) => [info.slug, entry]));
+    const hasHeadings = [...grouped.keys()].some((h) => h !== null);
+
+    return { entriesWithInfo, grouped, entriesMap, hasHeadings };
+  }, [backlinks]);
 
   if (entriesWithInfo.length === 0) return null;
-
-  const grouped = groupByHeading(backlinks);
-  const entriesMap = new Map(entriesWithInfo.map(({ entry, info }) => [info.slug, entry]));
-  const hasHeadings = [...grouped.keys()].some((h) => h !== null);
 
   return (
     <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-border">

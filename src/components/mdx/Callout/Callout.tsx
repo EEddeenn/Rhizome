@@ -1,10 +1,10 @@
-import { CalloutBase } from "./CalloutBase";
+import { CalloutBase, type CalloutType } from "./CalloutBase";
 import { CalloutFoldable } from "./CalloutFoldable";
 
 type FoldState = "open" | "closed";
 
 interface CalloutProps {
-  type?: "note" | "tip" | "warning" | "danger" | "info";
+  type?: CalloutType;
   title?: string;
   fold?: FoldState;
   children: React.ReactNode;

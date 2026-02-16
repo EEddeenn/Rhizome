@@ -7,9 +7,9 @@ import {
   reconcile,
   filterByStatus,
   updateEntrySha,
-  saveRuntimeManifestCache,
-  fetchRuntimeManifestFromGitHub,
   updateRuntimeEntry,
+  saveRuntimeManifestCache,
+  refreshRuntimeManifestAndReconcile,
   type MergedEntry,
   type BuildManifest,
   type RuntimeManifest,
@@ -77,24 +77,15 @@ export function useNoteOperations({
     if (!adapter || !buildManifest) return [];
 
     try {
-      const repoInfo = await adapter.getRepoInfo();
-      const freshRuntime = await fetchRuntimeManifestFromGitHub(adapter, {
-        root: config.contentRoot,
-        ref: repoInfo.defaultBranch,
+      const result = await refreshRuntimeManifestAndReconcile({
+        adapter,
+        config,
+        buildManifest,
       });
 
-      setRuntimeManifest(freshRuntime);
-      saveRuntimeManifestCache(
-        config.owner,
-        config.repo,
-        repoInfo.defaultBranch,
-        config.contentRoot,
-        freshRuntime
-      );
-
-      const merged = reconcile(buildManifest, freshRuntime);
-      updateMergedEntries(merged);
-      return filterByStatus(merged, true);
+      setRuntimeManifest(result.runtimeManifest);
+      updateMergedEntries(result.mergedEntries);
+      return filterByStatus(result.mergedEntries, true);
     } catch {
       return [];
     }
@@ -139,22 +130,24 @@ export function useNoteOperations({
   }, []);
 
   const save = useCallback(async () => {
-    if (!adapter || !state.currentNote || state.currentSha === null) return;
+    const note = state.currentNote;
+    const sha = state.currentSha;
+    if (!adapter || !note || sha === null) return;
 
     setState((prev) => ({ ...prev, isSaving: true, saveError: null }));
 
     try {
       const result = await adapter.writeFile({
-        path: state.currentNote!.path,
+        path: note.path,
         content: state.currentContent,
-        message: `Update ${state.currentNote!.title}`,
-        sha: state.currentSha ?? undefined,
+        message: `Update ${note.title}`,
+        sha: sha ?? undefined,
       });
 
       const newSha = result.newSha || null;
 
       if (runtimeManifest && newSha) {
-        const updatedRuntime = updateRuntimeEntry(runtimeManifest, state.currentNote!.path, { sha: newSha });
+        const updatedRuntime = updateRuntimeEntry(runtimeManifest, note.path, { sha: newSha });
         setRuntimeManifest(updatedRuntime);
 
         const repoInfo = await adapter.getRepoInfo();
@@ -166,7 +159,7 @@ export function useNoteOperations({
           updatedRuntime
         );
 
-        const updatedMerged = updateEntrySha(mergedEntries, state.currentNote!.path, newSha);
+        const updatedMerged = updateEntrySha(mergedEntries, note.path, newSha);
         updateMergedEntries(updatedMerged);
         setState((prev) => ({
           ...prev,
@@ -231,15 +224,17 @@ export function useNoteOperations({
   );
 
   const deleteNote = useCallback(async () => {
-    if (!adapter || !state.currentNote || state.currentSha === null) return;
+    const note = state.currentNote;
+    const sha = state.currentSha;
+    if (!adapter || !note || sha === null) return;
 
     setState((prev) => ({ ...prev, isSaving: true, saveError: null }));
 
     try {
       await adapter.deleteFile({
-        path: state.currentNote!.path,
-        sha: state.currentSha!,
-        message: `Delete ${state.currentNote!.title}`,
+        path: note.path,
+        sha: sha,
+        message: `Delete ${note.title}`,
       });
 
       await refreshManifestForCreate();
@@ -260,10 +255,11 @@ export function useNoteOperations({
   }, [adapter, state.currentNote, state.currentSha, refreshManifestForCreate]);
 
   const reloadRemote = useCallback(async () => {
-    if (!adapter || !state.currentNote) return;
+    const note = state.currentNote;
+    if (!adapter || !note) return;
 
     try {
-      const { content, sha } = await adapter.readFile(state.currentNote.path);
+      const { content, sha } = await adapter.readFile(note.path);
       setState((prev) => ({
         ...prev,
         currentContent: content,
@@ -272,8 +268,8 @@ export function useNoteOperations({
         saveError: null,
       }));
 
-      if (runtimeManifest && sha !== state.currentNote.runtimeSha) {
-        const updated = updateRuntimeEntry(runtimeManifest, state.currentNote.path, { sha });
+      if (runtimeManifest && sha !== note.runtimeSha) {
+        const updated = updateRuntimeEntry(runtimeManifest, note.path, { sha });
         setRuntimeManifest(updated);
 
         const merged = reconcile(buildManifest, updated);

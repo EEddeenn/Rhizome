@@ -48,7 +48,12 @@ function SearchContent() {
   useEffect(() => {
     Promise.all([
       import("minisearch").then((m) => m.default),
-      fetch("/generated/search/search-index.json").then((res) => res.json()),
+      fetch("/generated/search/search-index.json").then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to load search index: HTTP ${res.status}`);
+        }
+        return res.json();
+      }),
     ])
       .then(([MiniSearch, docs]) => {
         const ms = new MiniSearch(miniSearchOptions);
@@ -59,6 +64,10 @@ function SearchContent() {
         (docs as SearchDoc[]).forEach((doc) => doc.tags?.forEach((t) => tags.add(t)));
         setAllTags(Array.from(tags).sort());
 
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Failed to initialize search:", error);
         setLoading(false);
       });
   }, []);
