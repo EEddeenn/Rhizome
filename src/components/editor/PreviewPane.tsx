@@ -11,7 +11,7 @@ import { getManifest } from "@/lib/generated/load-manifest";
 import { Callout } from "@/components/mdx/Callout";
 import { Mermaid } from "@/components/mdx/Mermaid/Mermaid";
 import { FrontmatterDisplay } from "./FrontmatterDisplay";
-import { PreviewPDFViewer, PreviewNoteEmbed, PreviewEmbedError } from "./PreviewPlaceholders";
+import { PreviewPDFViewer, PreviewNoteEmbed, PreviewEmbedError, EmbedProvider } from "./preview";
 import { scrollElementIntoContainer } from "@/components/navigation";
 import matter from "gray-matter";
 
@@ -97,9 +97,11 @@ function PreviewContent({
   );
 
   return (
-    <div className="prose max-w-none dark:prose-invert prose-sm">
-      <MDXRemote {...compiled} components={mdxComponents} />
-    </div>
+    <EmbedProvider onLinkClick={onInternalLinkClick}>
+      <div className="prose max-w-none dark:prose-invert prose-sm">
+        <MDXRemote {...compiled} components={mdxComponents} />
+      </div>
+    </EmbedProvider>
   );
 }
 
