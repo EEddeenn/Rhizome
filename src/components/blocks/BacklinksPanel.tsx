@@ -22,9 +22,15 @@ function groupByHeading(backlinks: BacklinkInfo[]): Map<string | null, BacklinkI
 }
 
 export function BacklinksPanel({ backlinks }: BacklinksPanelProps) {
-  if (!backlinks || backlinks.length === 0) return null;
-
   const { entriesWithInfo, grouped, entriesMap, hasHeadings } = useMemo(() => {
+    if (!backlinks || backlinks.length === 0) {
+      return {
+        entriesWithInfo: [] as { entry: Entry; info: BacklinkInfo }[],
+        grouped: new Map<string | null, BacklinkInfo[]>(),
+        entriesMap: new Map<string, Entry>(),
+        hasHeadings: false
+      };
+    }
     const entriesWithInfo = backlinks
       .map((info) => {
         const entry = getEntryBySlug(info.slug);

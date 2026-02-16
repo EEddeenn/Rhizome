@@ -1,7 +1,7 @@
 import { visit } from "unist-util-visit";
 import type { Plugin } from "unified";
 import type { Root, Code } from "mdast";
-import { type MdxJsxFlowElement, createMdxElement } from "./mdx-types";
+import { createMdxElement } from "./mdx-types";
 
 function parseMeta(meta: string | null | undefined): { title?: string } {
   if (!meta) return {};
