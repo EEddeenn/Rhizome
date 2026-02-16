@@ -9,8 +9,9 @@ import { remarkMermaid, remarkWikiLinks, remarkObsidianCallouts, rehypeBlockIds 
 import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
 import { getManifest } from "@/lib/generated/load-manifest";
 import { Callout } from "@/components/mdx/Callout";
+import { Mermaid } from "@/components/mdx/Mermaid/Mermaid";
 import { FrontmatterDisplay } from "./FrontmatterDisplay";
-import { PreviewMermaid, PreviewPDFViewer, PreviewNoteEmbed, PreviewEmbedError } from "./PreviewPlaceholders";
+import { PreviewPDFViewer, PreviewNoteEmbed, PreviewEmbedError } from "./PreviewPlaceholders";
 import { scrollElementIntoContainer } from "@/components/navigation";
 import matter from "gray-matter";
 
@@ -87,7 +88,7 @@ function PreviewContent({
         </div>
       ),
       Callout,
-      Mermaid: PreviewMermaid,
+      Mermaid,
       PDFViewer: PreviewPDFViewer,
       NoteEmbed: PreviewNoteEmbed,
       EmbedError: PreviewEmbedError,

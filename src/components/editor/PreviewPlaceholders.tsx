@@ -1,14 +1,5 @@
 "use client";
 
-export function PreviewMermaid({ code }: { code?: string }) {
-  return (
-    <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-mono overflow-x-auto my-4">
-      <div className="text-xs text-muted mb-2">Mermaid Diagram</div>
-      <pre>{code}</pre>
-    </div>
-  );
-}
-
 export function PreviewPDFViewer({ src, initialPage }: { src?: string; initialPage?: number }) {
   return (
     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm my-4">
