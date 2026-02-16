@@ -1,6 +1,6 @@
 "use client";
 
-import { useNote } from "./contexts";
+import { useNote } from "./contexts/EditorNoteContext";
 import { Modal } from "./Modal";
 import { ExclamationIcon } from "@/components/icons";
 

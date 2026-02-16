@@ -1,13 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import {
-  ConnectionProvider,
-  ManifestProvider,
-  NoteProvider,
-  useConnection,
-  useManifest,
-} from "./contexts";
+import { ConnectionProvider, useConnection } from "./contexts/EditorConnectionContext";
+import { ManifestProvider, useManifest } from "./contexts/EditorManifestContext";
+import { NoteProvider } from "./contexts/EditorNoteContext";
 
 interface EditorProviderProps {
   children: ReactNode;

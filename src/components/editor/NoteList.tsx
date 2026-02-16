@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useManifest, useNote } from "./contexts";
+import { useManifest } from "./contexts/EditorManifestContext";
+import { useNote } from "./contexts/EditorNoteContext";
 import { pendingChanges, type PendingChange } from "@/lib/editor/pending-changes";
 import { createEntryFromPath, type MergedEntry } from "@/lib/manifest";
 import type { PendingChangeType } from "@/lib/editor/pending-changes";
@@ -34,6 +35,8 @@ export function NoteList() {
 
   const allPendingChanges = useAllPendingChanges();
   const deletedPaths = useMemo(() => new Set(allPendingChanges.filter(c => c.type === "delete").map(c => c.path)), [allPendingChanges]);
+  const mergedPathsSet = useMemo(() => new Set(mergedEntries.map(e => e.path)), [mergedEntries]);
+  const pendingChangesByPath = useMemo(() => new Map(allPendingChanges.map(c => [c.path, c])), [allPendingChanges]);
 
   const filteredEntries = useMemo(() => {
     return mergedEntries.filter((entry) => {
@@ -49,7 +52,7 @@ export function NoteList() {
   }, [mergedEntries, search, filter, deletedPaths]);
 
   const pendingNewEntries = useMemo(() => {
-    const newCreates = allPendingChanges.filter(c => c.type === "create" && !mergedEntries.some(e => e.path === c.path));
+    const newCreates = allPendingChanges.filter(c => c.type === "create" && !mergedPathsSet.has(c.path));
     return newCreates.map(c => {
       const entry = createEntryFromPath(c.path);
       return {
@@ -58,7 +61,7 @@ export function NoteList() {
         pendingType: "create" as PendingChangeType,
       };
     });
-  }, [allPendingChanges, mergedEntries]);
+  }, [allPendingChanges, mergedPathsSet]);
 
   const groupedEntries = useMemo(() => {
     const groups: Record<string, (MergedEntry | typeof pendingNewEntries[0])[]> = {};
@@ -82,7 +85,7 @@ export function NoteList() {
     return groups;
   }, [filteredEntries, pendingNewEntries]);
 
-  const getPendingChange = (path: string) => allPendingChanges.find(c => c.path === path);
+  const getPendingChange = (path: string) => pendingChangesByPath.get(path);
 
   if (isLoadingManifest && mergedEntries.length === 0) {
     const skeletonWidths = ["90%", "85%", "95%", "80%", "88%"];
@@ -107,7 +110,8 @@ export function NoteList() {
         <div className="flex gap-1">
           <input
             type="text"
-            placeholder="Search notes..."
+            name="note-search"
+            placeholder="Search notes…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 min-w-0 px-3 py-1.5 text-sm bg-background border border-border rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -117,8 +121,9 @@ export function NoteList() {
             disabled={isLoadingManifest}
             className="shrink-0 px-2 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg disabled:opacity-50"
             title="Refresh from GitHub"
+            aria-label="Refresh from GitHub"
           >
-            <RefreshIcon className={`w-4 h-4 ${isLoadingManifest ? "animate-spin" : ""}`} />
+            <RefreshIcon className={`w-4 h-4 ${isLoadingManifest ? "animate-spin" : ""}`} aria-hidden="true" />
           </button>
         </div>
         <div className="flex gap-1 flex-wrap">

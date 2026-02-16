@@ -1,11 +1,7 @@
 import type { TokenValidationResult } from "./types";
 import { GitHubApiError } from "./types";
 import { GitHubAdapterPAT } from "./github-adapter";
-
-const STORAGE_KEY_SESSION = "rhizome_editor_token_session";
-const STORAGE_KEY_LOCAL = "rhizome_editor_token_local";
-const STORAGE_KEY_CONFIG = "rhizome_editor_config";
-const STORAGE_KEY_AUTO_LOGIN = "rhizome_editor_auto_login";
+import { STORAGE_KEYS } from "./storage-keys";
 
 export interface EditorConfig {
   owner: string;
@@ -22,7 +18,7 @@ const DEFAULT_CONFIG: EditorConfig = {
 function getConfigFromStorage(): EditorConfig {
   if (typeof window === "undefined") return DEFAULT_CONFIG;
   try {
-    const stored = localStorage.getItem(STORAGE_KEY_CONFIG);
+    const stored = localStorage.getItem(STORAGE_KEYS.CONFIG);
     if (stored) {
       return { ...DEFAULT_CONFIG, ...JSON.parse(stored) };
     }
@@ -33,37 +29,37 @@ function getConfigFromStorage(): EditorConfig {
 
 function saveConfigToStorage(config: EditorConfig): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
+  localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(config));
 }
 
 function getAutoLoginFromStorage(): boolean {
   if (typeof window === "undefined") return false;
-  return localStorage.getItem(STORAGE_KEY_AUTO_LOGIN) === "true";
+  return localStorage.getItem(STORAGE_KEYS.AUTO_LOGIN) === "true";
 }
 
 function saveAutoLoginToStorage(enabled: boolean): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY_AUTO_LOGIN, String(enabled));
+  localStorage.setItem(STORAGE_KEYS.AUTO_LOGIN, String(enabled));
 }
 
 function saveTokenToStorage(token: string, remember: boolean): void {
   if (typeof window === "undefined") return;
 
-  const key = remember ? STORAGE_KEY_LOCAL : STORAGE_KEY_SESSION;
+  const key = remember ? STORAGE_KEYS.TOKEN_LOCAL : STORAGE_KEYS.TOKEN_SESSION;
   const storage = remember ? localStorage : sessionStorage;
   storage.setItem(key, token);
   
   if (remember) {
-    sessionStorage.removeItem(STORAGE_KEY_SESSION);
+    sessionStorage.removeItem(STORAGE_KEYS.TOKEN_SESSION);
   } else {
-    localStorage.removeItem(STORAGE_KEY_LOCAL);
+    localStorage.removeItem(STORAGE_KEYS.TOKEN_LOCAL);
   }
 }
 
 function clearTokenFromStorage(): void {
   if (typeof window === "undefined") return;
-  sessionStorage.removeItem(STORAGE_KEY_SESSION);
-  localStorage.removeItem(STORAGE_KEY_LOCAL);
+  sessionStorage.removeItem(STORAGE_KEYS.TOKEN_SESSION);
+  localStorage.removeItem(STORAGE_KEYS.TOKEN_LOCAL);
 }
 
 export interface AuthState {
@@ -113,8 +109,8 @@ class AuthStore {
     this.config = getConfigFromStorage();
     this.autoLogin = getAutoLoginFromStorage();
     
-    const localToken = localStorage.getItem(STORAGE_KEY_LOCAL);
-    const sessionToken = sessionStorage.getItem(STORAGE_KEY_SESSION);
+    const localToken = localStorage.getItem(STORAGE_KEYS.TOKEN_LOCAL);
+    const sessionToken = sessionStorage.getItem(STORAGE_KEYS.TOKEN_SESSION);
     this.token = localToken || sessionToken || null;
   }
 

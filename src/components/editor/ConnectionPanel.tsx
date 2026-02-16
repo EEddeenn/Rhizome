@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useConnection } from "./contexts";
+import { useConnection } from "./contexts/EditorConnectionContext";
 import { EyeIcon, EyeSlashIcon } from "@/components/icons";
 
 export function ConnectionPanel() {
@@ -70,19 +70,23 @@ export function ConnectionPanel() {
           <div className="flex gap-2 items-center">
             <input
               id="repo-owner"
+              name="repo-owner"
               type="text"
-              placeholder="owner"
+              placeholder="owner…"
               value={config.owner}
               onChange={(e) => setConfig({ owner: e.target.value })}
+              autoComplete="off"
               className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             />
             <span className="text-muted">/</span>
             <input
               id="repo-name"
+              name="repo-name"
               type="text"
-              placeholder="repo"
+              placeholder="repo…"
               value={config.repo}
               onChange={(e) => setConfig({ repo: e.target.value })}
+              autoComplete="off"
               className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             />
           </div>
@@ -94,10 +98,12 @@ export function ConnectionPanel() {
           </label>
           <input
             id="content-root"
+            name="content-root"
             type="text"
-            placeholder="content"
+            placeholder="content…"
             value={config.contentRoot}
             onChange={(e) => setConfig({ contentRoot: e.target.value })}
+            autoComplete="off"
             className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           />
         </div>
@@ -109,10 +115,13 @@ export function ConnectionPanel() {
           <div className="relative">
             <input
               id="pat-token"
+              name="pat-token"
               type={showToken ? "text" : "password"}
-              placeholder="ghp_..."
+              placeholder="ghp_…"
               value={token}
               onChange={(e) => setTokenInput(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
               className="w-full px-3 sm:px-4 py-2 sm:py-2.5 pr-10 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             />
             <button
@@ -122,9 +131,9 @@ export function ConnectionPanel() {
               aria-label={showToken ? "Hide token" : "Show token"}
             >
               {showToken ? (
-                <EyeSlashIcon />
+                <EyeSlashIcon aria-hidden="true" />
               ) : (
-                <EyeIcon />
+                <EyeIcon aria-hidden="true" />
               )}
             </button>
           </div>
@@ -179,7 +188,7 @@ export function ConnectionPanel() {
         disabled={isConnecting || !config.owner || !config.repo}
         className="w-full px-4 py-2.5 sm:py-3 text-sm sm:text-base font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
       >
-        {isConnecting ? "Connecting..." : "Connect"}
+        {isConnecting ? "Connecting…" : "Connect"}
       </button>
     </div>
   );

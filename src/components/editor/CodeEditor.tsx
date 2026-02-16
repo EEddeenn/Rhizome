@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useNote, useManifest } from "./contexts";
+import { useNote } from "./contexts/EditorNoteContext";
+import { useManifest } from "./contexts/EditorManifestContext";
 import type { EditorView } from "@codemirror/view";
-import type { CompletionContext } from "@codemirror/autocomplete";
+import type { CompletionContext, CompletionResult } from "@codemirror/autocomplete";
 
-// Cache CodeMirror modules at module level to avoid repeated dynamic imports
-type CodeMirrorModules = {
+interface ManifestEntryForCompletion {
+  title: string;
+  slug: string;
+  type: string;
+}
+
+interface CodeMirrorModules {
   EditorView: typeof import("@codemirror/view").EditorView;
   EditorState: typeof import("@codemirror/state").EditorState;
   lineNumbers: typeof import("@codemirror/view").lineNumbers;
@@ -85,6 +91,61 @@ async function loadCodeMirrorModules(): Promise<CodeMirrorModules> {
   return modulesPromise;
 }
 
+function createEditorTheme(EditorView: typeof import("@codemirror/view").EditorView) {
+  return EditorView.theme({
+    "&": { height: "100%", fontSize: "14px" },
+    ".cm-scroller": { overflow: "auto", fontFamily: "var(--font-mono), monospace" },
+    ".cm-content": { padding: "8px 0" },
+    ".cm-line": { padding: "0 12px" },
+    ".cm-gutters": { backgroundColor: "transparent", border: "none", color: "var(--muted)" },
+    ".cm-activeLineGutter": { backgroundColor: "transparent" },
+    ".cm-activeLine": { backgroundColor: "rgba(0, 0, 0, 0.03)" },
+    ".dark .cm-activeLine": { backgroundColor: "rgba(255, 255, 255, 0.03)" },
+    ".cm-cursor": { borderLeftColor: "var(--foreground)" },
+    ".cm-selectionBackground": { backgroundColor: "rgba(59, 130, 246, 0.2) !important" },
+    ".cm-tooltip-autocomplete": {
+      backgroundColor: "var(--background, #fff)",
+      border: "1px solid var(--border, #e5e7eb)",
+      borderRadius: "6px",
+      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+      fontFamily: "var(--font-sans), sans-serif",
+    },
+    ".cm-tooltip-autocomplete ul": { fontFamily: "var(--font-sans), sans-serif" },
+    ".cm-tooltip-autocomplete ul li": { padding: "4px 8px" },
+    ".cm-tooltip-autocomplete ul li[aria-selected]": {
+      backgroundColor: "rgba(59, 130, 246, 0.1)",
+      color: "inherit",
+    },
+    ".cm-completionIcon": { marginRight: "4px" },
+  });
+}
+
+function createWikiLinkCompleter(
+  getEntries: () => ManifestEntryForCompletion[]
+): (context: CompletionContext) => CompletionResult | null {
+  return (context: CompletionContext) => {
+    const before = context.matchBefore(/\[\[[^\]|]*$/);
+    if (!before || (context.explicit && !before)) return null;
+
+    const query = before.text.slice(2).toLowerCase();
+    const entries = getEntries()
+      .filter((e) => e.type !== "pdf" && 
+        (e.title.toLowerCase().includes(query) || e.slug.toLowerCase().includes(query)))
+      .slice(0, 20);
+
+    return {
+      from: before.from + 2,
+      options: entries.map((e) => ({
+        label: e.title,
+        displayLabel: e.title,
+        detail: e.slug,
+        apply: e.title,
+      })),
+      validFor: /^.*$/,
+    };
+  };
+}
+
 export function CodeEditor() {
   const { currentContent, updateContent, currentNote, isLoadingNote } = useNote();
   const { mergedEntries } = useManifest();
@@ -95,7 +156,7 @@ export function CodeEditor() {
   const lastPathRef = useRef<string | null>(null);
   const initAbortRef = useRef<AbortController | null>(null);
   const contentRef = useRef(currentContent);
-  const mergedEntriesRef = useRef<Array<{ title: string; slug: string; type: string }>>([]);
+  const mergedEntriesRef = useRef<ManifestEntryForCompletion[]>([]);
 
   useEffect(() => {
     contentRef.current = currentContent;
@@ -110,10 +171,8 @@ export function CodeEditor() {
 
     const modules = await loadCodeMirrorModules();
 
-    // Check if aborted during async loading
     if (signal.aborted) return;
 
-    // Destroy existing view if present (handles race conditions)
     if (viewRef.current) {
       viewRef.current.destroy();
       viewRef.current = null;
@@ -144,62 +203,7 @@ export function CodeEditor() {
       historyKeymap,
     } = modules;
 
-    const baseTheme = EditorView.theme({
-      "&": {
-        height: "100%",
-        fontSize: "14px",
-      },
-      ".cm-scroller": {
-        overflow: "auto",
-        fontFamily: "var(--font-mono), monospace",
-      },
-      ".cm-content": {
-        padding: "8px 0",
-      },
-      ".cm-line": {
-        padding: "0 12px",
-      },
-      ".cm-gutters": {
-        backgroundColor: "transparent",
-        border: "none",
-        color: "var(--muted)",
-      },
-      ".cm-activeLineGutter": {
-        backgroundColor: "transparent",
-      },
-      ".cm-activeLine": {
-        backgroundColor: "rgba(0, 0, 0, 0.03)",
-      },
-      ".dark .cm-activeLine": {
-        backgroundColor: "rgba(255, 255, 255, 0.03)",
-      },
-      ".cm-cursor": {
-        borderLeftColor: "var(--foreground)",
-      },
-      ".cm-selectionBackground": {
-        backgroundColor: "rgba(59, 130, 246, 0.2) !important",
-      },
-      ".cm-tooltip-autocomplete": {
-        backgroundColor: "var(--background, #fff)",
-        border: "1px solid var(--border, #e5e7eb)",
-        borderRadius: "6px",
-        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-        fontFamily: "var(--font-sans), sans-serif",
-      },
-      ".cm-tooltip-autocomplete ul": {
-        fontFamily: "var(--font-sans), sans-serif",
-      },
-      ".cm-tooltip-autocomplete ul li": {
-        padding: "4px 8px",
-      },
-      ".cm-tooltip-autocomplete ul li[aria-selected]": {
-        backgroundColor: "rgba(59, 130, 246, 0.1)",
-        color: "inherit",
-      },
-      ".cm-completionIcon": {
-        marginRight: "4px",
-      },
-    });
+    const baseTheme = createEditorTheme(EditorView);
 
     const updateListener = EditorView.updateListener.of((update) => {
       if (update.docChanged) {
@@ -208,29 +212,8 @@ export function CodeEditor() {
       }
     });
 
-    const wikiLinkCompleter = (context: CompletionContext) => {
-      const before = context.matchBefore(/\[\[[^\]|]*$/);
-      if (!before || (context.explicit && !before)) return null;
-      
-      const query = before.text.slice(2).toLowerCase();
-      const entries = mergedEntriesRef.current.filter((e: { title: string; slug: string; type: string }) => 
-        e.type !== "pdf" && 
-        (e.title.toLowerCase().includes(query) || e.slug.toLowerCase().includes(query))
-      ).slice(0, 20);
+    const wikiLinkCompleter = createWikiLinkCompleter(() => mergedEntriesRef.current);
 
-      return {
-        from: before.from + 2,
-        options: entries.map((e: { title: string; slug: string }) => ({
-          label: e.title,
-          displayLabel: e.title,
-          detail: e.slug,
-          apply: e.title,
-        })),
-        validFor: /^.*$/,
-      };
-    };
-
-    // Use contentRef.current to get fresh content, avoiding stale closure
     const state = EditorState.create({
       doc: contentRef.current,
       extensions: [
@@ -265,7 +248,6 @@ export function CodeEditor() {
       ],
     });
 
-    // Final abort check before creating view
     if (signal.aborted) return;
 
     viewRef.current = new EditorView({
@@ -276,10 +258,8 @@ export function CodeEditor() {
     setEditorLoaded(true);
   }, [updateContent]);
 
-  // Initialize editor when note changes
   useEffect(() => {
     if (!currentNote || currentNote.type === "pdf") {
-      // Reset state when no note is selected or PDF is selected
       if (viewRef.current) {
         viewRef.current.destroy();
         viewRef.current = null;
@@ -289,12 +269,10 @@ export function CodeEditor() {
       return;
     }
 
-    // Abort any pending initialization
     if (initAbortRef.current) {
       initAbortRef.current.abort();
     }
 
-    // Reset editorLoaded for note change (shows loading state during init)
     setEditorLoaded(false);
 
     const controller = new AbortController();
@@ -307,7 +285,6 @@ export function CodeEditor() {
     };
   }, [currentNote, initEditor]);
 
-  // Sync content changes to editor
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
@@ -325,7 +302,7 @@ export function CodeEditor() {
           changes: { from: 0, to: doc.length, insert: currentContent },
         });
       }
-      return; // Early return for path changes - don't reset flag here
+      return;
     }
 
     if (!isExternalUpdate.current) {
@@ -340,7 +317,6 @@ export function CodeEditor() {
     isExternalUpdate.current = false;
   }, [currentContent, currentNote?.path]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (initAbortRef.current) {

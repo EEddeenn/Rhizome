@@ -1,12 +1,12 @@
 "use client";
 
-import { createContext, useContext, type ReactNode, type Dispatch, type SetStateAction } from "react";
+import { createContext, useContext, useMemo, type ReactNode, type Dispatch, type SetStateAction } from "react";
 import { useNoteOperations } from "../hooks/useNoteOperations";
 import type { VaultAdapter, EditorConfig } from "@/lib/editor";
 import type { MergedEntry, BuildManifest, RuntimeManifest } from "@/lib/manifest";
 import type { PendingChange } from "@/lib/editor/pending-changes";
 
-interface NoteContextValue {
+interface NoteStateValue {
   currentNote: MergedEntry | null;
   currentContent: string;
   currentSha: string | null;
@@ -19,6 +19,11 @@ interface NoteContextValue {
   isSyncing: boolean;
   syncError: string | null;
   syncProgress: { current: number; total: number } | null;
+  hasPendingChanges: boolean;
+  pendingChangeForCurrentNote: PendingChange | null;
+}
+
+interface NoteActionsValue {
   openNote: (entry: MergedEntry) => Promise<void>;
   updateContent: (content: string) => void;
   save: () => void;
@@ -30,18 +35,29 @@ interface NoteContextValue {
   clearSyncError: () => void;
   sync: () => Promise<void>;
   discardAllPending: () => void;
-  hasPendingChanges: boolean;
-  pendingChangeForCurrentNote: PendingChange | null;
 }
 
-const NoteContext = createContext<NoteContextValue | null>(null);
+const NoteStateContext = createContext<NoteStateValue | null>(null);
+const NoteActionsContext = createContext<NoteActionsValue | null>(null);
 
-export function useNote() {
-  const ctx = useContext(NoteContext);
+export function useNoteState() {
+  const ctx = useContext(NoteStateContext);
   if (!ctx) {
-    throw new Error("useNote must be used within NoteProvider");
+    throw new Error("useNoteState must be used within NoteProvider");
   }
   return ctx;
+}
+
+export function useNoteActions() {
+  const ctx = useContext(NoteActionsContext);
+  if (!ctx) {
+    throw new Error("useNoteActions must be used within NoteProvider");
+  }
+  return ctx;
+}
+
+export function useNote() {
+  return { ...useNoteState(), ...useNoteActions() };
 }
 
 interface NoteProviderProps {
@@ -78,7 +94,7 @@ export function NoteProvider({
     onAuthError,
   });
 
-  const value: NoteContextValue = {
+  const stateValue: NoteStateValue = useMemo(() => ({
     currentNote: notes.currentNote,
     currentContent: notes.currentContent,
     currentSha: notes.currentSha,
@@ -91,6 +107,26 @@ export function NoteProvider({
     isSyncing: notes.isSyncing,
     syncError: notes.syncError,
     syncProgress: notes.syncProgress,
+    hasPendingChanges: notes.hasPendingChanges,
+    pendingChangeForCurrentNote: notes.pendingChangeForCurrentNote,
+  }), [
+    notes.currentNote,
+    notes.currentContent,
+    notes.currentSha,
+    notes.currentSource,
+    notes.isDirty,
+    notes.isSaving,
+    notes.saveError,
+    notes.lastSaveUrl,
+    notes.isLoadingNote,
+    notes.isSyncing,
+    notes.syncError,
+    notes.syncProgress,
+    notes.hasPendingChanges,
+    notes.pendingChangeForCurrentNote,
+  ]);
+
+  const actionsValue: NoteActionsValue = useMemo(() => ({
     openNote: notes.openNote,
     updateContent: notes.updateContent,
     save: notes.save,
@@ -102,13 +138,26 @@ export function NoteProvider({
     clearSyncError: notes.clearSyncError,
     sync: notes.sync,
     discardAllPending: notes.discardAllPending,
-    hasPendingChanges: notes.hasPendingChanges,
-    pendingChangeForCurrentNote: notes.pendingChangeForCurrentNote,
-  };
+  }), [
+    notes.openNote,
+    notes.updateContent,
+    notes.save,
+    notes.createNote,
+    notes.uploadPdf,
+    notes.deleteNote,
+    notes.reloadRemote,
+    notes.clearSaveError,
+    notes.clearSyncError,
+    notes.sync,
+    notes.discardAllPending,
+  ]);
 
   return (
-    <NoteContext.Provider value={value}>
-      {children}
-    </NoteContext.Provider>
+    <NoteStateContext.Provider value={stateValue}>
+      <NoteActionsContext.Provider value={actionsValue}>
+        {children}
+      </NoteActionsContext.Provider>
+    </NoteStateContext.Provider>
   );
 }
+

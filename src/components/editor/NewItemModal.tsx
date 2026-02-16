@@ -122,14 +122,15 @@ Content goes here.
         {tab === "note" && (
           <>
             <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
+              <label htmlFor="note-title" className="block text-sm font-medium mb-1">Title</label>
               <input
+                id="note-title"
+                name="note-title"
                 type="text"
-                placeholder="Note title"
+                placeholder="Note title…"
                 value={newNoteName}
                 onChange={(e) => setNewNoteName(e.target.value)}
                 className="w-full px-3 py-1.5 text-sm bg-background border border-border rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                autoFocus
                 onKeyDown={(e) => e.key === "Enter" && handleCreateNote()}
               />
             </div>
@@ -205,7 +206,7 @@ Content goes here.
             disabled={!pdfFile || isUploading}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
           >
-            {isUploading ? "Uploading..." : "Upload"}
+            {isUploading ? "Uploading…" : "Upload"}
           </button>
         )}
       </ModalActions>

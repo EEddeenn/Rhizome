@@ -8,7 +8,7 @@ import { remarkWikiLinks, remarkObsidianCallouts, remarkMermaid } from "@/lib/co
 import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
 import { extractSectionBySlug } from "@/lib/content/section-extractor";
 import { getManifest } from "@/lib/generated/load-manifest";
-import { useManifest } from "../contexts";
+import { useManifest } from "../contexts/EditorManifestContext";
 import { useEmbedPath, usePreviewLinkClick, EmbedProvider } from "./EmbedContext";
 import { PreviewEmbedError } from "./Placeholders";
 import { Callout } from "@/components/mdx/Callout";

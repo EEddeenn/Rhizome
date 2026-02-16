@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { EditorProvider } from "./EditorContext";
-import { useConnection, useManifest, useNote } from "./contexts";
+import { useConnection } from "./contexts/EditorConnectionContext";
+import { useManifest } from "./contexts/EditorManifestContext";
+import { useNote } from "./contexts/EditorNoteContext";
 import { ConnectionPanel } from "./ConnectionPanel";
 import { NoteList } from "./NoteList";
 import { CodeEditor } from "./CodeEditor";
@@ -14,33 +16,22 @@ import { SplitViewResizer } from "./SplitViewResizer";
 import { EyeIcon, EyeSlashIcon } from "@/components/icons";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
-import { STORAGE_KEYS, NOTE_LIST_WIDTH } from "./constants/storage";
+import { NOTE_LIST_WIDTH, loadUIPrefs, saveUIPrefs } from "./constants/storage";
 
 function EditorLayout() {
   const { isConnected, isConnecting, mounted, tokenExpired } = useConnection();
   const { mergedEntries } = useManifest();
   const { currentNote, openNote } = useNote();
   const [showPreview, setShowPreview] = useState(true);
-  const [noteListWidth, setNoteListWidth] = useState<number>(NOTE_LIST_WIDTH.DEFAULT);
+  const [noteListWidth, setNoteListWidth] = useState<number>(() => {
+    if (typeof window === "undefined") return NOTE_LIST_WIDTH.DEFAULT;
+    return loadUIPrefs().noteListWidth;
+  });
   const [initialNoteOpened, setInitialNoteOpened] = useState(false);
 
-  useEffect(() => {
-    const savedNoteList = localStorage.getItem(STORAGE_KEYS.NOTE_LIST_WIDTH);
-    if (savedNoteList) {
-      const parsed = parseInt(savedNoteList, 10);
-      if (
-        !Number.isNaN(parsed) &&
-        parsed >= NOTE_LIST_WIDTH.MIN &&
-        parsed <= NOTE_LIST_WIDTH.MAX
-      ) {
-        setNoteListWidth(parsed);
-      }
-    }
-  }, []);
-
   const saveNoteListWidth = useCallback((width: number) => {
-    localStorage.setItem(STORAGE_KEYS.NOTE_LIST_WIDTH, String(width));
     setNoteListWidth(width);
+    saveUIPrefs({ noteListWidth: width });
   }, []);
 
   const togglePreview = useCallback(() => {
@@ -79,7 +70,7 @@ function EditorLayout() {
   if (!mounted) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted">Loading editor...</div>
+        <div className="animate-pulse text-muted">Loading editor…</div>
       </div>
     );
   }
@@ -91,7 +82,7 @@ function EditorLayout() {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin w-8 h-8 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full mx-auto mb-4" />
-            <p className="text-muted">Connecting to GitHub...</p>
+            <p className="text-muted">Connecting to GitHub…</p>
           </div>
         </main>
         <Footer />
@@ -154,6 +145,7 @@ function EditorLayout() {
         onClick={togglePreview}
         className="fixed bottom-4 right-4 p-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full shadow-lg transition-colors"
         title={showPreview ? "Hide preview" : "Show preview"}
+        aria-label={showPreview ? "Hide preview" : "Show preview"}
       >
         {showPreview ? <EyeSlashIcon /> : <EyeIcon />}
       </button>

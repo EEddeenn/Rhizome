@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo, Component, useCallback, useRef, type ReactNode } from "react";
-import { useNote, useManifest, useConnection } from "./contexts";
+import { useNote } from "./contexts/EditorNoteContext";
+import { useManifest } from "./contexts/EditorManifestContext";
+import { useConnection } from "./contexts/EditorConnectionContext";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { sharedRemarkPlugins, sharedRehypePlugins, rehypeSlug } from "@/lib/mdx/plugins";
@@ -76,7 +78,7 @@ function EditorPreviewPDFViewer({ src, initialPage, height }: EditorPreviewPDFVi
         }
         blobUrlRef.current = url;
         setBlobUrl(url);
-      } catch (e) {
+      } catch {
         setBlobUrl(null);
       }
     } else {
