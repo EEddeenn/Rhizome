@@ -78,22 +78,14 @@ This transcludes the section including all nested subheadings. Here's a working 
 
 ## PDF Embeds
 
-Embed PDF files directly in your notes:
+Embed PDF files using the same wikilink syntax:
 
 ```markdown
 ![[document.pdf]]
 ![[document.pdf#page=5]]
 ```
 
-PDFs are looked up in `/assets/pdfs/` by default.
-
-Example with page number:
-
-![[sample_indexed_v2.pdf#page=1]]
-
-<Callout type="note">
-To embed PDFs, place your PDF files in `content/assets/pdfs/` and reference them by filename.
-</Callout>
+See [[PDF Viewer]] for full documentation on PDF embedding, page deep linking, viewer controls, and external URLs.
 
 ## Embed Errors
 
@@ -122,3 +114,5 @@ You can combine all features:
 | `[[Note\|#Section\|alias]]` | Link with anchor and alias |
 | `![[Note]]` | Full embed |
 | `![[Note\|#Section]]` | Section embed |
+| `![[file.pdf]]` | PDF embed |
+| `![[file.pdf#page=5]]` | PDF at specific page |

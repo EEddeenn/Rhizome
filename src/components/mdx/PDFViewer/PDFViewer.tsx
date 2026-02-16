@@ -24,6 +24,7 @@ interface PDFViewerProps {
   id?: string;
   title?: string;
   height?: string;
+  initialPage?: string | number;
   showThumbnails?: boolean;
 }
 
@@ -34,10 +35,13 @@ function getPDFPath(src: string): string {
   return `/assets/pdfs/${src}`;
 }
 
-function PDFViewerWithParams({ src, id, height }: PDFViewerProps) {
+function PDFViewerWithParams({ src, id, height, initialPage: initialPageProp }: PDFViewerProps) {
   const urlSearchParams = useSearchParams();
   const paneSearchParams = usePaneSearchParams();
-  const [initialPage, setInitialPage] = useState<number>(1);
+  const [initialPage, setInitialPage] = useState<number>(() => {
+    const propPage = typeof initialPageProp === "string" ? parseInt(initialPageProp, 10) : initialPageProp;
+    return propPage && !isNaN(propPage) ? propPage : 1;
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const scrolledRef = useRef<string | null>(null);
 

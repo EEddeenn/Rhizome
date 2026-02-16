@@ -24,7 +24,7 @@ function getPDFPath(src: string | undefined): string {
   return `/assets/pdfs/${src}`;
 }
 
-export function PreviewPDFViewer({ src, initialPage }: { src?: string; initialPage?: number }) {
+export function PreviewPDFViewer({ src, initialPage }: { src?: string; initialPage?: string | number }) {
   if (!src) {
     return (
       <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg text-sm text-red-600 dark:text-red-400 my-4">
@@ -33,10 +33,12 @@ export function PreviewPDFViewer({ src, initialPage }: { src?: string; initialPa
     );
   }
 
+  const page = typeof initialPage === "string" ? parseInt(initialPage, 10) : initialPage;
+
   return (
     <PDFViewerInner
       src={getPDFPath(src)}
-      initialPage={initialPage || 1}
+      initialPage={page || 1}
       height="50vh"
     />
   );

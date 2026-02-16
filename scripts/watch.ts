@@ -4,9 +4,20 @@ import { spawn } from "child_process";
 
 const CONTENT_DIR = "content";
 const GENERATOR_SCRIPT = "scripts/gen-content.ts";
+const isWindows = process.platform === "win32";
+
+const withServer = process.argv.includes("--with-server");
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let isGenerating = false;
+let serverProcess: ReturnType<typeof spawn> | null = null;
+
+function runCommand(command: string, args: string[]): ReturnType<typeof spawn> {
+  return spawn(command, args, {
+    stdio: "inherit",
+    shell: isWindows,
+  });
+}
 
 async function runGenerator(): Promise<void> {
   if (isGenerating) return;
@@ -15,10 +26,7 @@ async function runGenerator(): Promise<void> {
   console.log("\n[watch] Running content generator...");
   
   return new Promise((resolve) => {
-    const proc = spawn("npx", ["tsx", GENERATOR_SCRIPT], {
-      stdio: "inherit",
-      shell: true,
-    });
+    const proc = runCommand("npx", ["tsx", GENERATOR_SCRIPT]);
     
     proc.on("close", (code) => {
       isGenerating = false;
@@ -42,13 +50,43 @@ function debounce(fn: () => void, delay: number): void {
   }, delay);
 }
 
+function startServer(): void {
+  if (serverProcess) return;
+  
+  console.log("[watch] Starting Next.js dev server...\n");
+  serverProcess = runCommand("npx", ["next", "dev"]);
+  
+  serverProcess.on("close", (code) => {
+    serverProcess = null;
+    if (code !== null && code !== 0) {
+      console.log(`[watch] Server exited with code ${code}`);
+    }
+  });
+}
+
+function cleanup(): void {
+  console.log("\n[watch] Stopping...");
+  if (serverProcess) {
+    serverProcess.kill("SIGTERM");
+  }
+  process.exit(0);
+}
+
 async function watch(): Promise<void> {
   console.log("Rhizome watch mode");
   console.log("===================");
   console.log(`Watching: ${CONTENT_DIR}/`);
-  console.log("Press Ctrl+C to stop\n");
+  if (withServer) {
+    console.log("With Next.js dev server\n");
+  } else {
+    console.log("Press Ctrl+C to stop\n");
+  }
 
   await runGenerator();
+
+  if (withServer) {
+    startServer();
+  }
 
   const contentPath = path.resolve(CONTENT_DIR);
   const abortController = new AbortController();
@@ -71,11 +109,8 @@ async function watch(): Promise<void> {
     }
   })();
 
-  process.on("SIGINT", () => {
-    console.log("\n[watch] Stopping...");
-    abortController.abort();
-    process.exit(0);
-  });
+  process.on("SIGINT", cleanup);
+  process.on("SIGTERM", cleanup);
 
   await new Promise(() => {});
 }

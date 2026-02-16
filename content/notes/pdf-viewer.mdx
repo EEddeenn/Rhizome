@@ -8,63 +8,67 @@ summary: "Embed PDF documents in your notes with page navigation, zoom controls,
 
 # PDF Viewer
 
-The PDFViewer component lets you embed PDF documents directly in your notes and articles. It supports local files and external URLs, with built-in page navigation, zoom controls, and fullscreen mode.
+Embed PDF documents directly in your notes using Obsidian-style wikilink syntax. The viewer supports local files and external URLs, with built-in page navigation, zoom controls, and fullscreen mode.
 
-## Basic Usage
+## Quick Start
 
-Use the `PDFViewer` component with a `src` prop:
+Use wikilink syntax to embed PDFs:
 
-```mdx
-<PDFViewer src="document.pdf" />
+```markdown
+![[document.pdf]]
 ```
 
 For local PDFs stored in `content/assets/pdfs/`, just use the filename:
 
-<PDFViewer 
-  src="sample_indexed_v2.pdf" 
-  title="Local Sample PDF"
-  id="local"
-/>
-
-For external URLs:
-
-<PDFViewer src="https://arxiv.org/pdf/1910.09336" title="Sample PDF Document" id="external" />
-
-## Local PDF Files
-
-Store PDFs in `content/assets/pdfs/` and reference them by filename:
-
-```mdx
-<PDFViewer src="sample_indexed_v2.pdf" title="Local Sample PDF" />
-```
+![[sample_indexed_v2.pdf#page=1]]
 
 <Callout type="note">
 PDFs in `content/assets/pdfs/` are copied to `public/assets/pdfs/` during the build process. Run `npm run gen` to copy assets without rebuilding.
 </Callout>
 
+## Page Deep Linking
+
+Open a PDF at a specific page using the `#page=N` anchor:
+
+```markdown
+![[document.pdf#page=5]]
+```
+
+| Syntax | Result |
+|--------|--------|
+| `![[file.pdf]]` | Embed PDF, starts at page 1 |
+| `![[file.pdf#page=5]]` | Embed PDF, starts at page 5 |
+| `[[file.pdf]]` | Link to PDF file (no embed) |
+
+## Advanced: Component Props
+
+For more control, use the `PDFViewer` component with additional props:
+
+```mdx
+<PDFViewer 
+  src="document.pdf" 
+  height="500px"
+  id="my-pdf"
+  title="My Document"
+/>
+```
+
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `src` | string | required | URL or path to the PDF file |
-| `id` | string | - | Unique identifier for deep linking with multiple PDFs |
+| `src` | string | required | URL or filename of the PDF |
+| `id` | string | - | Unique identifier for URL deep linking with multiple PDFs |
 | `title` | string | - | Accessible label for the PDF |
 | `height` | string | responsive | Height of the viewer (default: 60vh mobile, 80vh desktop) |
 
-## Responsive Height
+### When to Use Component Syntax
 
-The viewer automatically adapts to screen size:
-
-- **Mobile**: 60vh (leaves room for note context)
-- **Desktop**: 80vh (maximizes readability)
-
-Override with the `height` prop if needed:
-
-```mdx
-<PDFViewer src="slide-deck.pdf" height="500px" />
-```
+- **Custom height**: `<PDFViewer src="slides.pdf" height="400px" />`
+- **Multiple PDFs on one page**: Use `id` for URL deep linking
+- **Accessibility**: Add `title` for screen readers
 
 ## External URLs
 
-Load PDFs from external sources:
+Load PDFs from external sources using the component syntax:
 
 ```mdx
 <PDFViewer 
@@ -73,13 +77,15 @@ Load PDFs from external sources:
 />
 ```
 
+<PDFViewer src="https://arxiv.org/pdf/1910.09336" title="Sample PDF Document" id="external" />
+
 <Callout type="warning">
 External PDFs require the source server to allow cross-origin requests (CORS). Many academic repositories (arXiv, institutional sites) allow this, but some servers block it. If loading fails, the viewer displays an error.
 </Callout>
 
-## Deep Linking
+## URL Deep Linking
 
-Link directly to a specific page using URL parameters. This is useful for sharing or cross-referencing specific sections.
+Share links that open a specific page using URL parameters. This works alongside the wikilink `#page=N` syntax.
 
 ### Single Viewer
 
@@ -90,23 +96,25 @@ For a note with one PDF, use `?pdfPage=N`:
 ```
 
 <Callout type="tip">
-Create links to specific pages: `[see methodology on page 5](/notes/pdf-viewer?pdfPage=5)`. Click it to jump directly to that page.
+Create shareable links: `[see methodology on page 5](/notes/pdf-viewer?pdfPage=5)`.
 </Callout>
 
 ### Multiple Viewers
 
-This page has two PDFs with `id` props:
+When using multiple PDFs, assign each an `id`:
 
 ```mdx
 <PDFViewer src="https://arxiv.org/pdf/1910.09336" id="external" />
 <PDFViewer src="sample_indexed_v2.pdf" id="local" />
 ```
 
+<PDFViewer src="sample_indexed_v2.pdf" id="local" height="50vh" />
+
 Link to specific pages in each:
 
-- `/notes/pdf-viewer?pdfPage_external=3` - Jump to page 3 in the arXiv paper
-- `/notes/pdf-viewer?pdfPage_local=2` - Jump to page 2 in the local PDF
-- `/notes/pdf-viewer?pdfPage_external=5&pdfPage_local=4` - Set both at once
+- `/notes/pdf-viewer?pdfPage_external=3` — Page 3 in the arXiv paper
+- `/notes/pdf-viewer?pdfPage_local=2` — Page 2 in the local PDF
+- `/notes/pdf-viewer?pdfPage_external=5&pdfPage_local=4` — Set both at once
 
 <Callout type="tip">
 Try it: [Open page 3 of the arXiv paper](/notes/pdf-viewer?pdfPage_external=3) or [page 2 of the local PDF](/notes/pdf-viewer?pdfPage_local=2).
@@ -125,6 +133,19 @@ The toolbar provides standard PDF controls:
 <Callout type="info">
 The viewer supports text selection for copying. Select text just like you would in any document.
 </Callout>
+
+## Responsive Height
+
+The viewer automatically adapts to screen size:
+
+- **Mobile**: 60vh (leaves room for note context)
+- **Desktop**: 80vh (maximizes readability)
+
+Override with the `height` prop if needed:
+
+```mdx
+<PDFViewer src="slide-deck.pdf" height="500px" />
+```
 
 ## Mobile Experience
 
