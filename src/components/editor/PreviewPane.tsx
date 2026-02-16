@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, Component, useCallback, useRef, type ReactNode } from "react";
-import { useEditor } from "./EditorContext";
+import { useNote, useManifest } from "./contexts";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { sharedRemarkPlugins, sharedRehypePlugins, rehypeSlug } from "@/lib/mdx/plugins";
@@ -103,7 +103,8 @@ function PreviewContent({
 }
 
 export function PreviewPane() {
-  const { currentContent, currentNote, mergedEntries, openNote, isLoadingNote } = useEditor();
+  const { currentContent, currentNote, openNote, isLoadingNote } = useNote();
+  const { mergedEntries } = useManifest();
   const [compiled, setCompiled] = useState<MDXRemoteSerializeResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [debouncedContent, setDebouncedContent] = useState(currentContent);

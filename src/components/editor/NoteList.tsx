@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useEditor } from "./EditorContext";
+import { useManifest, useNote } from "./contexts";
 import type { MergedEntry } from "@/lib/manifest";
 import { RefreshIcon } from "@/components/icons";
 
@@ -9,12 +9,11 @@ export function NoteList() {
   const { 
     mergedEntries, 
     isLoadingManifest, 
-    currentNote, 
-    openNote, 
     refreshManifest,
     showMissing,
     toggleShowMissing,
-  } = useEditor();
+  } = useManifest();
+  const { currentNote, openNote } = useNote();
   
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "note" | "article">("all");

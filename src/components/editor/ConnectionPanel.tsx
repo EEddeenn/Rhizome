@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useEditor } from "./EditorContext";
+import { useConnection } from "./contexts";
 import { EyeIcon, EyeSlashIcon } from "@/components/icons";
 
 export function ConnectionPanel() {
@@ -16,7 +16,7 @@ export function ConnectionPanel() {
     validateAndConnect,
     autoLogin,
     setAutoLogin,
-  } = useEditor();
+  } = useConnection();
 
   const [token, setTokenInput] = useState("");
   const [remember, setRemember] = useState(false);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useEditor } from "./EditorContext";
+import { useNote, useConnection } from "./contexts";
 import { SettingsIcon } from "@/components/icons";
 import { NewNoteModal } from "./NewNoteModal";
 import { SettingsModal } from "./SettingsModal";
@@ -17,10 +17,8 @@ export function EditorToolbar() {
     save,
     createNote,
     deleteNote,
-    config,
-    setConfig,
-    disconnect,
-  } = useEditor();
+  } = useNote();
+  const { config, setConfig, disconnect } = useConnection();
 
   const [showNewNote, setShowNewNote] = useState(false);
   const [showSettings, setShowSettings] = useState(false);

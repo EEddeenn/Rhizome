@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useEffect, type Dispatch, type SetStateAction } from "react";
-import { GitHubApiError } from "@/lib/editor";
 import type { VaultAdapter } from "@/lib/editor";
 import {
   reconcile,
@@ -198,7 +197,7 @@ export function useNoteOperations({
       const message = extractErrorMessage(error, "Failed to save");
       setState((prev) => ({ ...prev, isSaving: false, saveError: message }));
     }
-  }, [adapter, state.currentNote, state.currentContent, state.currentSha, mergedEntries, runtimeManifest, config, setRuntimeManifest, updateMergedEntries]);
+  }, [adapter, state.currentNote, state.currentContent, state.currentSha, mergedEntries, runtimeManifest, config, setRuntimeManifest, updateMergedEntries, onAuthError]);
 
   const createNote = useCallback(
     async (path: string, content: string) => {
@@ -234,7 +233,7 @@ export function useNoteOperations({
         setState((prev) => ({ ...prev, isSaving: false, saveError: message }));
       }
     },
-    [adapter, refreshManifestForCreate]
+    [adapter, refreshManifestForCreate, onAuthError]
   );
 
   const deleteNote = useCallback(async () => {
@@ -270,7 +269,7 @@ export function useNoteOperations({
       const message = extractErrorMessage(error, "Failed to delete note");
       setState((prev) => ({ ...prev, isSaving: false, saveError: message }));
     }
-  }, [adapter, state.currentNote, state.currentSha, refreshManifestForCreate]);
+  }, [adapter, state.currentNote, state.currentSha, refreshManifestForCreate, onAuthError]);
 
   const reloadRemote = useCallback(async () => {
     const note = state.currentNote;
@@ -305,7 +304,7 @@ export function useNoteOperations({
       const message = extractErrorMessage(error, "Failed to reload");
       setState((prev) => ({ ...prev, saveError: message }));
     }
-  }, [adapter, state.currentNote, buildManifest, runtimeManifest, setRuntimeManifest, updateMergedEntries]);
+  }, [adapter, state.currentNote, buildManifest, runtimeManifest, setRuntimeManifest, updateMergedEntries, onAuthError]);
 
   const clearSaveError = useCallback(() => {
     setState((prev) => ({ ...prev, saveError: null }));

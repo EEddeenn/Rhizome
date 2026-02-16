@@ -2,6 +2,64 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.24.0] - 2026-02-16
+
+### Added
+
+#### Editor Login Page Improvements
+- Login page now uses site-wide `Nav` and `Footer` components
+- Redesigned `ConnectionPanel` with consistent styling matching other pages
+- Added "Auto-login on next visit" toggle for automatic reconnection
+- Added "Clear credentials" button in settings modal to remove stored tokens
+- Loading spinner during auto-login (no more login page flash)
+- Loading spinner when switching notes in editor
+
+#### Editor Settings
+- Color scheme toggle moved to settings modal
+- Clear stored credentials button with confirmation flow
+
+### Changed
+
+#### Editor Architecture Refactoring
+- Split single `EditorContext` into three domain contexts:
+  - `EditorConnectionContext` — Auth, config, connection state
+  - `EditorManifestContext` — Note list, manifest loading
+  - `EditorNoteContext` — Current note, editing, CRUD operations
+- Components now use domain-specific hooks (`useConnection`, `useManifest`, `useNote`)
+- Removed `useEditor` aggregator hook (clean break, no backward compatibility)
+- `EditorProvider` now just composes the three domain providers
+
+#### Code Organization
+- Extracted all storage keys to `src/components/editor/constants/storage.ts`
+  - `STORAGE_KEYS` — localStorage keys for tokens, config, preferences
+  - `NOTE_LIST_WIDTH` — Panel width constants
+  - `SPLIT_VIEW` — Split view percentage constants
+- Extracted shared error utilities to `src/components/editor/utils/error.ts`
+  - `extractErrorMessage()` — Safe error message extraction
+  - `isAuthError()` — Checks for 401/403 responses
+  - `isConflictError()` — Checks for merge conflicts
+
+### Fixed
+
+#### Auth Store Improvements
+- Fixed dual-state sync between `authStore` and React state using subscription pattern
+- Implemented actual write access verification via GitHub API (was stubbed as `true`)
+- Added token expiration detection with automatic disconnect and user notification
+
+#### UI Fixes
+- Fixed splitter/resizer styling in dark mode (was nearly invisible)
+- Fixed note list panel background in dark mode
+- Improved resize handle hit area (1px → 6px clickable area)
+
+### Removed
+
+#### Cleanup
+- `src/components/editor/types/index.ts` — Unused barrel file
+- `src/components/editor/hooks/useEditorSelectors.ts` — Redundant selector hooks
+- Duplicate `EditorConfig` interface (now uses from `@/lib/editor`)
+
+---
+
 ## [0.23.0] - 2026-02-16
 
 ### Added

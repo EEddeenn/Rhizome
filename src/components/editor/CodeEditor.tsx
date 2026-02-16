@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useEditor } from "./EditorContext";
+import { useNote } from "./contexts";
 import type { EditorView } from "@codemirror/view";
 
 export function CodeEditor() {
-  const { currentContent, updateContent, currentNote, isLoadingNote } = useEditor();
+  const { currentContent, updateContent, currentNote, isLoadingNote } = useNote();
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const [editorLoaded, setEditorLoaded] = useState(false);

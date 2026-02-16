@@ -1,11 +1,11 @@
 "use client";
 
-import { useEditor } from "./EditorContext";
+import { useNote } from "./contexts";
 import { Modal } from "./Modal";
 import { ExclamationIcon } from "@/components/icons";
 
 export function ConflictModal() {
-  const { saveError, reloadRemote, clearSaveError, save, isSaving } = useEditor();
+  const { saveError, reloadRemote, clearSaveError, save, isSaving } = useNote();
 
   const isOpen = saveError?.startsWith("CONFLICT:") ?? false;
 

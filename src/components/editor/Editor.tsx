@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { EditorProvider, useEditor } from "./EditorContext";
+import { EditorProvider } from "./EditorContext";
+import { useConnection, useManifest, useNote } from "./contexts";
 import { ConnectionPanel } from "./ConnectionPanel";
 import { NoteList } from "./NoteList";
 import { CodeEditor } from "./CodeEditor";
@@ -16,7 +17,9 @@ import { Footer } from "@/components/layout/Footer";
 import { STORAGE_KEYS, NOTE_LIST_WIDTH } from "./constants/storage";
 
 function EditorLayout() {
-  const { isConnected, isConnecting, mounted, mergedEntries, currentNote, openNote, tokenExpired } = useEditor();
+  const { isConnected, isConnecting, mounted, tokenExpired } = useConnection();
+  const { mergedEntries } = useManifest();
+  const { currentNote, openNote } = useNote();
   const [showPreview, setShowPreview] = useState(true);
   const [noteListWidth, setNoteListWidth] = useState<number>(NOTE_LIST_WIDTH.DEFAULT);
   const [initialNoteOpened, setInitialNoteOpened] = useState(false);
