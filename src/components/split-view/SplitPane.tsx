@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ClientMDXRenderer } from "./ClientMDXRenderer";
 import { useSplitView, type PaneData } from "@/components/context/SplitViewContext";
 import { PaneSearchParamsProvider } from "@/components/context/PaneSearchParamsContext";
@@ -184,8 +184,6 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
   );
 }
 
-import { useEffect } from "react";
-
 function useAnchorScrollEffect(
   anchor: string | undefined,
   slug: string,
@@ -196,25 +194,33 @@ function useAnchorScrollEffect(
 ) {
   useEffect(() => {
     if (loading || !anchor || !contentReady) return;
-    
+
     const scrollKey = `${slug}#${anchor}`;
     if (scrolledRef.current === scrollKey) return;
 
     const container = contentRef.current;
     if (!container) return;
 
+    const timeoutIds: ReturnType<typeof setTimeout>[] = [];
+
     const tryScroll = (attempts: number) => {
       if (attempts <= 0 || scrolledRef.current === scrollKey) return;
-      
+
       const element = container.querySelector(`#${CSS.escape(anchor)}`);
       if (element) {
         scrollElementIntoContainer(container, element);
         scrolledRef.current = scrollKey;
       } else if (attempts > 1) {
-        setTimeout(() => tryScroll(attempts - 1), 150);
+        const timeoutId = setTimeout(() => tryScroll(attempts - 1), 150);
+        timeoutIds.push(timeoutId);
       }
     };
 
-    setTimeout(() => tryScroll(10), 50);
+    const initialTimeoutId = setTimeout(() => tryScroll(10), 50);
+    timeoutIds.push(initialTimeoutId);
+
+    return () => {
+      timeoutIds.forEach(clearTimeout);
+    };
   }, [loading, anchor, slug, contentReady, contentRef, scrolledRef]);
 }

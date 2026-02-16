@@ -8,7 +8,7 @@ export interface NoteInfo {
   path: string;
   sha?: string;
   name: string;
-  type: "note" | "article";
+  type: "note" | "article" | "pdf";
 }
 
 export interface FileContent {

@@ -97,6 +97,19 @@ export function useNoteOperations({
 
       setState((prev) => ({ ...prev, isLoadingNote: true }));
 
+      if (entry.type === "pdf") {
+        setState((prev) => ({
+          ...prev,
+          currentNote: entry,
+          currentContent: "",
+          currentSha: null,
+          isDirty: false,
+          saveError: null,
+          isLoadingNote: false,
+        }));
+        return;
+      }
+
       try {
         const { content, sha } = await adapter.readFile(entry.path);
         setState((prev) => ({
@@ -118,6 +131,7 @@ export function useNoteOperations({
         }
       } catch (error: unknown) {
         if (isAuthError(error)) {
+          setState((prev) => ({ ...prev, isLoadingNote: false }));
           onAuthError?.();
           return;
         }

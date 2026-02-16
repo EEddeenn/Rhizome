@@ -1,4 +1,4 @@
-export type EntryType = "note" | "article" | "book" | "paper";
+export type EntryType = "note" | "article" | "book" | "paper" | "pdf";
 
 export type Heading = {
   depth: number;

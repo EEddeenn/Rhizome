@@ -26,7 +26,16 @@ function EditorLayout() {
 
   useEffect(() => {
     const savedNoteList = localStorage.getItem(STORAGE_KEYS.NOTE_LIST_WIDTH);
-    if (savedNoteList) setNoteListWidth(parseInt(savedNoteList, 10));
+    if (savedNoteList) {
+      const parsed = parseInt(savedNoteList, 10);
+      if (
+        !Number.isNaN(parsed) &&
+        parsed >= NOTE_LIST_WIDTH.MIN &&
+        parsed <= NOTE_LIST_WIDTH.MAX
+      ) {
+        setNoteListWidth(parsed);
+      }
+    }
   }, []);
 
   useEffect(() => {

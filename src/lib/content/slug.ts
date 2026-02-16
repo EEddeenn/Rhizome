@@ -37,12 +37,12 @@ export function slugFromPath(filePath: string): string {
 export function deriveSlugFromPath(path: string): string {
   return path
     .replace(/^content\//, "")
-    .replace(/\.(md|mdx)$/, "");
+    .replace(/\.(md|mdx|pdf)$/, "");
 }
 
 export function deriveTitleFromPath(path: string): string {
   const filename = path.split("/").pop() || path;
-  const nameWithoutExt = filename.replace(/\.(md|mdx)$/, "");
+  const nameWithoutExt = filename.replace(/\.(md|mdx|pdf)$/i, "");
   
   return nameWithoutExt
     .split("-")

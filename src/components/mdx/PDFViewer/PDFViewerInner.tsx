@@ -119,8 +119,8 @@ export function PDFViewerInner({
   return (
     <div
       ref={containerRef}
-      className={`pdf-viewer flex flex-col border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900 ${!height ? "h-[60vh] sm:h-[80vh]" : ""}`}
-      style={height ? { height: isFullscreen ? "100vh" : height } : isFullscreen ? { height: "100vh" } : undefined}
+      className={`pdf-viewer flex flex-col border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900 ${!height || height === "100%" ? "h-full" : ""}`}
+      style={height && height !== "100%" ? { height: isFullscreen ? "100vh" : height } : isFullscreen ? { height: "100vh" } : undefined}
     >
       <div className="flex flex-wrap items-center justify-between gap-2 px-2 sm:px-3 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700">
         <div className="flex items-center gap-2 order-2 sm:order-1 w-full sm:w-auto justify-center sm:justify-start">

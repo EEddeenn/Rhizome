@@ -25,15 +25,16 @@ function base64Decode(base64: string): string {
   return Buffer.from(base64, "base64").toString("utf-8");
 }
 
-function isNotePath(path: string): "note" | "article" {
+function isNotePath(path: string): "note" | "article" | "pdf" {
   if (path.includes("/notes/")) return "note";
   if (path.includes("/articles/")) return "article";
+  if (path.includes("/assets/pdfs/")) return "pdf";
   return "note";
 }
 
 function extractFileName(path: string): string {
   const parts = path.split("/");
-  return parts[parts.length - 1].replace(/\.(md|mdx)$/, "");
+  return parts[parts.length - 1].replace(/\.(md|mdx|pdf)$/, "");
 }
 
 async function handleGitHubError(response: Response): Promise<never> {
@@ -128,8 +129,9 @@ export class GitHubAdapterPAT implements VaultAdapter {
 
     const notesPath = `${root}/notes`;
     const articlesPath = `${root}/articles`;
+    const pdfsPath = `${root}/assets/pdfs`;
 
-    const fetchDir = async (dirPath: string): Promise<void> => {
+    const fetchDir = async (dirPath: string, isPdfDir = false): Promise<void> => {
       try {
         const data = await this.fetchGitHub<
           Array<{ path: string; sha: string; type: string }>
@@ -138,7 +140,14 @@ export class GitHubAdapterPAT implements VaultAdapter {
         );
 
         for (const item of data) {
-          if (item.type === "file" && /\.(md|mdx)$/.test(item.path)) {
+          if (isPdfDir && item.type === "file" && /\.pdf$/i.test(item.path)) {
+            notes.push({
+              path: item.path,
+              sha: item.sha,
+              name: extractFileName(item.path),
+              type: "pdf",
+            });
+          } else if (!isPdfDir && item.type === "file" && /\.(md|mdx)$/.test(item.path)) {
             notes.push({
               path: item.path,
               sha: item.sha,
@@ -146,7 +155,7 @@ export class GitHubAdapterPAT implements VaultAdapter {
               type: isNotePath(item.path),
             });
           } else if (item.type === "dir") {
-            await fetchDir(item.path);
+            await fetchDir(item.path, isPdfDir);
           }
         }
       } catch (error) {
@@ -158,7 +167,11 @@ export class GitHubAdapterPAT implements VaultAdapter {
       }
     };
 
-    await Promise.all([fetchDir(notesPath), fetchDir(articlesPath)]);
+    await Promise.all([
+      fetchDir(notesPath),
+      fetchDir(articlesPath),
+      fetchDir(pdfsPath, true),
+    ]);
 
     notes.sort((a, b) => a.name.localeCompare(b.name));
 

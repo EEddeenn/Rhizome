@@ -11,9 +11,16 @@ export function CodeEditor() {
   const [editorLoaded, setEditorLoaded] = useState(false);
   const isExternalUpdate = useRef(false);
   const lastPathRef = useRef<string | null>(null);
+  const initAbortRef = useRef<AbortController | null>(null);
+  const contentRef = useRef(currentContent);
 
-  const initEditor = useCallback(async () => {
-    if (!containerRef.current || viewRef.current) return;
+  // Keep contentRef in sync to avoid stale closure in initEditor
+  useEffect(() => {
+    contentRef.current = currentContent;
+  }, [currentContent]);
+
+  const initEditor = useCallback(async (signal: AbortSignal) => {
+    if (!containerRef.current) return;
 
     const [
       { EditorView, lineNumbers, highlightActiveLine, highlightActiveLineGutter },
@@ -26,6 +33,15 @@ export function CodeEditor() {
       import("@codemirror/lang-markdown"),
       import("@codemirror/language"),
     ]);
+
+    // Check if aborted during async loading
+    if (signal.aborted) return;
+
+    // Destroy existing view if present (handles race conditions)
+    if (viewRef.current) {
+      viewRef.current.destroy();
+      viewRef.current = null;
+    }
 
     const baseTheme = EditorView.theme({
       "&": {
@@ -71,8 +87,9 @@ export function CodeEditor() {
       }
     });
 
+    // Use contentRef.current to get fresh content, avoiding stale closure
     const state = EditorState.create({
-      doc: currentContent,
+      doc: contentRef.current,
       extensions: [
         lineNumbers(),
         highlightActiveLine(),
@@ -85,20 +102,49 @@ export function CodeEditor() {
       ],
     });
 
+    // Final abort check before creating view
+    if (signal.aborted) return;
+
     viewRef.current = new EditorView({
       state,
       parent: containerRef.current,
     });
 
     setEditorLoaded(true);
-  }, [currentContent, updateContent]);
+  }, [updateContent]);
 
+  // Initialize editor when note changes
   useEffect(() => {
-    if (currentNote) {
-      initEditor();
+    if (!currentNote || currentNote.type === "pdf") {
+      // Reset state when no note is selected or PDF is selected
+      if (viewRef.current) {
+        viewRef.current.destroy();
+        viewRef.current = null;
+      }
+      setEditorLoaded(false);
+      lastPathRef.current = null;
+      return;
     }
+
+    // Abort any pending initialization
+    if (initAbortRef.current) {
+      initAbortRef.current.abort();
+    }
+
+    // Reset editorLoaded for note change (shows loading state during init)
+    setEditorLoaded(false);
+
+    const controller = new AbortController();
+    initAbortRef.current = controller;
+
+    initEditor(controller.signal);
+
+    return () => {
+      controller.abort();
+    };
   }, [currentNote, initEditor]);
 
+  // Sync content changes to editor
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
@@ -109,14 +155,17 @@ export function CodeEditor() {
     if (pathChanged) {
       lastPathRef.current = currentPath ?? null;
       isExternalUpdate.current = false;
-      
+
       const doc = view.state.doc.toString();
       if (currentContent !== doc) {
         view.dispatch({
           changes: { from: 0, to: doc.length, insert: currentContent },
         });
       }
-    } else if (!isExternalUpdate.current) {
+      return; // Early return for path changes - don't reset flag here
+    }
+
+    if (!isExternalUpdate.current) {
       const doc = view.state.doc.toString();
       if (currentContent !== doc) {
         view.dispatch({
@@ -124,12 +173,16 @@ export function CodeEditor() {
         });
       }
     }
-    
+
     isExternalUpdate.current = false;
   }, [currentContent, currentNote?.path]);
 
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (initAbortRef.current) {
+        initAbortRef.current.abort();
+      }
       if (viewRef.current) {
         viewRef.current.destroy();
         viewRef.current = null;
@@ -152,6 +205,17 @@ export function CodeEditor() {
     return (
       <div className="flex-1 flex items-center justify-center text-muted bg-background">
         <p>Select a note to edit</p>
+      </div>
+    );
+  }
+
+  if (currentNote.type === "pdf") {
+    return (
+      <div className="flex-1 flex items-center justify-center text-muted bg-background">
+        <div className="text-center">
+          <p className="text-sm">PDF files cannot be edited as text.</p>
+          <p className="text-xs mt-1">View in the preview pane →</p>
+        </div>
       </div>
     );
   }

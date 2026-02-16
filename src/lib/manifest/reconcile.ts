@@ -103,6 +103,7 @@ function deriveTypeFromPath(path: string): EntryType {
   if (path.includes("/articles/")) return "article";
   if (path.includes("/books/")) return "book";
   if (path.includes("/papers/")) return "paper";
+  if (path.includes("/assets/pdfs/") || path.toLowerCase().endsWith(".pdf")) return "pdf";
   return "note";
 }
 

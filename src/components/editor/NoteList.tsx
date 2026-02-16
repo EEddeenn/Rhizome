@@ -16,7 +16,7 @@ export function NoteList() {
   const { currentNote, openNote } = useNote();
   
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "note" | "article">("all");
+  const [filter, setFilter] = useState<"all" | "note" | "article" | "pdf">("all");
 
   const filteredEntries = useMemo(() => {
     return mergedEntries.filter((entry) => {
@@ -32,7 +32,16 @@ export function NoteList() {
   const groupedEntries = useMemo(() => {
     const groups: Record<string, MergedEntry[]> = {};
     for (const entry of filteredEntries) {
-      const group = entry.type === "note" ? "Notes" : "Articles";
+      let group: string;
+      if (entry.type === "note") {
+        group = "Notes";
+      } else if (entry.type === "article") {
+        group = "Articles";
+      } else if (entry.type === "pdf") {
+        group = "PDFs";
+      } else {
+        group = "Other";
+      }
       if (!groups[group]) groups[group] = [];
       groups[group].push(entry);
     }
@@ -76,18 +85,18 @@ export function NoteList() {
             <RefreshIcon className={`w-4 h-4 ${isLoadingManifest ? "animate-spin" : ""}`} />
           </button>
         </div>
-        <div className="flex gap-1">
-          {(["all", "note", "article"] as const).map((f) => (
+        <div className="flex gap-1 flex-wrap">
+          {(["all", "note", "article", "pdf"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`flex-1 px-2 py-1 text-xs rounded-md transition-colors ${
+              className={`px-2 py-1 text-xs rounded-md transition-colors ${
                 filter === f
                   ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                   : "hover:bg-gray-100 dark:hover:bg-gray-800"
               }`}
             >
-              {f === "all" ? "All" : f === "note" ? "Notes" : "Articles"}
+              {f === "all" ? "All" : f === "note" ? "Notes" : f === "article" ? "Articles" : "PDFs"}
             </button>
           ))}
         </div>

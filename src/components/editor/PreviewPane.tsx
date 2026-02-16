@@ -114,6 +114,7 @@ export function PreviewPane() {
   const [frontmatter, setFrontmatter] = useState<Record<string, unknown> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const pendingAnchorRef = useRef<string | null>(null);
+  const lastNotePathRef = useRef<string | null>(null);
 
   const resolvers = useMemo(() => {
     const manifest = getManifest();
@@ -173,11 +174,22 @@ export function PreviewPane() {
   }, [currentNote?.path]);
 
   useEffect(() => {
+    const notePath = currentNote?.path;
+
+    if (notePath !== lastNotePathRef.current) {
+      lastNotePathRef.current = notePath ?? null;
+      setCompiled(null);
+      setError(null);
+      setFrontmatter(null);
+      setDebouncedContent(currentContent);
+      return;
+    }
+
     const timer = setTimeout(() => {
       setDebouncedContent(currentContent);
     }, 300);
     return () => clearTimeout(timer);
-  }, [currentContent]);
+  }, [currentContent, currentNote?.path]);
 
   useEffect(() => {
     if (!debouncedContent) {
@@ -226,6 +238,17 @@ export function PreviewPane() {
     return (
       <div className="flex-1 flex items-center justify-center text-muted">
         <p>Select a note to preview</p>
+      </div>
+    );
+  }
+
+  if (currentNote.type === "pdf") {
+    const rawPath = currentNote.path.replace(/^content\/assets\/pdfs\//, "");
+    const encodedPath = rawPath.split("/").map(encodeURIComponent).join("/");
+    const pdfPath = `/assets/pdfs/${encodedPath}`;
+    return (
+      <div className="flex-1 min-h-0 bg-background flex flex-col">
+        <PreviewPDFViewer src={pdfPath} height="100%" />
       </div>
     );
   }
