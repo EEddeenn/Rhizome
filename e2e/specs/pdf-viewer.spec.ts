@@ -1,9 +1,10 @@
 import { test, expect } from "@playwright/test";
+import { navigateTo } from "../utils/navigation";
+import { assertUniqueIds } from "../utils/assertions";
 
 test.describe("PDF Viewer", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/notes/pdf-viewer");
-    await page.waitForLoadState("networkidle");
+    await navigateTo(page, "/notes/pdf-viewer");
     await expect(page.locator("header").getByRole("heading", { name: "PDF Viewer" })).toBeVisible();
   });
 
@@ -30,10 +31,11 @@ test.describe("PDF Viewer", () => {
     const pageInput = pdfViewer.locator("input[type='number']");
     
     await pdfViewer.locator("button[aria-label*='Next']").click();
-    await page.waitForTimeout(500);
     
-    const value = await pageInput.inputValue();
-    expect(parseInt(value)).toBeGreaterThanOrEqual(2);
+    await expect(async () => {
+      const value = await pageInput.inputValue();
+      expect(parseInt(value)).toBeGreaterThanOrEqual(2);
+    }).toPass({ timeout: 5000 });
   });
 
   test("previous button decreases page", async ({ page }) => {
@@ -41,22 +43,19 @@ test.describe("PDF Viewer", () => {
     const pageInput = pdfViewer.locator("input[type='number']");
     
     await pdfViewer.locator("button[aria-label*='Next']").click();
-    await page.waitForTimeout(500);
+    await expect(async () => {
+      const value = await pageInput.inputValue();
+      expect(parseInt(value)).toBeGreaterThanOrEqual(2);
+    }).toPass({ timeout: 5000 });
     
     await pdfViewer.locator("button[aria-label*='Previous'], button[aria-label*='Prev']").click();
-    await page.waitForTimeout(500);
     
-    const value = await pageInput.inputValue();
-    expect(value).toBe("1");
+    await expect(pageInput).toHaveValue("1", { timeout: 5000 });
   });
 
   test("page inputs have unique generated IDs", async ({ page }) => {
     const pageInputs = page.locator(".pdf-viewer input[type='number']");
-    const count = await pageInputs.count();
-    
-    const ids = await pageInputs.evaluateAll(els => els.map(el => el.id));
-    const uniqueIds = new Set(ids.filter(id => id));
-    expect(uniqueIds.size).toBe(count);
+    await assertUniqueIds(pageInputs);
   });
 
   test("fullscreen button exists", async ({ page }) => {

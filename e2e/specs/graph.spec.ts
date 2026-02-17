@@ -1,8 +1,9 @@
 import { test, expect } from "@playwright/test";
+import { navigateTo } from "../utils/navigation";
 
 test.describe("Graph visualization", () => {
   test.beforeEach(async ({ page, isMobile }) => {
-    await page.goto("/graph");
+    await navigateTo(page, "/graph");
     await expect(page.getByText("Loading graph")).not.toBeVisible({ timeout: 10000 });
   });
 
@@ -31,17 +32,19 @@ test.describe("Graph visualization", () => {
     await firstEntry.click();
     
     if (isMobile) {
-      await expect(page).toHaveURL(/\/notes\/|\/articles\//);
+      await expect(page).toHaveURL(/\/notes\/|\/articles\//, { timeout: 5000 });
     } else {
-      await page.waitForTimeout(1000);
-      const url = page.url();
-      const opened = url.includes("/notes/") || url.includes("/articles/") || url.includes("split=");
-      expect(opened).toBe(true);
+      await expect(async () => {
+        const url = page.url();
+        const opened = url.includes("/notes/") || url.includes("/articles/") || url.includes("split=");
+        expect(opened).toBe(true);
+      }).toPass({ timeout: 5000 });
     }
   });
 
   test("hovering canvas shows cursor change", async ({ page }) => {
     const canvas = page.locator("canvas");
+    await expect(canvas).toBeVisible();
     
     const box = await canvas.boundingBox();
     if (box) {
@@ -67,10 +70,10 @@ test.describe("Graph visualization", () => {
         const y = centerY + Math.sin(angle) * radius;
         
         await page.mouse.move(x, y);
-        await page.waitForTimeout(100);
         
         const infoPanel = page.locator("div").filter({ hasText: /Type:/ }).first();
-        if (await infoPanel.isVisible()) {
+        if (await infoPanel.isVisible({ timeout: 500 }).catch(() => false)) {
+          await expect(infoPanel).toBeVisible();
           return;
         }
       }
@@ -79,6 +82,7 @@ test.describe("Graph visualization", () => {
 
   test("canvas is keyboard accessible", async ({ page }) => {
     const canvas = page.locator("canvas");
+    await expect(canvas).toBeVisible();
     
     await canvas.focus();
     await expect(canvas).toBeFocused();

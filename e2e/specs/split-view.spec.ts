@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { navigateTo } from "../utils/navigation";
 
 test.describe("Split-view functionality", () => {
   test.skip(({ isMobile }) => isMobile, "Split-view is desktop only");
@@ -8,8 +9,7 @@ test.describe("Split-view functionality", () => {
   });
 
   test("clicking wiki-link opens split pane", async ({ page }) => {
-    await page.goto("/notes/welcome");
-    await page.waitForLoadState("networkidle");
+    await navigateTo(page, "/notes/welcome");
     
     const wikiLink = page.locator("article a[href^='/notes/']").first();
     await wikiLink.click();
@@ -19,8 +19,7 @@ test.describe("Split-view functionality", () => {
   });
 
   test("split pane has toolbar with actions", async ({ page }) => {
-    await page.goto("/notes/welcome");
-    await page.waitForLoadState("networkidle");
+    await navigateTo(page, "/notes/welcome");
     
     const wikiLink = page.locator("article a[href^='/notes/']").first();
     await wikiLink.click();
@@ -31,8 +30,7 @@ test.describe("Split-view functionality", () => {
   });
 
   test("close button removes split pane", async ({ page }) => {
-    await page.goto("/notes/welcome");
-    await page.waitForLoadState("networkidle");
+    await navigateTo(page, "/notes/welcome");
     
     const wikiLink = page.locator("article a[href^='/notes/']").first();
     await wikiLink.click();
@@ -45,8 +43,7 @@ test.describe("Split-view functionality", () => {
   });
 
   test("open full page button navigates to note", async ({ page }) => {
-    await page.goto("/notes/welcome");
-    await page.waitForLoadState("networkidle");
+    await navigateTo(page, "/notes/welcome");
     
     const wikiLink = page.locator("article a[href^='/notes/']").first();
     const linkHref = await wikiLink.getAttribute("href");
@@ -56,12 +53,11 @@ test.describe("Split-view functionality", () => {
     await expect(pane).toBeVisible({ timeout: 10000 });
     
     await pane.locator("button[aria-label='Open full page']").click();
-    await expect(page).toHaveURL(linkHref || /\/notes\//);
+    await expect(page).toHaveURL(linkHref || /\/notes\//, { timeout: 5000 });
   });
 
   test("URL updates with split param", async ({ page }) => {
-    await page.goto("/notes/welcome");
-    await page.waitForLoadState("networkidle");
+    await navigateTo(page, "/notes/welcome");
     
     const wikiLink = page.locator("article a[href^='/notes/']").first();
     await wikiLink.click();
@@ -69,13 +65,14 @@ test.describe("Split-view functionality", () => {
     const pane = page.locator("div[data-pane-index]");
     await expect(pane).toBeVisible({ timeout: 10000 });
     
-    const url = page.url();
-    expect(url).toContain("split=");
+    await expect(async () => {
+      const url = page.url();
+      expect(url).toContain("split=");
+    }).toPass({ timeout: 5000 });
   });
 
   test("maximum two panes allowed", async ({ page }) => {
-    await page.goto("/notes/welcome");
-    await page.waitForLoadState("networkidle");
+    await navigateTo(page, "/notes/welcome");
     
     const wikiLinks = page.locator("article a[href^='/notes/']");
     await wikiLinks.first().click();

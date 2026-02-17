@@ -236,7 +236,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Playwright setup with Chromium desktop and mobile configurations
 - [x] `playwright.config.ts` — Test configuration with web server integration
 - [x] `package.json` — Added `test:e2e`, `test:e2e:ui`, `test:e2e:report` scripts
-- [x] `e2e/specs/smoke.spec.ts` — 6 smoke tests (home, navigation, 404)
+- [x] `e2e/specs/smoke.spec.ts` — 7 smoke tests (home, navigation, 404, editor)
 - [x] `e2e/specs/notes.spec.ts` — 7 note page tests (listing, rendering, breadcrumbs, TOC, backlinks)
 - [x] `e2e/specs/search.spec.ts` — 12 search tests (input, filters, keyboard nav, URL params)
 - [x] `e2e/specs/graph.spec.ts` — 8 graph tests (canvas, legend, entries, hover, keyboard)
@@ -253,7 +253,21 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] All 53 E2E tests passing
 - [x] All 203 unit tests passing
 
-### Phase 27 — Static Web Editor
+### Phase 27 — E2E Test Infrastructure Improvements
+- [x] `e2e/utils/navigation.ts` — Shared navigation helpers
+- [x] `e2e/utils/assertions.ts` — Custom assertion utilities
+- [x] `e2e/constants/selectors.ts` — Centralized selectors
+- [x] `e2e/fixtures/test-fixtures.ts` — Custom Playwright fixtures
+- [x] `e2e/specs/articles.spec.ts` — 8 article page tests
+- [x] `e2e/specs/editor.spec.ts` — 11 editor tests (5 unauthenticated, 6 require auth)
+- [x] `e2e/specs/mdx-components.spec.ts` — 14 MDX component tests (Callouts, Mermaid, Math, Code)
+- [x] Cross-browser testing — Firefox, WebKit, iPad Pro projects added
+- [x] Test quality improvements — Replaced `waitForTimeout` with proper assertions
+- [x] All 82 E2E tests passing (6 skipped - require auth)
+- [x] Updated `CHANGELOG.md` with v0.27.0
+- [x] Updated `E2E_REPORT.md` with new test coverage
+
+### Phase 28 — Static Web Editor
 - [x] `src/app/editor/page.tsx` — Standalone editor route (no Nav/Footer)
 - [x] `src/app/editor/layout.tsx` — Editor layout with theme initialization
 - [x] `src/components/editor/Editor.tsx` — Main editor component with split view
@@ -280,7 +294,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 
 ### Documentation
 - [x] README.md — Updated with all features including E2E testing
-- [x] CHANGELOG.md — Version 0.19.0
+- [x] CHANGELOG.md — Version 0.27.0
 - [x] E2E_REPORT.md — E2E testing documentation
 - [x] Comprehensive demo content:
   - `welcome.mdx` — Getting started guide
@@ -316,7 +330,7 @@ None remaining - all features from IMPLEMENTED.md have been completed.
 | Mermaid/Math | ✅ Complete |
 | SEO (sitemap/RSS) | ✅ Complete |
 | Testing (Unit) | ✅ Complete (217 tests) |
-| Testing (E2E) | ✅ Complete (53 tests) |
+| Testing (E2E) | ✅ Complete (82 tests, 5 browsers) |
 | Responsive Design | ✅ Complete |
 | Callouts | ✅ Complete |
 | Syntax Highlighting | ✅ Complete |

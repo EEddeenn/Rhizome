@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { navigateTo } from "../utils/navigation";
 
 test.describe("Notes pages", () => {
   test("notes index page lists all notes", async ({ page }) => {
@@ -50,13 +51,12 @@ test.describe("Notes pages", () => {
   });
 
   test("wiki-links are clickable and navigate", async ({ page }) => {
-    await page.goto("/notes/welcome");
+    await navigateTo(page, "/notes/welcome");
     
     const wikiLink = page.locator("article a[href^='/notes/']").first();
     await expect(wikiLink).toBeVisible();
     
     await wikiLink.click();
-    await page.waitForURL(/\/notes\//);
-    await expect(page).toHaveURL(/\/notes\//);
+    await expect(page).toHaveURL(/\/notes\//, { timeout: 5000 });
   });
 });

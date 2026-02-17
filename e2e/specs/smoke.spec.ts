@@ -1,13 +1,5 @@
 import { test, expect } from "@playwright/test";
-
-async function openMobileMenuIfNeeded(page: import("@playwright/test").Page, isMobile: boolean) {
-  if (isMobile) {
-    const menuButton = page.locator("button[aria-label='Toggle menu']");
-    await menuButton.click();
-    await page.waitForTimeout(300);
-    await page.locator("nav").getByRole("link", { name: "Notes" }).waitFor({ state: "visible" });
-  }
-}
+import { openMobileMenuIfNeeded, navigateTo } from "../utils/navigation";
 
 test.describe("Smoke tests", () => {
   test("home page loads and displays title", async ({ page }) => {
@@ -16,9 +8,7 @@ test.describe("Smoke tests", () => {
   });
 
   test("navigation to notes page works", async ({ page, isMobile }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    
+    await navigateTo(page, "/");
     await openMobileMenuIfNeeded(page, isMobile);
     
     const notesLink = page.locator("nav").getByRole("link", { name: "Notes" }).first();
@@ -28,9 +18,7 @@ test.describe("Smoke tests", () => {
   });
 
   test("navigation to articles page works", async ({ page, isMobile }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    
+    await navigateTo(page, "/");
     await openMobileMenuIfNeeded(page, isMobile);
     
     const articlesLink = page.locator("nav").getByRole("link", { name: "Articles" }).first();
@@ -40,9 +28,7 @@ test.describe("Smoke tests", () => {
   });
 
   test("navigation to tags page works", async ({ page, isMobile }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    
+    await navigateTo(page, "/");
     await openMobileMenuIfNeeded(page, isMobile);
     
     const tagsLink = page.locator("nav").getByRole("link", { name: "Tags" }).first();
@@ -52,15 +38,23 @@ test.describe("Smoke tests", () => {
   });
 
   test("navigation to graph page works", async ({ page, isMobile }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    
+    await navigateTo(page, "/");
     await openMobileMenuIfNeeded(page, isMobile);
     
     const graphLink = page.locator("nav").getByRole("link", { name: "Graph" }).first();
     await graphLink.click();
     await expect(page).toHaveURL("/graph");
     await expect(page.getByRole("heading", { name: "Knowledge Graph" })).toBeVisible();
+  });
+
+  test("navigation to editor page works", async ({ page, isMobile }) => {
+    await navigateTo(page, "/");
+    await openMobileMenuIfNeeded(page, isMobile);
+    
+    const editorLink = page.locator("nav").getByRole("link", { name: "Editor" }).first();
+    await editorLink.click();
+    await expect(page).toHaveURL("/editor");
+    await expect(page.getByRole("heading", { name: "Editor" })).toBeVisible();
   });
 
   test("404 page shows for invalid routes", async ({ page }) => {

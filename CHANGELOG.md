@@ -2,6 +2,67 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.27.0] - 2026-02-17
+
+### Added
+
+#### E2E Test Infrastructure Improvements
+- **29 new tests** added, bringing total from 53 to 82 tests
+- **3 new test spec files**:
+  - `e2e/specs/editor.spec.ts` — Editor page tests (11 tests, 6 require auth)
+  - `e2e/specs/articles.spec.ts` — Article page tests (8 tests)
+  - `e2e/specs/mdx-components.spec.ts` — MDX component tests (14 tests)
+- **Shared test utilities**:
+  - `e2e/utils/navigation.ts` — `openMobileMenuIfNeeded()`, `navigateTo()`, `waitForElement()`
+  - `e2e/utils/assertions.ts` — `hasClass()`, `assertDarkMode()`, `assertMinCount()`, `assertUniqueIds()`
+  - `e2e/constants/selectors.ts` — Centralized selectors for maintainability
+  - `e2e/fixtures/test-fixtures.ts` — Custom Playwright fixtures
+
+#### Browser Coverage
+- Added **Firefox** desktop project
+- Added **WebKit** (Safari) desktop project
+- Added **iPad Pro** tablet project
+- Total: 5 browser configurations (was 2)
+
+#### MDX Component Tests
+- Callout tests: note, tip, warning, danger, info, foldable
+- Mermaid diagram tests: SVG rendering, multiple diagrams
+- Math/KaTeX tests: inline and block math
+- Code highlighting tests: syntax highlighting, language support
+
+### Changed
+
+#### Test Quality Improvements
+- Replaced all `waitForTimeout()` calls with proper `expect().toBeVisible()` assertions
+- Used `toPass()` for async state changes instead of fixed timeouts
+- Extracted duplicate `openMobileMenuIfNeeded()` helper to shared utility
+- Added editor page navigation to smoke tests
+- Added editor page to theme toggle tests
+
+#### Test Refactoring
+- All existing specs now use shared utilities from `e2e/utils/`
+- Search tests use `locator().first()` instead of `getByText("result")` for reliability
+- Graph tests use proper async assertions with timeouts
+
+### Test Results
+
+| Category | Tests | Description |
+|----------|-------|-------------|
+| Smoke | 7 | Home, navigation, 404, editor |
+| Notes | 7 | Listing, rendering, breadcrumbs, TOC, backlinks |
+| Articles | 8 | Index, rendering, metadata, breadcrumbs, tags |
+| Search | 12 | Input, results, filters, keyboard nav, URL params |
+| Graph | 8 | Canvas, legend, entries, hover, keyboard |
+| Tags | 5 | Index, pages, navigation |
+| Theme | 4 | Toggle, switching, persistence |
+| Split-view | 6 | Panes, toolbar, close, URL sync |
+| PDF Viewer | 5 | Controls, navigation, unique IDs |
+| Editor | 11 | Connection panel, layout (6 require auth) |
+| MDX Components | 14 | Callouts, Mermaid, Math, Code |
+| **Total** | **82** | (6 skipped - require authentication) |
+
+---
+
 ## [0.26.0] - 2026-02-16
 
 ### Added

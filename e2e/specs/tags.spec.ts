@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { navigateTo } from "../utils/navigation";
 
 test.describe("Tags functionality", () => {
   test("tags index page shows all tags", async ({ page }) => {
@@ -12,14 +13,13 @@ test.describe("Tags functionality", () => {
   });
 
   test("clicking a tag shows entries with that tag", async ({ page }) => {
-    await page.goto("/tags");
-    await page.waitForLoadState("networkidle");
+    await navigateTo(page, "/tags");
     
     const pkmTag = page.getByRole("link", { name: "#pkm" });
     
     if (await pkmTag.isVisible()) {
       await pkmTag.click();
-      await page.waitForURL("/tags/pkm");
+      await expect(page).toHaveURL("/tags/pkm", { timeout: 5000 });
       
       const entries = page.locator("a[href^='/notes/'], a[href^='/articles/']");
       const count = await entries.count();
@@ -35,33 +35,31 @@ test.describe("Tags functionality", () => {
   });
 
   test("tag page entries are clickable", async ({ page }) => {
-    await page.goto("/tags/guide");
-    await page.waitForLoadState("networkidle");
+    await navigateTo(page, "/tags/guide");
     
     const firstEntry = page.locator("main a[href^='/notes/']").first();
     
     if (await firstEntry.isVisible()) {
       const href = await firstEntry.getAttribute("href");
       await firstEntry.click();
-      await page.waitForTimeout(500);
       
-      const url = page.url();
-      const navigatedToNote = url.includes("/notes/") || url.includes("split=");
-      expect(navigatedToNote).toBe(true);
+      await expect(async () => {
+        const url = page.url();
+        const navigatedToNote = url.includes("/notes/") || url.includes("split=");
+        expect(navigatedToNote).toBe(true);
+      }).toPass({ timeout: 5000 });
     }
   });
 
   test("tag links from note page work", async ({ page }) => {
-    await page.goto("/notes/welcome");
-    await page.waitForLoadState("networkidle");
+    await navigateTo(page, "/notes/welcome");
     
     const tagLink = page.locator("article a[href^='/tags/']").first();
     
     if (await tagLink.isVisible()) {
       const tagHref = await tagLink.getAttribute("href");
       await tagLink.click();
-      await page.waitForURL(tagHref || /\/tags\//);
-      await expect(page).toHaveURL(/\/tags\//);
+      await expect(page).toHaveURL(new RegExp(tagHref || "/tags/"), { timeout: 5000 });
     }
   });
 });
