@@ -45,8 +45,15 @@ export function NoteList() {
         isPending: true,
         pendingType: "create" as PendingChangeType,
       };
+    }).filter(entry => {
+      const matchesSearch =
+        !search ||
+        entry.title.toLowerCase().includes(search.toLowerCase()) ||
+        entry.path.toLowerCase().includes(search.toLowerCase());
+      const matchesFilter = filter === "all" || entry.type === filter;
+      return matchesSearch && matchesFilter;
     });
-  }, [allPendingChanges, mergedPathsSet]);
+  }, [allPendingChanges, mergedPathsSet, search, filter]);
 
   const groupedEntries = useMemo(() => {
     const groups: Record<string, (MergedEntry | typeof pendingNewEntries[0])[]> = {};
