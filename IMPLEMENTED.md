@@ -264,7 +264,7 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] Cross-browser testing — Firefox, WebKit, iPad Pro projects added
 - [x] Test quality improvements — Replaced `waitForTimeout` with proper assertions
 - [x] All 82 E2E tests passing (6 skipped - require auth)
-- [x] Updated `CHANGELOG.md` with v0.27.0
+- [x] Updated `CHANGELOG.md` with v0.28.0
 - [x] Updated `E2E_REPORT.md` with new test coverage
 
 ### Phase 28 — Static Web Editor
@@ -292,9 +292,34 @@ Based on `DESIGN.md`, tracking what has been implemented and what remains.
 - [x] `tests/editor-types.test.ts` — Unit tests for GitHubApiError
 - [x] Editor link added to main navigation
 
+### Phase 29 — Editor Architecture Refactoring
+- [x] Domain-driven folder structure:
+  - `connection/` — ConnectionProvider, useConnection hook
+  - `manifest/` — ManifestProvider, useManifest hook
+  - `notes/` — NotesProvider with reducer-backed state machine
+  - `preview/` — MDX compilation, PDF preview, embed support
+  - `code/codemirror/` — Module loader, theme, wiki-link completions
+- [x] UI organization:
+  - `layout/EditorLayout.tsx` — Main layout component
+  - `panes/` — Content areas (CodeEditor, PreviewPane, NoteList, EditorToolbar, ConnectionPanel)
+  - `modals/` — Business modals (Conflict, NewItem, Settings, DeleteConfirm)
+  - `ui/` — Reusable components (Modal, ResizablePanel, SplitViewResizer, FrontmatterDisplay)
+- [x] Notes domain redesign:
+  - `notesReducer.ts` — State machine for note editing (OPEN_NOTE_START, OPEN_NOTE_SUCCESS, UPDATE_CONTENT, SAVE_TO_PENDING, etc.)
+  - `operations.ts` — Pure CRUD helpers (openNoteFromSource, saveToPendingChanges, createNewNote, uploadNewPdf, deleteFromPendingOrRemote)
+  - `sync.ts` — GitHub sync logic with progress callbacks
+  - `NotesProvider.tsx` — Uses reducer pattern instead of monolithic hook
+- [x] Cleanup:
+  - Removed `contexts/` folder (old EditorConnectionContext, EditorManifestContext, EditorNoteContext)
+  - Removed `hooks/` folder (old useEditorConnection, useManifestOperations, useNoteOperations)
+  - Removed `EditorContext.tsx` (replaced by `providers/EditorProvider.tsx`)
+  - Renamed `Placeholders.tsx` → `EditorPDFViewer.tsx` for clarity
+  - Root folder reduced from 16 files to 2 (Editor.tsx, index.ts)
+
+
 ### Documentation
 - [x] README.md — Updated with all features including E2E testing
-- [x] CHANGELOG.md — Version 0.27.0
+- [x] CHANGELOG.md — Version 0.28.0
 - [x] E2E_REPORT.md — E2E testing documentation
 - [x] Comprehensive demo content:
   - `welcome.mdx` — Getting started guide

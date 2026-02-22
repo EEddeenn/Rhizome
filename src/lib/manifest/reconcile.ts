@@ -153,7 +153,7 @@ export function searchEntries(
   );
 }
 
-export function buildTitleIndex(entries: MergedEntry[]): Map<string, string> {
+export function buildTitleToPathIndex(entries: MergedEntry[]): Map<string, string> {
   const index = new Map<string, string>();
   
   for (const entry of entries) {

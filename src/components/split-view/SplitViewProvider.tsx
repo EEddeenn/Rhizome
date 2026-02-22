@@ -2,15 +2,12 @@
 
 import { SplitViewProvider as Provider } from "@/components/context/SplitViewContext";
 import { ResizableSplitViewContainer } from "./ResizableSplitViewContainer";
+import { LinkInterceptor } from "@/components/navigation";
 
-interface SplitViewProviderProps {
-  children: React.ReactNode;
-}
-
-export function SplitViewProvider({ children }: SplitViewProviderProps) {
+export function SplitViewProvider() {
   return (
     <Provider>
-      {children}
+      <LinkInterceptor />
       <ResizableSplitViewContainer />
     </Provider>
   );

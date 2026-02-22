@@ -1,2 +1,3 @@
 export { NoteEmbed } from "./NoteEmbed";
-export { NoteEmbedClient, EmbedProvider } from "./NoteEmbedClient";
+export { NoteEmbedClient } from "./NoteEmbedClient";
+export { EmbedProvider, useEmbedPath } from "@/components/context/EmbedPathContext";

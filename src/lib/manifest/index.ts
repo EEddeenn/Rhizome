@@ -21,7 +21,7 @@ export {
   reconcile,
   filterByStatus,
   searchEntries,
-  buildTitleIndex,
+  buildTitleToPathIndex,
   groupByType,
   getEntryByPath,
   updateEntrySha,

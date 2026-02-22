@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import { ClientMDXRenderer } from "./ClientMDXRenderer";
 import { useSplitView, type PaneData } from "@/components/context/SplitViewContext";
 import { PaneSearchParamsProvider } from "@/components/context/PaneSearchParamsContext";
@@ -16,7 +16,7 @@ interface SplitPaneProps {
   index: number;
 }
 
-export function SplitPane({ pane, index }: SplitPaneProps) {
+function SplitPaneInner({ pane, index }: SplitPaneProps) {
   const { entry, manifest, backlinks, loading } = usePaneData(pane.slug, pane.id);
   const [contentReady, setContentReady] = useState(false);
   const [showToc, setShowToc] = useState(false);
@@ -183,6 +183,8 @@ export function SplitPane({ pane, index }: SplitPaneProps) {
     </div>
   );
 }
+
+export const SplitPane = memo(SplitPaneInner);
 
 function useAnchorScrollEffect(
   anchor: string | undefined,

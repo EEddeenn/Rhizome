@@ -2,11 +2,11 @@
 
 import dynamic from "next/dynamic";
 
-const SplitViewProviderInner = dynamic(
-  () => import("./SplitViewProviderInner").then((mod) => mod.SplitViewProviderInner),
+const SplitViewProvider = dynamic(
+  () => import("./SplitViewProvider").then((mod) => mod.SplitViewProvider),
   { ssr: false }
 );
 
 export function SplitViewOverlay() {
-  return <SplitViewProviderInner />;
+  return <SplitViewProvider />;
 }

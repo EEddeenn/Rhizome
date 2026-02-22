@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import { useSplitView } from "@/components/context/SplitViewContext";
 import { classifyLink, parseSlugFromHref } from "@/lib/content/link-utils";
 import { scrollElementIntoContainer } from "./scroll-utils";
@@ -9,28 +10,16 @@ interface InternalLinkProps {
   children?: React.ReactNode;
 }
 
-export function InternalLink({ href, children }: InternalLinkProps) {
+function InternalLinkInner({ href, children }: InternalLinkProps) {
   const { openPane, isMobile, panes } = useSplitView();
 
-  if (!href) {
-    return <span>{children}</span>;
-  }
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    if (isMobile || !href) return;
 
-  const { isExternal, isInternalNote } = classifyLink(href);
-  const { slug, searchParams, anchor } = parseSlugFromHref(href);
-
-  if (isExternal) {
-    return (
-      <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noopener noreferrer" : undefined}>
-        {children}
-      </a>
-    );
-  }
-
-  const handleClick = (e: React.MouseEvent) => {
-    if (isMobile) return;
-
+    const { isInternalNote } = classifyLink(href);
     if (!isInternalNote) return;
+
+    const { slug, searchParams, anchor } = parseSlugFromHref(href);
 
     const paneEl = (e.target as HTMLElement).closest("[data-pane-index]");
     const paneIndex = paneEl ? parseInt(paneEl.getAttribute("data-pane-index") || "0", 10) : -1;
@@ -65,13 +54,23 @@ export function InternalLink({ href, children }: InternalLinkProps) {
 
     e.preventDefault();
     openPane(slug, searchParams, false, anchor);
-  };
+  }, [href, isMobile, openPane, panes]);
 
-  if (isMobile) {
-    return <a href={href}>{children}</a>;
+  if (!href) {
+    return <span>{children}</span>;
   }
 
-  if (!isInternalNote) {
+  const { isExternal, isInternalNote } = classifyLink(href);
+
+  if (isExternal) {
+    return (
+      <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noopener noreferrer" : undefined}>
+        {children}
+      </a>
+    );
+  }
+
+  if (isMobile || !isInternalNote) {
     return <a href={href}>{children}</a>;
   }
 
@@ -81,3 +80,5 @@ export function InternalLink({ href, children }: InternalLinkProps) {
     </a>
   );
 }
+
+export const InternalLink = memo(InternalLinkInner);

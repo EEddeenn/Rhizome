@@ -2,6 +2,45 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.28.0] - 2026-02-22
+
+### Changed
+
+#### Editor Architecture Refactoring
+Major reorganization of the editor component into a clean domain-driven structure:
+
+**Domain Structure**
+ `connection/` — Connection state, GitHub auth, config management
+ `manifest/` — Build/runtime manifest reconciliation
+ `notes/` — Note editing with reducer-backed state machine
+ `preview/` — MDX compilation, PDF preview, embed support
+ `code/codemirror/` — CodeMirror loader, theme, completions
+
+**UI Organization**
+ `layout/EditorLayout.tsx` — Main layout component
+ `panes/` — Content area components (CodeEditor, PreviewPane, NoteList, EditorToolbar, ConnectionPanel)
+ `modals/` — Business modals (Conflict, NewItem, Settings, DeleteConfirm)
+ `ui/` — Reusable UI components (Modal, ResizablePanel, SplitViewResizer, FrontmatterDisplay)
+
+**Removed Legacy Code**
+ Deleted `contexts/` folder (old EditorConnectionContext, EditorManifestContext, EditorNoteContext)
+ Deleted `hooks/` folder (old useEditorConnection, useManifestOperations, useNoteOperations)
+ Deleted `EditorContext.tsx` (replaced by `providers/EditorProvider.tsx`)
+
+**Notes Domain Redesign**
+ New `notesReducer.ts` — State machine for note editing (OPEN_NOTE_START, OPEN_NOTE_SUCCESS, UPDATE_CONTENT, etc.)
+ New `operations.ts` — Pure CRUD helpers (openNoteFromSource, saveToPendingChanges, createNewNote)
+ New `sync.ts` — GitHub sync logic with progress callbacks
+ `NotesProvider.tsx` — Uses reducer pattern instead of monolithic hook
+
+**Code Quality**
+ Root folder reduced from 16 files to 2 (Editor.tsx, index.ts)
+ Renamed `Placeholders.tsx` → `EditorPDFViewer.tsx` for clarity
+ All TypeScript and ESLint checks pass
+ No backward compatibility concerns — clean break refactoring
+
+---
+
 ## [0.27.0] - 2026-02-17
 
 ### Added

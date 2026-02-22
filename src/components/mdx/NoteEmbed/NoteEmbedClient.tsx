@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext, ReactNode, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import { sharedRemarkPlugins, sharedRehypePlugins, rehypeSlug } from "@/lib/mdx/plugins";
@@ -9,16 +9,11 @@ import { createCachedFetcher } from "@/lib/cache/create-cached-fetcher";
 import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
 import { extractSectionBySlug } from "@/lib/content/section-extractor";
 import { EmbedError } from "../EmbedError";
+import { useEmbedPath, EmbedPathContext } from "@/components/context/EmbedPathContext";
 import type { Manifest } from "@/lib/content/types";
 
 const loadContent = createCachedFetcher<Record<string, string>>("/generated/content/content.json");
 const loadManifest = createCachedFetcher<Manifest>("/generated/manifest/manifest.json");
-
-const EmbedPathContext = createContext<string[]>([]);
-
-function useEmbedPath() {
-  return useContext(EmbedPathContext);
-}
 
 interface NoteEmbedClientProps {
   slug: string;
@@ -128,18 +123,6 @@ export function NoteEmbedClient({ slug, anchor, blockId }: NoteEmbedClientProps)
           <MDXRemote {...compiled} />
         </div>
       </div>
-    </EmbedPathContext.Provider>
-  );
-}
-
-interface EmbedProviderProps {
-  children: ReactNode;
-}
-
-export function EmbedProvider({ children }: EmbedProviderProps) {
-  return (
-    <EmbedPathContext.Provider value={[]}>
-      {children}
     </EmbedPathContext.Provider>
   );
 }

@@ -8,11 +8,12 @@ import { remarkWikiLinks, remarkObsidianCallouts, remarkMermaid } from "@/lib/co
 import { createWikiLinkResolver, createEmbedResolver } from "@/lib/content/wiki-link-resolver";
 import { extractSectionBySlug } from "@/lib/content/section-extractor";
 import { getManifest } from "@/lib/generated/load-manifest";
-import { useManifest } from "../contexts/EditorManifestContext";
+import { useManifest } from "../manifest/ManifestProvider";
 import { useEmbedPath, usePreviewLinkClick, EmbedProvider } from "./EmbedContext";
-import { PreviewEmbedError } from "./Placeholders";
+import { PreviewEmbedError } from "./EditorPDFViewer";
 import { Callout } from "@/components/mdx/Callout";
 import { Mermaid } from "@/components/mdx/Mermaid/Mermaid";
+import { useContentCache } from "@/components/context/ContentCacheContext";
 
 interface PreviewNoteEmbedProps {
   slug: string;
@@ -25,6 +26,7 @@ function PreviewNoteEmbedInternal({ slug, anchor, blockId }: PreviewNoteEmbedPro
   const parentPathKey = useMemo(() => parentPath.join(","), [parentPath]);
   const onLinkClick = usePreviewLinkClick();
   const { mergedEntries } = useManifest();
+  const { content: contentIndex, loading: contentLoading } = useContentCache();
   const [compiled, setCompiled] = useState<MDXRemoteSerializeResult | null>(null);
   const [error, setError] = useState<{ target: string; reason: string } | null>(null);
   const [entry, setEntry] = useState<{ title: string; route: string } | null>(null);
@@ -52,52 +54,47 @@ function PreviewNoteEmbedInternal({ slug, anchor, blockId }: PreviewNoteEmbedPro
       route: `/${found.slug}`,
     });
 
-    fetch("/generated/content/content.json")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch content");
-        return res.json();
-      })
-      .then((contentIndex: Record<string, string>) => {
-        let content = contentIndex[slug];
-        if (!content) {
-          setError({ target: slug, reason: "not_found" });
-          return null;
-        }
+    if (contentLoading || !contentIndex) {
+      return;
+    }
 
-        if (anchor) {
-          const sectionContent = extractSectionBySlug(content, anchor);
-          if (!sectionContent) {
-            setError({ target: `${slug}#${anchor}`, reason: "section_not_found" });
-            return null;
-          }
-          content = sectionContent;
-        }
+    let content = contentIndex[slug];
+    if (!content) {
+      setError({ target: slug, reason: "not_found" });
+      return;
+    }
 
-        const manifest = getManifest();
-        const linkResolver = createWikiLinkResolver(manifest);
-        const embedResolver = createEmbedResolver(manifest);
+    if (anchor) {
+      const sectionContent = extractSectionBySlug(content, anchor);
+      if (!sectionContent) {
+        setError({ target: `${slug}#${anchor}`, reason: "section_not_found" });
+        return;
+      }
+      content = sectionContent;
+    }
 
-        return serialize(content, {
-          parseFrontmatter: false,
-          mdxOptions: {
-            remarkPlugins: [
-              ...sharedRemarkPlugins,
-              remarkMermaid,
-              remarkObsidianCallouts,
-              [remarkWikiLinks, { resolve: linkResolver, resolveEmbed: embedResolver }],
-            ],
-            rehypePlugins: [rehypeSlug, ...sharedRehypePlugins],
-          },
-        });
-      })
-      .then((result) => {
-        if (result) setCompiled(result);
-      })
+    const manifest = getManifest();
+    const linkResolver = createWikiLinkResolver(manifest);
+    const embedResolver = createEmbedResolver(manifest);
+
+    serialize(content, {
+      parseFrontmatter: false,
+      mdxOptions: {
+        remarkPlugins: [
+          ...sharedRemarkPlugins,
+          remarkMermaid,
+          remarkObsidianCallouts,
+          [remarkWikiLinks, { resolve: linkResolver, resolveEmbed: embedResolver }],
+        ],
+        rehypePlugins: [rehypeSlug, ...sharedRehypePlugins],
+      },
+    })
+      .then((result) => setCompiled(result))
       .catch((err) => {
         console.error("PreviewNoteEmbed error:", err);
         setError({ target: slug, reason: "not_found" });
       });
-  }, [slug, anchor, blockId, parentPathKey, mergedEntries]);
+  }, [slug, anchor, blockId, parentPathKey, mergedEntries, contentIndex, contentLoading]);
 
   if (error) {
     return <PreviewEmbedError target={error.target} reason={error.reason} />;
